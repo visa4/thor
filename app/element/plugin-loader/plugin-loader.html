@@ -1,0 +1,32 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/iron-icon/iron-icon.html">
+
+<dom-module id="plugin-loader">
+    <script>
+        class PluginLoader extends Polymer.Element {
+
+            static get is() { return 'plugin-loader'; }
+
+            ready() {
+                super.ready();
+
+                if (!Array.isArray(this.items)) {
+                    console.error('No plugin found');
+                    return
+                }
+
+                this.items.forEach(function (plugin) {
+                        let elem =  document.createElement(plugin.element);
+                        elem.name = plugin.value;
+                        this.parentElement.appendChild(elem);
+
+                    }.bind(this)
+                );
+            }
+        }
+
+        window.customElements.define(PluginLoader.is, PluginLoader);
+
+    </script>
+</dom-module>
