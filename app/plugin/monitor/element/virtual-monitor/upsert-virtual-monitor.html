@@ -1,0 +1,66 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+
+<dom-module id="monitor-upsert-virtual-monitor">
+  <template>
+    <style>
+      :host {
+        --paper-button : {
+          background-color: var(--accent-color);
+          color: var(--title-color);
+        }
+      }
+    </style>
+      <paper-input name="name" label="Name"></paper-input>
+      <paper-input name="height" label="Height"></paper-input>
+      <paper-input name="width" label="Width"></paper-input>
+      <paper-input name="offsetX" label="Offeset X"></paper-input>
+      <paper-input name="offsetY" label="Offeset Y"></paper-input>
+    <div>
+      <paper-button>{{computeLabel()}}</paper-button>
+    </div>
+
+  </template>
+  <script>
+      class UpsertVirtualMonitor extends Polymer.Element {
+
+          static get is() { return 'monitor-upsert-virtual-monitor'; }
+
+          static get properties() {
+              return {
+                  identifier: {
+                      type: String,
+                  },
+                  height: {
+                      type: Number,
+                  },
+                  width: {
+                      type: Number,
+                  },
+                  top: {
+                      type: Number,
+                  },
+                  left: {
+                      type: Number,
+                  },
+                  zoom: {
+                      type: Number,
+                      value: 5
+                  }
+              }
+          }
+
+          computeLabel() {
+              if (this.identifier) {
+                  return "Modify";
+              }
+              return "Save";
+          }
+      }
+
+      window.customElements.define(UpsertVirtualMonitor.is, UpsertVirtualMonitor);
+
+  </script>
+</dom-module>

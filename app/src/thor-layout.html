@@ -20,11 +20,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../bower_components/iron-selector/iron-selector.html">
 <link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+src
 
 <link rel="import" href="../element/iconset/iconset.html">
 <link rel="import" href="../element/plugin-loader/plugin-loader.html">
 <link rel="import" href="../element/internet/internet.html">
-
 
 <link rel="import" href="view/view-404.html">
 
@@ -32,9 +32,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
   <template>
     <style>
       :host {
-        --app-primary-color: #4285f4;
-        --app-secondary-color: black;
-
         display: block;
       }
 
@@ -44,12 +41,12 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       }
 
       app-header {
-        color: #fff;
-        background-color: var(--app-primary-color);
+        color: var(--title-color);
+        background-color: var(--dark-primary-color);
       }
 
       app-header paper-icon-button {
-        --paper-icon-button-ink-color: white;
+        --paper-icon-button-ink-color: var(--title-color);
       }
 
       app-drawer iron-selector div  {
@@ -88,7 +85,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       <app-header slot="header" fixed condenses effects="waterfall">
         <app-toolbar>
           <paper-icon-button icon="app:menu" on-click="toggle"></paper-icon-button>
-          <div main-title>App name</div>
+          <div main-title>Thor</div>
           <element-internet internet="vai toni"></element-internet>
         </app-toolbar>
       </app-header>
@@ -102,10 +99,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
     <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
       <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
         <template is="dom-repeat" items="{{menuItems}}" as="item">
-          <div menu-item value="{{item.value}}" on-click="handleRoute">
+          <div menu-item value="{{item.element}}" on-click="handleRoute">
             <div class="menu-text">{{item.label}}</div>
             <div class="menu-icon">
-              <paper-icon-button icon="{{item.icon}}" style="color:#4285f4;"></paper-icon-button>
+              <paper-icon-button icon="{{item.icon}}" title="{{item.label}}" style="{{item.style}}"></paper-icon-button>
             </div>
           </div>
         </template>
@@ -124,30 +121,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
               type: Array,
               value: [
                   {
-                      'icon' : 'app:dashboard',
-                      'value' : 'view-1',
-                      'element' : 'app-view1',
-                      'label' : 'Dashboard'
-                  },
-                  {
-                      'icon' : 'app:user',
-                      'value' : 'view-2',
-                      'element' : 'app-view2',
-                      'label' : 'User'
-                  },
-                  {
                       'icon' : 'app:widget',
-                      'value' : 'view-3',
-                      'element' : 'app-view3',
-                      'label' : 'Widget'
-                  },
-                  {
-                      'icon' : 'app:widget',
-                      'element' : 'user-idex',
-                      'value' : 'user-idex',
-                      'label' : 'Che culo',
+                      'element' : 'dashboard-index',
+                      'label' : 'Dashboard',
                       'plugin' : true,
-
+                      'style' : 'color: green;'
+                  },
+                  {
+                      'icon' : 'app:widget',
+                      'element' : 'user-index',
+                      'label' : 'User',
+                      'plugin' : true,
+                      'style' : 'color: blue;'
+                  },
+                  {
+                      'icon' : 'app:monitor',
+                      'element' : 'monitor-index',
+                      'label' : 'Monitor',
+                      'plugin' : true,
+                      'style' : 'color: pink;'
                   }
               ],
           },
@@ -156,7 +148,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             reflectToAttribute: true,
             observer: '_pageChanged',
-            value: 'view-2'
+            value: 'monitor-index'
           },
 
           routeData: Object
@@ -190,7 +182,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
       _routePageChanged(page) {
         // If no page was found in the route data, page will be an empty string.
         // Deault to 'view1' in that case.
-        this.page = page || 'view-1';
+        this.page = page || 'dashboard-index';
 
         // Close a non-persistent drawer when the page & route are changed.
         if (!this.$.drawer.persistent) {
@@ -200,7 +192,8 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
       _pageChanged(page) {
         // Load page import on demand. Show 404 page if fails
-        var resolvedPageUrl = this.resolveUrl('view/' + page + '.html');
+        var path = page.split("-");
+        var resolvedPageUrl = this.resolveUrl(`../plugin/${path[0]}/${path[1]}.html`);
         Polymer.importHref(
             resolvedPageUrl,
             null,

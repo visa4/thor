@@ -1,0 +1,252 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<link rel="import" href="element/iconset/iconset.html">
+<link rel="import" href="element/monitor/monitor.html">
+<link rel="import" href="element/virtual-monitor/upsert-virtual-monitor.html">
+
+<dom-module id="monitor-index">
+  <template>
+    <style>
+      :root {
+        --paper-tabs-selection-bar-color: var(--accent-color);
+
+        --paper-tabs : {
+          color: var(--primary-text-color);
+          background-color: var(--light-primary-color);
+        }
+      }
+
+      :host {
+        display: flex;
+        flex-direction: column;
+        padding: 16px;
+      }
+
+      .flex {
+        @apply --layout;
+      }
+
+      .flex-horizontal {
+        @apply --layout-horizontal;
+      }
+
+      .flex-vertical {
+        @apply --layout-vertical;
+      }
+
+      .flex-1 {
+        @apply --layout-flex
+      }
+
+      .flex-center {
+        @apply --layout-center
+      }
+
+      #current_settings,
+      #virtual_monitor {
+
+        position: relative;
+        margin: 16px;
+      }
+
+      #addVirtualMonitor,
+      #editVirtualMonitor {
+        display: none;
+      }
+
+      paper-tabs {
+        max-width: 400px;
+      }
+
+      .debug {
+        background-color: #8c9eff;
+        opacity: 0.5;
+      }
+
+
+      paper-icon-button.circle {
+        background-color: var(--accent-color);
+        color: var(--title-color);
+        height: 50px;
+        width: 50px;
+        border-radius: 100%;
+        box-shadow: 0 3px 10px rgba(0,0,0,.23), 0 3px 10px rgba(0,0,0,.16);
+      }
+
+    </style>
+
+
+    <paper-tabs selected="{{selected}}" tabindex="0">
+      <paper-tab>Current Topology</paper-tab>
+      <paper-tab>Virtual monitor</paper-tab>
+    </paper-tabs>
+
+    <iron-pages selected="{{selected}}">
+      <div id="current_settings" class="container">
+        <template is="dom-repeat" items="{{monitors}}">
+          <monitor-monitor
+                  width="{{item.size.width}}"
+                  height="{{item.size.height}}"
+                  top="{{item.bounds.y}}"
+                  left="{{item.bounds.x}}"
+          ></monitor-monitor>
+        </template>
+      </div>
+      <div id="virtual_monitor" class="flex-vertical">
+        <div id="listvirtualMonitor">
+          <div class="flex-horizontal">
+            <div class="flex flex-1 flex-center">Lista configurazioni</div>
+            <paper-icon-button
+                    id="buttAddVirtualMonitor"
+                    icon="monitor:create"
+                    class="circle"
+                    title="Crea monitor virtuale"
+                    on-click="changeVirtualMonitorView">
+            </paper-icon-button>
+          </div>
+          <template is="dom-if" if="{{hasVirtualMonitor()}}">
+            <div>ggfdsgfdg</div>
+          </template>
+          <template is="dom-if" if="{{!hasVirtualMonitor()}}">
+            <div>Non sono presenti monitor virtuali</div>
+          </template>
+        </div>
+        <div id="addVirtualMonitor">
+          <div class="flex-horizontal flex-1">
+            <paper-icon-button
+                  id="buttReturnVirtualMonitor"
+                  icon="monitor:back"
+                  title="Torna alla lista delle configurazioni"
+                  on-click="changeVirtualMonitorView">
+            </paper-icon-button>
+            <div class="flex flex-1 flex-center">Aggiungi Monitor virtuale</div>
+          </div>
+          <monitor-upsert-virtual-monitor></monitor-upsert-virtual-monitor>
+        </div>
+        <div id="editVirtualMonitor">
+          <monitor-upsert-virtual-monitor identifier="{{identifier}}"></monitor-upsert-virtual-monitor>
+        </div>
+      </div>
+    </iron-pages>
+
+  </template>
+
+  <script>
+    class MonitorIndex extends Polymer.Element {
+
+      static get is() { return 'monitor-index'; }
+
+      static get properties() {
+          return {
+              monitors: {
+                  type: Array,
+                  value: []
+              },
+
+              zoom: {
+                  type: Number,
+                  value: 5
+              },
+
+              selected: {
+                  type: Number,
+                  value: 1
+              },
+
+              virtualMonitor: {
+                  type: Array,
+                  value: []
+              }
+          }
+      }
+
+      ready() {
+          super.ready();
+          const electron = require('electron');
+          this.monitors = electron.screen.getAllDisplays();
+/*
+          this.monitors = [
+              {
+                  bounds: {
+                      x : 0,
+                      y : 0
+                  },
+                  size : {
+                      width : 2100,
+                      height: 1020,
+                  }
+              },
+              {
+                  bounds: {
+                      x : 2100,
+                      y : 0
+                  },
+                  size : {
+                      width : 1300,
+                      height: 1100,
+                  }
+              },
+              {
+                  bounds: {
+                      x : 3400,
+                      y : 0
+                  },
+                  size : {
+                      width : 900,
+                      height: 1700,
+                  }
+              }
+          ];
+*/
+      }
+
+      hasVirtualMonitor() {
+          return Boolean(this.virtualMonitor.length);
+      }
+
+      connectedCallback() {
+          super.connectedCallback();
+          this.__computeSizeMonitorContainer();
+      }
+
+      changeVirtualMonitorView(event) {
+          switch (event.target.id) {
+              case "buttAddVirtualMonitor" :
+                  this.$.addVirtualMonitor.style.display = 'inline';
+                  this.$.editVirtualMonitor.style.display = 'none';
+                  this.$.listvirtualMonitor.style.display = 'none';
+                  break;
+              case "buttReturnVirtualMonitor" :
+                  this.$.addVirtualMonitor.style.display = 'none';
+                  this.$.editVirtualMonitor.style.display = 'none';
+                  this.$.listvirtualMonitor.style.display = 'inline';
+                  break;
+          }
+
+      }
+      __computeSizeMonitorContainer() {
+
+          if (Array.isArray(this.monitors)) {
+            let height = 0;
+            let width  = 0;
+            for (let cont = 0; cont < this.monitors.length; cont++) {
+                height = Math.max(height, this.monitors[cont].size.height);
+                width += this.monitors[cont].size.width;
+            }
+
+            this.$.current_settings.style.height = height / this.zoom + 'px';
+            this.$.current_settings.style.width = width / this.zoom + 'px';
+          }
+      }
+    }
+
+    window.customElements.define(MonitorIndex.is, MonitorIndex);
+
+  </script>
+</dom-module>

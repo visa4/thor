@@ -1,0 +1,29 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="dashboard-index">
+  <template>
+    <style>
+      :host {
+
+      }
+
+      .test {
+        width: 200px;
+        height: 200px;
+        background-color: red;
+      }
+    </style>
+    <div class="test"></div>
+  </template>
+
+  <script>
+    class DashboardIndex extends Polymer.Element {
+
+      static get is() { return 'dashboard-index'; }
+    }
+
+    window.customElements.define(DashboardIndex.is, DashboardIndex);
+
+  </script>
+</dom-module>

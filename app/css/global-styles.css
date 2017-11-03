@@ -1,0 +1,45 @@
+:root {
+    --app-primary-color:#689F38;
+    --app-secondary-color: #757575;
+
+    --dark-primary-color:       #689F38;
+    --default-primary-color:    #8BC34A;
+    --light-primary-color:      #DCEDC8;
+    --text-primary-color:       #212121;
+    --accent-color:             #FF5722;
+    --primary-background-color: #DCEDC8;
+    --primary-text-color:       #212121;
+    --secondary-text-color:     #757575;
+    --disabled-text-color:      #BDBDBD;
+    --divider-color:            #BDBDBD;
+
+    --title-color: #FFFFFF;
+
+    --drawer-menu-color:           #ffffff;
+    --drawer-border-color:         1px solid #ccc;
+    --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+    --paper-menu-background-color: #fff;
+    --menu-link-color:             #111111;
+
+    --paper-input-container-color:       #212121;
+    --paper-input-container-focus-color: #212121;
+    --paper-input-container-input-color: #212121;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', 'Noto', sans-serif;
+    line-height: 1.5;
+    min-height: 100vh;
+    background-color: #eeeeee;
+}
+
+.debug1 {
+    background-color: red;
+    opacity: 0.5;
+}
+.debug2 {
+    background-color: green;
+    opacity: 0.5;
+}

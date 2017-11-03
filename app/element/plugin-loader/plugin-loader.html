@@ -18,7 +18,7 @@
 
                 this.items.forEach(function (plugin) {
                         let elem =  document.createElement(plugin.element);
-                        elem.name = plugin.value;
+                        elem.name = plugin.element;
                         this.parentElement.appendChild(elem);
 
                     }.bind(this)

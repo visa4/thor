@@ -11,10 +11,10 @@
     "dev": "NODE_ENV='development' npm run start",
     "dist": "build -l --x64 --ia32"
   },
-  "build" : {
+  "build": {
     "appId": "com.app.new",
-    "asar" : false,
-    "linux" : {
+    "asar": false,
+    "linux": {
       "target": "deb",
       "icon": "build"
     }
