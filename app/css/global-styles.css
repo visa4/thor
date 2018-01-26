@@ -25,6 +25,8 @@
     --paper-input-container-color:       #212121;
     --paper-input-container-focus-color: #212121;
     --paper-input-container-input-color: #212121;
+
+    --min-withd-button: 150px;
 }
 
 body {

@@ -100,6 +100,10 @@
           super.ready();
           this._ping();
       }
+
+        connectedCallback() {
+            super.connectedCallback();
+        }
     }
 
     window.customElements.define(ElementInternet.is, ElementInternet);

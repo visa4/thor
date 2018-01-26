@@ -24,6 +24,10 @@
                     }.bind(this)
                 );
             }
+
+            connectedCallback() {
+                super.connectedCallback();
+            }
         }
 
         window.customElements.define(PluginLoader.is, PluginLoader);
