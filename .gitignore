@@ -3,7 +3,6 @@ node_modules
 dist
 app/bower_components
 app/package-lock.json
-app/storage/*
 #app/plugin/*
 package-lock.json
 

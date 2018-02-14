@@ -4,28 +4,28 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
     <!-- Load your application shell -->
-    <link rel="stylesheet" type="text/css"  href="css/global-styles.css">
-    <link rel="import" href="src/thor-layout.html">
+    <link rel="stylesheet" type="text/css"  href="css/player-styles.css">
+    <link rel="import" href="element/player-monitor/player-monitor.html">
+    <link rel="import" href="element/player-monitor-manager/player-monitor-manager.html">
 
     <!-- TODO move into one file -->
-    <script src="src/hydrator/HydratorAware.js"></script>
-    <script src="src/hydrator/AbstractHydrator.js"></script>
-    <script src="src/hydrator/PropertyHydrator.js"></script>
+    <script src="lib/hydrator/HydratorAware.js"></script>
+    <script src="lib/hydrator/PropertyHydrator.js"></script>
 
-    <script src="src/event/Evt.js"></script>
-    <script src="src/event/EvtExecution.js"></script>
-    <script src="src/event/EvtManager.js"></script>
+    <script src="lib/event/Evt.js"></script>
+    <script src="lib/event/EvtExecution.js"></script>
+    <script src="lib/event/EvtManager.js"></script>
 
-    <script src="src/service/localstorage/LocalStorageManager.js"></script>
-    <script src="src/service/localstorage/LocalStorage.js"></script>
+    <script src="lib/service/localstorage/LocalStorageManager.js"></script>
+    <script src="lib/service/localstorage/LocalStorage.js"></script>
 
-    <script src="src/service/Utils.js"></script>
+    <script src="lib/model/Monitor.js"></script>
+
+    <script src="lib/service/Utils.js"></script>
     <!-- TODO end -->
   </head>
   <body>
 
-    <div>
-      sono un player
-    </div>
+    <player-monitor-manager></player-monitor-manager>
   </body>
 </html>

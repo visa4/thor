@@ -1,0 +1,123 @@
+<link rel="import" href="../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../bower_components/iron-flex-layout/iron-flex-layout.html">
+
+<!-- shared styles for all views -->
+<dom-module id="global-style">
+    <template>
+        <style>
+            :root {
+                --app-primary-color:#689F38;
+                --app-secondary-color: #757575;
+
+                --dark-primary-color:       #689F38;
+                --default-primary-color:    #8BC34A;
+                --light-primary-color:      #DCEDC8;
+                --text-primary-color:       #212121;
+                --accent-color:             #FF5722;
+                --primary-background-color: #FFFFFF;
+                --primary-text-color:       #212121;
+                --secondary-text-color:     #757575;
+                --disabled-text-color:      #BDBDBD;
+                --divider-color:            #BDBDBD;
+
+                --title-color: #FFFFFF;
+
+                --drawer-menu-color:           #ffffff;
+                --drawer-border-color:         1px solid #ccc;
+                --drawer-toolbar-border-color: 1px solid rgba(0, 0, 0, 0.22);
+
+                --paper-menu-background-color: #fff;
+                --menu-link-color:             #111111;
+
+                --paper-input-container-color:       #212121;
+                --paper-input-container-focus-color: #212121;
+                --paper-input-container-input-color: #212121;
+
+                --min-withd-button: 150px;
+                --app-drawer-width:170px;
+
+                --paper-button : {
+                    background-color: var(--accent-color);
+                    color: var(--title-color);
+                    min-width: var(--min-withd-button);
+                };
+
+                --paper-tabs-selection-bar-color: var(--accent-color);
+
+                --paper-tabs : {
+                    color: var(--primary-text-color);
+                    background-color: var(--light-primary-color);
+                }
+            }
+
+
+
+            paper-icon-button.circle {
+                background-color: var(--accent-color);
+                color: var(--title-color);
+                height: 50px;
+                width: 50px;
+                border-radius: 100%;
+                box-shadow: 0 3px 8px rgba(0,0,0,.23), 0 3px 8px rgba(0,0,0,.16);
+            }
+
+            paper-icon-button.circle-small {
+                background-color: var(--accent-color);
+                color: var(--title-color);
+                height: 25px;
+                width: 25px;
+                padding: 1px;
+                margin-right: 8px;
+                border-radius: 100%;
+                box-shadow: 0 1px 4px rgba(0,0,0,.23), 0 1px 4px rgba(0,0,0,.16);
+            }
+
+            paper-card {
+                min-width: 300px;
+            }
+
+            paper-card.horizontal div.card-content,
+            paper-card.horizontal div.card-actions
+            {
+                margin-right: 100px;
+            }
+
+            paper-card.horizontal div.card-content div.title {
+                text-transform: capitalize ;
+                size: 24px;
+            }
+
+            paper-card.horizontal div.card-actions {
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+                padding: 12px;
+            }
+
+            paper-card.horizontal div.card-actions > * {
+                margin-right: 16px;
+            }
+
+            paper-card.horizontal div.rate-image {
+                position: absolute;
+                top: 0;
+                right: 0;
+                bottom: 0;
+                width: 100px;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-image: url("../css/image/example.png");
+            }
+
+            paper-card.horizontal div.paper-card-rirght-bk-image {
+                background-image: url("../css/image/image-placeholder.png");
+            }
+
+            paper-card.horizontal div.paper-card-rirght-bk-video {
+                background-image: url("../css/image/video-placeholder.jpg");
+            }
+
+        </style>
+    </template>
+</dom-module>

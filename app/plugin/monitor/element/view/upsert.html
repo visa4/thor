@@ -1,0 +1,185 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../iconset/iconset.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+
+
+<dom-module id="monitor-view-upsert">
+  <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
+    <style>
+      /* TODO add local css*/
+      paper-card  {
+        width: 100%;
+      }
+
+      .margin-top-20 {
+        margin-top: 20px;
+      }
+
+      .container-add-action {
+        padding: 10px;
+      }
+
+      .margin-bottom-16  {
+        margin-bottom: 16px;
+      }
+
+      .margin-top-16 {
+        margin-top: 16px;
+      }
+
+      .paper-monitor {
+        padding: 6px;
+        margin-top: 10px;
+        display: flex;
+      }
+
+      .paper-monitor paper-input {
+        padding-left: 6px;
+      }
+
+      paper-icon-button {
+
+        color: var(--accent-color);
+      }
+
+    </style>
+
+    <slot name="header"></slot>
+    <div class="flex flex-horizontal">
+      <div class="flex-basis-70" style="padding-right:16px;">
+        <paper-input id="name" name="name" label="Name" value="{{identifier}}" class="margin-bottom-16" require></paper-input>
+        <template is="dom-repeat" items="{{monitors}}" as="monitor">
+          <paper-card class="paper-monitor">
+            <paper-input name="name" label="Name" value="{{monitor.name}}" style="flex-basis: 50%;"></paper-input>
+            <paper-input name="height" label="Height" value="{{monitor.height}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="width" label="Width" value="{{monitor.width}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="offsetX" label="Offeset X" value="{{monitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="offsetY" label="Offeset Y" value="{{monitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
+            <div class="flex flex-center" style="flex-basis: 10%;">
+              <paper-icon-button icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
+              </paper-icon-button>
+            </div>
+          </paper-card>
+        </template>
+        <div class="flex flex-horizontal-end">
+          <paper-button on-tap="upsertConfiguration" class="margin-top-16">Save</paper-button>
+        </div>
+      </div>
+      <div class="flex-basis-30">
+        <paper-card id="cardMonitor" heading="Monitor" alt="Monitor">
+          <div class="card-content">
+            <paper-input name="name" label="Name"></paper-input>
+            <paper-input name="height" label="Height"></paper-input>
+            <paper-input name="width" label="Width"></paper-input>
+            <paper-input name="offsetX" label="Offeset X"></paper-input>
+            <paper-input name="offsetY" label="Offeset Y"></paper-input>
+          </div>
+          <div class="flex flex-horizontal-center container-add-action">
+            <paper-button on-tap="addMonitor">Add</paper-button>
+          </div>
+        </paper-card>
+      </div>
+    </div>
+  </template>
+
+  <script>
+      class ElementMonitorViewUpsert extends Polymer.Element {
+
+          static get is() { return 'monitor-view-upsert'; }
+
+          static get properties() {
+              return {
+
+                  monitors : {
+                      type: Array,
+                      value: [],
+                      notify: true
+                  },
+
+                  identifier: {
+                      type: String,
+                  },
+
+                  height: {
+                      type: Number,
+                  },
+
+                  width: {
+                      type: Number,
+                  },
+
+                  top: {
+                      type: Number,
+                  },
+
+                  left: {
+                      type: Number,
+                  },
+
+                  zoom: {
+                      type: Number,
+                      value: 5
+                  },
+
+                  monitor: {
+                      type: Object,
+                      notify: true,
+                      value: new Configuration(),
+                      observer: '_monitorChanged'
+                  },
+
+                  selected: {
+                      type: Number,
+                      notify: true
+                  }
+              };
+          }
+
+          addMonitor() {
+
+              let dataArray = this.$.cardMonitor.querySelectorAll('paper-input');
+              let data = {};
+              for (let i = 0; i < dataArray.length; i++) {
+                  data[dataArray[i].name] = dataArray[i].value;
+              }
+
+              let hydrator = new PropertyHydrator(new Monitor());
+              this.push('monitors', hydrator.hydrate(data));
+          }
+
+          upsertConfiguration() {
+
+              this.monitor.name =  this.identifier;
+              this.monitor.monitors =  this.monitors;
+
+              let monitor = LocalStorageManager.getInstance().get(CONFIGURATION_NAME_SERVICE)[this.monitor.id ?  'update' : 'save'](config);
+              if (config.enable) {
+                  PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
+              }
+          }
+
+          deleteMonitor(evt) {
+              this.splice('monitors', evt.target.index, 1);
+          }
+
+
+          _monitorChanged(newValue, oldValue) {
+              this.identifier = newValue.name;
+              this.set('monitors', (newValue.monitors) ? newValue.monitors : []);
+          }
+      }
+
+      window.customElements.define(ElementMonitorViewUpsert.is, ElementMonitorViewUpsert);
+
+  </script>
+</dom-module>

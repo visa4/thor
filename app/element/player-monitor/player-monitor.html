@@ -1,0 +1,68 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="player-monitor">
+    <template>
+        <style>
+            :host {
+                display: block;
+                opacity: 0.5;
+
+            }
+        </style>
+
+        <div style="border: red solid 2px">fdsafdsfdsfdsaf</div>
+    </template>
+
+    <script>
+        class ElementPlayerMonitor extends Polymer.Element {
+
+            static get is() { return 'player-monitor'; }
+
+            static get properties() {
+                return {
+                    identifier: {
+                        type: String,
+                        reflectToAttribute : true,
+                    },
+                    height: {
+                        type: Number,
+                        observer: '_changeHeight'
+                    },
+                    width: {
+                        type: Number,
+                        observer: '_changeWidth'
+                    },
+                    backgroundColor : {
+                        type: String,
+                        observer: '_changeBackgroundColor'
+                    }
+                }
+            }
+
+            _changeHeight(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+                this.style.height = newValue + 'px';
+            }
+
+            _changeWidth(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+                this.style.width = newValue + 'px';
+            }
+
+            _changeBackgroundColor(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+                this.style.backgroundColor = newValue;
+            }
+        }
+
+        window.customElements.define(ElementPlayerMonitor.is, ElementPlayerMonitor);
+
+    </script>
+</dom-module>

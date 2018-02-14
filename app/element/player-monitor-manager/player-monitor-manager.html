@@ -1,0 +1,38 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../player-monitor/player-monitor.html">
+
+<dom-module id="player-monitor-manager">
+    <script>
+        class ElementPlayerMonitorManager extends Polymer.Element {
+
+            static get is() { return 'player-monitor-manager'; }
+
+            static get ipc() { return  require('electron').ipcRenderer; }
+
+            static get properties() {
+                return {
+                }
+            }
+
+            constructor() {
+                super();
+                ElementPlayerMonitorManager.ipc.on('player-monitor-config', this.configMonitor);
+            }
+
+            configMonitor(evt, msg) {
+         //       console.log('Configura monitor', msg);
+                let monitor = document.createElement("player-monitor");
+                monitor.identifier = msg.id;
+                monitor.height = msg.height;
+                monitor.width = msg.width;
+                monitor.backgroundColor = msg.backgroundColor;
+                document.body.appendChild(monitor);
+            }
+
+        }
+
+        window.customElements.define(ElementPlayerMonitorManager.is, ElementPlayerMonitorManager);
+
+    </script>
+</dom-module>

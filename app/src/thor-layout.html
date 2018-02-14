@@ -27,8 +27,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 
 <link rel="import" href="view/view-404.html">
 
+<link rel="import" href="../css/global-styles.html">
+
 <dom-module id="thor-layout">
   <template>
+    <style include="global-style"></style>
     <style>
       :host {
         display: block;
@@ -128,18 +131,25 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'style' : 'color: green;'
                   },
                   {
-                      'icon' : 'app:widget',
-                      'element' : 'user-index',
-                      'label' : 'User',
-                      'plugin' : true,
-                      'style' : 'color: blue;'
-                  },
-                  {
                       'icon' : 'app:monitor',
                       'element' : 'monitor-index',
                       'label' : 'Monitor',
                       'plugin' : true,
-                      'style' : 'color: pink;'
+                      'style' : 'color: green;'
+                  },
+                  {
+                      'icon' : 'app:resource',
+                      'element' : 'resource-index',
+                      'label' : 'Resource',
+                      'plugin' : true,
+                      'style' : 'color: green;'
+                  },
+                  {
+                      'icon' : 'app:timeslot',
+                      'element' : 'timeslot-index',
+                      'label' : 'Timeslot',
+                      'plugin' : true,
+                      'style' : 'color: green;'
                   }
               ],
           },
@@ -148,7 +158,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             reflectToAttribute: true,
             observer: '_pageChanged',
-            value: 'monitor-index'
+            value: 'resource-index'
           },
 
           routeData: Object

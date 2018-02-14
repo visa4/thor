@@ -1,0 +1,107 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../iconset/iconset.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+
+<dom-module id="resource-view-list">
+  <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
+    <style>
+      /** TODO insert style    */
+      :host ::slotted(.header) {
+          margin-bottom: 16px;
+      }
+    </style>
+    <slot name="header"></slot>
+    <template is="dom-repeat" items="[[resources]]" as="resource">
+      <paper-card class="horizontal">
+        <div class="card-content">
+          <div class="title">{{resource.customName}}</div>
+        </div>
+        <div class="card-actions">
+          <paper-icon-button
+                  icon="resource:edit"
+                  item="[[resource]]"
+                  on-click="displayUpdateView"
+                  class="circle-small"
+                  title="Modify">
+          </paper-icon-button>
+          <paper-icon-button
+                  icon="resource:remove"
+                  item="[[resource]]"
+                  on-click="removeResource"
+                  class="circle-small"
+                  title="Delete">
+          </paper-icon-button>
+        </div>
+        <div class$="rate-image paper-card-rirght-bk-{{resource.typeLabel}}"></div>
+      </paper-card>
+    </template>
+  </template>
+
+  <script>
+    class ElementResourceViewList extends Polymer.Element {
+
+      static get is() { return 'resource-view-list'; }
+
+      static get properties() {
+          return {
+
+              resources: {
+                  type: Array,
+                  value: []
+              },
+
+              resourceSelected: {
+                  type: Object,
+                  notify: true,
+                  value: {}
+              },
+
+              selected: {
+                  type: Number,
+                  notify: true
+              }
+          };
+      }
+
+        ready() {
+            super.ready();
+            this.set('resources', LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE).getAll());
+        }
+
+        /**
+         * @param event
+         */
+        removeResource(event) {
+
+            let index = null;
+            this.resources.find((element, ind) => {
+                if ( element.id === event.target.item.id) {
+                    index = ind;
+                    return element;
+                }
+            });
+
+            this.splice('resources', index, 1);
+            LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE).remove(event.target.item.id);
+        }
+
+        displayUpdateView(evt) {
+            this.resourceSelected = evt.target.item;
+            this.selected = 2;
+        }
+
+    }
+
+    window.customElements.define(ElementResourceViewList.is, ElementResourceViewList);
+
+  </script>
+</dom-module>Resource

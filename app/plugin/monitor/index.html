@@ -8,58 +8,23 @@
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 
+<link rel="import" href="../../css/global-layout.html">
+<link rel="import" href="../../css/global-styles.html">
+
 <link rel="import" href="element/iconset/iconset.html">
+<link rel="import" href="element/view/list.html">
+<link rel="import" href="element/view/upsert.html">
 <link rel="import" href="element/monitor/monitor.html">
-<link rel="import" href="element/virtual-monitor/upsert-virtual-monitor.html">
 
 <dom-module id="monitor-index">
   <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
     <style>
-      :root {
-        --paper-tabs-selection-bar-color: var(--accent-color);
-
-        --paper-tabs : {
-          color: var(--primary-text-color);
-          background-color: var(--light-primary-color);
-        }
-      }
-
       :host {
         display: flex;
         flex-direction: column;
         padding: 16px;
-      }
-
-      .flex {
-        @apply --layout;
-      }
-
-      .flex-horizontal {
-        @apply --layout-horizontal;
-      }
-
-      .flex-vertical {
-        @apply --layout-vertical;
-      }
-
-      .flex-1 {
-        @apply --layout-flex
-      }
-
-      .flex-basis-90 {
-        flex-basis: 90%;
-      }
-
-      .flex-basis-10 {
-        flex-basis: 10%;
-      }
-
-      .flex-center {
-        @apply --layout-center
-      }
-
-      .flex-end {
-        @apply --layout-end-justified
       }
 
       .title {
@@ -92,25 +57,6 @@
         padding: 8px 0;
       }
 
-      paper-icon-button.circle {
-        background-color: var(--accent-color);
-        color: var(--title-color);
-        height: 50px;
-        width: 50px;
-        border-radius: 100%;
-        box-shadow: 0 3px 10px rgba(0,0,0,.23), 0 3px 10px rgba(0,0,0,.16);
-      }
-
-      paper-icon-button.circle-small {
-        background-color: var(--accent-color);
-        color: var(--title-color);
-        height: 25px;
-        width: 25px;
-        padding: 3px;
-        border-radius: 100%;
-        box-shadow: 0 3px 10px rgba(0,0,0,.23), 0 3px 10px rgba(0,0,0,.16);
-      }
-
     </style>
 
     <paper-tabs selected="{{selected}}" tabindex="0">
@@ -130,197 +76,125 @@
         </template>
       </div>
       <div id="virtual_monitor" class="flex-vertical">
-        <div id="listvirtualMonitor">
-          <div class="flex-horizontal">
-            <div class="flex flex-1 flex-center">Lista configurazioni</div>
-            <paper-icon-button
-                    id="buttAddVirtualMonitor"
-                    icon="monitor:create"
-                    class="circle"
-                    title="Crea monitor virtuale"
-                    on-click="changeVirtualMonitorView">
-            </paper-icon-button>
-          </div>
-          <div hidden$="{{!hideMonitorNotFound}}" style="padding-top: 20px;">
-            <template is="dom-repeat" items="[[virtualMonitor]]" as="configuration">
-              <div class="row flex flex-horizontal">
-                <div class="flex-basis-90">{{configuration.name}}</div>
-                <div class="flex-basis-10 flex flex-end flex-center">
-                  <paper-radio-button
-                          class="monitor-configuration"
-                          on-click="choiceConfiguration"
-                          item="[[configuration]]"
-                          checked="{{configuration.enable}}"
-                          title="Enable/Disabled" >
-                  </paper-radio-button>
-                  <paper-icon-button
-                          icon="monitor:remove"
-                          item="[[configuration]]"
-                          on-click="removeConfiguration"
-                          class="circle-small"
-                          title="Delete">
-                  </paper-icon-button>
-                </div>
+        <iron-pages id="ironPagesView" selected="{{viewSelected}}">
+          <div id="list">
+            <monitor-view-list selected="{{viewSelected}}" monitor-selected="{{monitorSelected}}">
+              <div slot="header" class="flex-horizontal flex-1 flex-vertical-center">
+                <div class="flex flex-1 flex-vertical-center">Lista configurazioni</div>
+                <paper-icon-button
+                        id="buttAddVirtualMonitor"
+                        icon="monitor:create"
+                        class="circle"
+                        title="Crea monitor virtuale"
+                        on-click="displayAddView">
+                </paper-icon-button>
               </div>
-            </template>
+            </monitor-view-list>
           </div>
-          <div hidden$="{{hideMonitorNotFound}}">Non sono presenti monitor virtuali</div>
-        </div>
-        <div id="addVirtualMonitor">
-          <div class="flex-horizontal flex-1">
-            <paper-icon-button
-                  id="buttReturnVirtualMonitor"
-                  icon="monitor:back"
-                  title="Torna alla lista delle configurazioni"
-                  on-click="changeVirtualMonitorView">
-            </paper-icon-button>
-            <div class="flex flex-1 flex-center title">Add configuration monitors</div>
+          <div id="add">
+            <monitor-view-upsert selected="{{viewSelected}}">
+              <div slot="header" class="flex-horizontal flex-1 flex-vertical-center">
+                <paper-icon-button
+                        icon="monitor:back"
+                        title="Torna alla lista delle configurazioni"
+                        on-tap="displayListView">
+                </paper-icon-button>
+                <div>Add configuration monitors</div>
+              </div>
+            </monitor-view-upsert>
           </div>
-          <monitor-upsert-virtual-monitor></monitor-upsert-virtual-monitor>
-        </div>
+          <div id="update">
+            <monitor-view-upsert selected="{{viewSelected}}" monitor="{{monitorSelected}}">
+              <div slot="header" class="flex-horizontal flex-1 flex-vertical-center">
+                <paper-icon-button
+                        icon="monitor:back"
+                        title="Torna alla lista delle configurazioni"
+                        on-tap="displayListView">
+                </paper-icon-button>
+                <div>Modifica configuration monitors</div>
+              </div>
+            </monitor-view-upsert>
+          </div>
+        </iron-pages>
+      </div>
       </div>
     </iron-pages>
-
   </template>
 
-  <script src="model/Configuration.js"></script>
-  <script src="config.js"></script>
-
+  <script src="model/Configuration.js"></script> <!-- TODO DA SPOSTERE -->
+  <script src="config.js"></script> <!-- TODO DA SPOSTERE -->
   <script>
-    class MonitorIndex extends Polymer.Element {
+      class PluginMonitorIndex extends Polymer.Element {
 
-      static get electron() { return require('electron') };
+          static get electron() { return require('electron') };
 
-      static get electronIpc() { return require('electron').ipcRenderer };
+          static get electronIpc() { return require('electron').ipcRenderer };
 
-      static get is() { return 'monitor-index'; }
+          static get is() { return 'monitor-index'; }
 
-      static get properties() {
-          return {
-              monitors: {
-                  type: Array,
-                  value: []
-              },
+          static get properties() {
+              return {
+                  monitors: {
+                      type: Array,
+                      value: []
+                  },
 
-              zoom: {
-                  type: Number,
-                  value: 5
-              },
+                  zoom: {
+                      type: Number,
+                      value: 5
+                  },
 
-              selected: {
-                  type: Number,
-                  value: 1
-              },
+                  selected: {
+                      type: Number,
+                      value: 1
+                  },
 
-              virtualMonitor: {
-                  type: Array,
-                  notify: true,
-                  value: [],
-                  observer: '_virtualMonitorChanged'
-              },
-
-              hideMonitorNotFound: {
-                  type: Boolean,
-                  value: false
+                  viewSelected: {
+                      type: Number,
+                      value: 0
+                  },
               }
           }
-      }
 
-
-
-      ready() {
-          super.ready();
-          this.monitors = MonitorIndex.electron.screen.getAllDisplays();
-          this.set('virtualMonitor', LocalStorageManager.getInstance().get(CONFIGURATION_NAME_SERVICE).getAll());
-
-          /*
-           * MOCK DATA
-          this.monitors = [ { bounds: { x : 0, y : 0 }, size : { width : 2100, height: 1020, } }, { bounds: { x : 2100, y : 0 }, size : { width : 1300, height: 1100, } }, { bounds: { x : 3400, y : 0 }, size : { width : 900, height: 1700, } } ];
-          */
-      }
-
-      connectedCallback() {
-          super.connectedCallback();
-          this.__computeSizeMonitorContainer();
-      }
-
-      changeVirtualMonitorView(event) {
-          switch (event.target.id) {
-              case "buttAddVirtualMonitor" :
-                  this.$.addVirtualMonitor.style.display = 'inline';
-                  this.$.listvirtualMonitor.style.display = 'none';
-                  break;
-              case "buttReturnVirtualMonitor" :
-                  this.$.addVirtualMonitor.style.display = 'none';
-                  this.$.listvirtualMonitor.style.display = 'inline';
-                  break;
+          ready() {
+              super.ready();
+              this.monitors = PluginMonitorIndex.electron.screen.getAllDisplays();
+              /*
+               * MOCK DATA
+              this.monitors = [ { bounds: { x : 0, y : 0 }, size : { width : 2100, height: 1020, } }, { bounds: { x : 2100, y : 0 }, size : { width : 1300, height: 1100, } }, { bounds: { x : 3400, y : 0 }, size : { width : 900, height: 1700, } } ];
+              */
           }
-      }
 
-      /**
-       * @param event
-       */
-      choiceConfiguration(event) {
+          connectedCallback() {
+              super.connectedCallback();
+              this.__computeSizeMonitorContainer();
+          }
 
-          for (let cont = 0; this.virtualMonitor.length > cont; cont++) {
-              if (this.virtualMonitor[cont].enable && event.target.item.id !==  this.virtualMonitor[cont].id) {
-                  this.set(`virtualMonitor.${cont}.enable`, false);
-                  this.virtualMonitor[cont].enable = false;
-                  LocalStorageManager.getInstance().get(CONFIGURATION_NAME_SERVICE).update(this.virtualMonitor[cont]);
+          __computeSizeMonitorContainer() {
+
+              if (Array.isArray(this.monitors)) {
+                  let height = 0;
+                  let width  = 0;
+                  for (let cont = 0; cont < this.monitors.length; cont++) {
+                      height = Math.max(height, this.monitors[cont].size.height);
+                      width += this.monitors[cont].size.width;
+                  }
+
+                  this.$.current_settings.style.height = height / this.zoom + 'px';
+                  this.$.current_settings.style.width = width / this.zoom + 'px';
               }
           }
-          event.target.item.enable = true;
-          LocalStorageManager.getInstance().get(CONFIGURATION_NAME_SERVICE).update(event.target.item);
-          MonitorIndex.electronIpc.send('change-monitors-configuration', event.target.item)
-      }
 
-      /**
-       * @param event
-       */
-      removeConfiguration(event) {
-
-          let index = null;
-          this.virtualMonitor.find((element, ind) => {
-              if ( element.id === event.target.item.id) {
-                  index = ind;
-                  return element;
-              }
-          });
-
-          this.splice('virtualMonitor', index, 1);
-          LocalStorageManager.getInstance().get(CONFIGURATION_NAME_SERVICE).remove(event.target.item.id);
-      }
-
-      _virtualMonitorChanged(newValue, oldValue) {
-          if (oldValue === undefined) {
-              return;
+          displayListView() {
+              this.viewSelected = 0;
           }
 
-          let virtualMonitor = this.get('virtualMonitor');
-          if (virtualMonitor && Array.isArray(virtualMonitor) && virtualMonitor.length > 0) {
-              this.hideMonitorNotFound = true;
-          } else {
-              this.hideMonitorNotFound = false;
+          displayAddView() {
+              this.viewSelected = 1;
           }
       }
 
-      __computeSizeMonitorContainer() {
-
-          if (Array.isArray(this.monitors)) {
-            let height = 0;
-            let width  = 0;
-            for (let cont = 0; cont < this.monitors.length; cont++) {
-                height = Math.max(height, this.monitors[cont].size.height);
-                width += this.monitors[cont].size.width;
-            }
-
-            this.$.current_settings.style.height = height / this.zoom + 'px';
-            this.$.current_settings.style.width = width / this.zoom + 'px';
-          }
-      }
-    }
-
-    window.customElements.define(MonitorIndex.is, MonitorIndex);
+      window.customElements.define(PluginMonitorIndex.is, PluginMonitorIndex);
 
   </script>
 </dom-module>

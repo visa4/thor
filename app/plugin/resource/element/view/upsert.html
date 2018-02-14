@@ -1,0 +1,85 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../element/file-upload/file-upload.html">
+<link rel="import" href="../iconset/iconset.html">
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+
+<dom-module id="resource-view-upsert">
+  <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
+    <slot name="header"></slot>
+    <div>
+      <paper-input id="name" name="name" label="Name"></paper-input>
+      <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="addResoruce"></file-upload>
+    </div>
+    <div>
+      <div class="flex flex-horizontal-end" style="margin-top: 20px;">
+        <paper-button on-tap="upsertResoruce">Add</paper-button>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class ElementResourceViewUpsert extends Polymer.Element {
+
+      static get is() { return 'resource-view-upsert'; }
+
+      static get fs() { return require('fs') }
+
+      static get path() { return require('path') }
+
+      static get properties() {
+          return {
+
+              resource: {
+                  type: Object,
+                  notify: true,
+                  value: {},
+                  observer: '_resourceChanged'
+              },
+
+              selected: {
+                  type: Number,
+                  notify: true
+              }
+          }
+      }
+
+
+      _resourceChanged(newValue, oldValue) {
+          this.$.name.value =  newValue.customName;
+      }
+
+      upsertResoruce() {
+
+          if (!this.$.name.value) {
+              return;
+          }
+
+          let data = this.$.fileUpload.files[0] ? this.$.fileUpload.files[0] : {};
+          data.customName = this.$.name.value;
+
+          let resource = null;
+          if (Object.keys(this.resource).length > 0 || this.resource.constructor !== Object) {
+              this.resource.test = 'suca';
+              LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE).hydrator.referenceObject = this.resource;
+
+          }
+          resource = LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE).hydrator.hydrate(data);
+
+          console.log(resource);
+
+          let monitor = LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE)[this.resource.id ?  'update' : 'save'](resource);
+      }
+    }
+
+    window.customElements.define(ElementResourceViewUpsert.is, ElementResourceViewUpsert);
+
+  </script>
+</dom-module>
