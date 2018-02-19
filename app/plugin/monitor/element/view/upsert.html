@@ -61,10 +61,10 @@
         <template is="dom-repeat" items="{{monitors}}" as="monitor">
           <paper-card class="paper-monitor">
             <paper-input name="name" label="Name" value="{{monitor.name}}" style="flex-basis: 50%;"></paper-input>
-            <paper-input name="height" label="Height" value="{{monitor.height}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="width" label="Width" value="{{monitor.width}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="offsetX" label="Offeset X" value="{{monitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="offsetY" label="Offeset Y" value="{{monitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="height" label="Height" type="number" value="{{monitor.height}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="width" label="Width" type="number" value="{{monitor.width}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="offsetX" label="Offeset X" type="number" value="{{monitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="offsetY" label="Offeset Y" type="number" value="{{monitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
             <div class="flex flex-center" style="flex-basis: 10%;">
               <paper-icon-button icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
               </paper-icon-button>
@@ -79,10 +79,10 @@
         <paper-card id="cardMonitor" heading="Monitor" alt="Monitor">
           <div class="card-content">
             <paper-input name="name" label="Name"></paper-input>
-            <paper-input name="height" label="Height"></paper-input>
-            <paper-input name="width" label="Width"></paper-input>
-            <paper-input name="offsetX" label="Offeset X"></paper-input>
-            <paper-input name="offsetY" label="Offeset Y"></paper-input>
+            <paper-input name="height" type="number" label="Height"></paper-input>
+            <paper-input name="width" type="number" label="Width"></paper-input>
+            <paper-input name="offsetX" type="number" label="Offeset X"></paper-input>
+            <paper-input name="offsetY" type="number" label="Offeset Y"></paper-input>
           </div>
           <div class="flex flex-horizontal-center container-add-action">
             <paper-button on-tap="addMonitor">Add</paper-button>
@@ -134,7 +134,7 @@
                   monitor: {
                       type: Object,
                       notify: true,
-                      value: new Configuration(),
+                      value: new VirtualMonitor(),
                       observer: '_monitorChanged'
                   },
 
@@ -162,8 +162,8 @@
               this.monitor.name =  this.identifier;
               this.monitor.monitors =  this.monitors;
 
-              let monitor = LocalStorageManager.getInstance().get(CONFIGURATION_NAME_SERVICE)[this.monitor.id ?  'update' : 'save'](config);
-              if (config.enable) {
+              let monitor = LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE)[this.monitor.id ?  'update' : 'save'](this.monitor);
+              if (monitor.enable) {
                   PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
               }
           }

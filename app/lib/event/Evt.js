@@ -14,3 +14,5 @@ class Evt {
         this.stopPropagation = false;
     }
 }
+
+module.exports = Evt;

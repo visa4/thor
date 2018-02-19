@@ -17,16 +17,26 @@
                 }
 
                 this.items.forEach(function (plugin) {
-                        let elem =  document.createElement(plugin.element);
-                        elem.name = plugin.element;
-                        this.parentElement.appendChild(elem);
 
-                    }.bind(this)
-                );
+                    let elem =  document.createElement(plugin.element);
+                    elem.name = plugin.element;
+                    this.parentElement.appendChild(elem);
+                    this.autoloadConfig(plugin);
+
+                }.bind(this));
             }
 
-            connectedCallback() {
-                super.connectedCallback();
+            autoloadConfig(plugin) {
+                //console.log('autoload config', __dirname, plugin);
+                if (plugin.autoload && Array.isArray(plugin.autoload)) {
+                    for (let length = 0; plugin.autoload.length > length; length++) {
+                        // TODO CONTROLLARE SE ESISTE IL FILE
+                        let config = require(`${__dirname}/plugin/${plugin.name}/${plugin.autoload[length]}`);
+
+                        let pluginConfig = new config();
+                        pluginConfig.init();
+                    }
+                }
             }
         }
 

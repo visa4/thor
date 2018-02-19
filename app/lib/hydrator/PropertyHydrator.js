@@ -2,11 +2,11 @@
 let AbstractHydrator = null;
 try {
     AbstractHydrator = require('./AbstractHydrator');
-    Utils = require('./../service/Utils');
+    Utils = require('./../Utils');
 }
 catch(err) {
     AbstractHydrator = require(__dirname + '/lib/hydrator/AbstractHydrator');
-    Utils = require(__dirname + '/lib/service/Utils');
+    Utils = require(__dirname + '/lib/Utils');
 }
 
 /**

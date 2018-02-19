@@ -18,3 +18,5 @@ class Image extends GenericFile {
         );
     }
 }
+
+module.exports = Image;

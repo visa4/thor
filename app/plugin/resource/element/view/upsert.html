@@ -15,8 +15,9 @@
     <style include="global-style"></style>
     <slot name="header"></slot>
     <div>
+      <div>{{resource.id}}</div>
       <paper-input id="name" name="name" label="Name"></paper-input>
-      <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="addResoruce"></file-upload>
+      <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="resource"></file-upload>
     </div>
     <div>
       <div class="flex flex-horizontal-end" style="margin-top: 20px;">
@@ -62,20 +63,40 @@
               return;
           }
 
-          let data = this.$.fileUpload.files[0] ? this.$.fileUpload.files[0] : {};
-          data.customName = this.$.name.value;
+          let data = {};
+          let resourceLocalStorage = LocalStoragePluginManager.getInstance().get(RESOURCE_NAME_SERVICE);
+          let file = this.$.fileUpload.files[0];
+          let nameFile = this.$.name.value;
 
-          let resource = null;
-          if (Object.keys(this.resource).length > 0 || this.resource.constructor !== Object) {
-              this.resource.test = 'suca';
-              LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE).hydrator.referenceObject = this.resource;
+          if (this.resource.id) {
 
+              data = resourceLocalStorage.hydrator.extract(this.resource);
+              data.customName = nameFile;
+
+              if (file) {
+                  data.size = file.size;
+                  data.lastModified = file.lastModified;
+                  data.location = file.location;
+                  data.type = file.type;
+
+                  if (file.dimension) {
+                      data.dimension = file.dimension;
+                  }
+
+                  if (file.duration) {
+                      data.duration = file.duration;
+                  }
+
+              }
+
+          } else {
+              if (file) {
+                  data = resourceLocalStorage.hydrator.extract(file);
+              }
+              data.customName = nameFile;
           }
-          resource = LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE).hydrator.hydrate(data);
 
-          console.log(resource);
-
-          let monitor = LocalStorageManager.getInstance().get(RESORURCE_NAME_SERVICE)[this.resource.id ?  'update' : 'save'](resource);
+          let monitor = resourceLocalStorage[this.resource.id ?  'update' : 'save'](data);
       }
     }
 

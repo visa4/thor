@@ -2,8 +2,8 @@ const {app, BrowserWindow, globalShortcut, ipcMain} = require('electron')
 const fs    = require('fs');
 const url   = require('url');
 const path  = require('path');
-const MainMonitor = require('./lib/model/monitor/main/MainMonitor.js');
-const mainMonitorWrapper = require('./lib/model/MainMonitorWrapper.js');
+const MainMonitor = require('./lib/model/monitor/Monitor.js');
+const mainMonitorWrapper = require('./lib/model/monitor/VirtualMonitor.js');
 const PropertyHydrator = require('./lib/hydrator/PropertyHydrator.js');
 const HydratorStrategy = require('./lib/hydrator/strategy/HydratorStrategy.js');
 
@@ -125,7 +125,7 @@ function closeWindowsPlayer() {
     for (let cont = 0; monitorsWrapper.monitors.length > cont; cont++) {
         monitorsWrapper.monitors[cont].browserWindows.close();
     }
-    monitorsWrapper.clearMainMonitors();
+    monitorsWrapper.clearMonitors();
 }
 
 /**
@@ -188,7 +188,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                 }
 
                 for (let cont = 0; message.monitors.length > cont; cont++) {
-                    let currentMonitor = monitorsWrapper.getMainMonitor(message.monitors[cont].id);
+                    let currentMonitor = monitorsWrapper.getMonitor(message.monitors[cont].id);
 
                     if (!currentMonitor) {
 
@@ -196,7 +196,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                         let mainMonitor = hydrator.hydrate(message.monitors[cont]);
 
                         mainMonitor.browserWindows = createWindowPlayer(mainMonitor);
-                        monitorsWrapper.pushMainMonitor(mainMonitor);
+                        monitorsWrapper.pushMonitor(mainMonitor);
                         continue;
                     }
 

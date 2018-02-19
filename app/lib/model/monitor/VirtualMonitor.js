@@ -6,6 +6,7 @@ class VirtualMonitor {
     constructor() {
         this.id    = null;
         this.name  = null;
+        this.enable = false;
         this.monitors = [];
     }
 

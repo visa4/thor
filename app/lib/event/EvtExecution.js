@@ -22,3 +22,5 @@ class EvtExecution {
         return this.action(event);
     }
 }
+
+module.exports = EvtExecution;

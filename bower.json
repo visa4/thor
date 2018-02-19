@@ -18,10 +18,15 @@
     "paper-icon-button": "PolymerElements/paper-icon-button#^2.0.0",
     "paper-input": "PolymerElements/paper-input#^2.0.1",
     "paper-radio-button": "PolymerElements/paper-radio-button#^2.0.0",
-    "paper-tabs" : "PolymerElements/paper-tabs#^2.0.0",
-    "polymer-icon-collection" : "git@github.com:google/material-design-icons.git#^3.0.1",
+    "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
+    "polymer-icon-collection": "git@github.com:google/material-design-icons.git#^3.0.1",
+    "paper-dropdown-menu": "git@github.com:PolymerElements/paper-dropdown-menu.git#^2.0.2",
+    "paper-listbox": "git@github.com:PolymerElements/paper-listbox.git#^2.0.0",
+    "paper-item": "git@github.com:PolymerElements/paper-item.git#^2.1.0",
+    "paper-toast": "git@github.com:PolymerElements/paper-toast.git:^2.0.0",
     "polymer": "Polymer/polymer#^2.0.0",
-    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0"
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
+    "web-animations-js": "^2.3.1"
   },
   "resolutions": {
     "polymer": "^2.0.0"

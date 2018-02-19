@@ -38,7 +38,7 @@ class HydratorStrategy {
         let extract = [];
         if (Array.isArray(data)) {
             for (let cont = 0; data.length > cont; cont++) {
-                hydrate[cont] = this.hydrator.extract(data[cont]);
+                extract[cont] = this.hydrator.extract(data[cont]);
             }
         } else {
             extract = this.hydrator.extract(data);

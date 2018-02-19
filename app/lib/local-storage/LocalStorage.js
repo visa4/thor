@@ -1,3 +1,14 @@
+
+try {
+    HydratorAware = require('./../HydratorAware');
+    EvtManager = require('./../EvtManager');
+}
+catch(err) {
+
+    HydratorAware = require(__dirname + '/lib/hydrator/HydratorAware.js');
+    EvtManager = require(__dirname + '/lib/event/EvtManager.js');
+}
+
 /**
  *
  */
@@ -25,7 +36,10 @@ class LocalStorage extends HydratorAware {
         this.__checkObject(obj);
         let data = this.hydrator ? this.hydrator.extract(obj) : obj;
         this.data.push(data);
-        this.eventManager.fire(LocalStorage.LOCAL_STORAGE_SAVE_EVT, obj);
+        this.eventManager.fire(
+            LocalStorage.LOCAL_STORAGE_SAVE_EVT,
+            obj.constructor.name === 'Object' ? this.hydrator.hydrate(obj) : obj
+        );
         this.__save();
         return obj;
     }
@@ -42,7 +56,10 @@ class LocalStorage extends HydratorAware {
 
         if (index >= 0) {
             this.data[index] = this.hydrator ? this.hydrator.extract(obj) : obj;
-            this.eventManager.fire(LocalStorage.LOCAL_STORAGE_UPDATE_EVT, this.data[index]);
+            this.eventManager.fire(
+                LocalStorage.LOCAL_STORAGE_UPDATE_EVT,
+                obj.constructor.name === 'Object' ? this.hydrator.hydrate(obj) : obj
+            );
             this.__save();
         }
 

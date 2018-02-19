@@ -1,0 +1,150 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../../../element/file-upload/file-upload.html">
+
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+
+<dom-module id="timeslot-view-upsert">
+  <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
+    <style>
+      paper-dropdown-menu {
+        width: 100%;
+      }
+    </style>
+    <slot name="header"></slot>
+    <div>
+      <paper-input id="name" name="name" label="Name"></paper-input>
+      <paper-input id="duration" name="duration" label="Duration" type="number"></paper-input>
+      <paper-dropdown-menu id="monitor" label="Monitor">
+        <paper-listbox slot="dropdown-content" selected="1">
+          <template is="dom-repeat" items="{{monitors}}" as="monitorWrapper">
+            <paper-item item="{{monitorWrapper}}">{{monitorWrapper.monitor.name}} - {{monitorWrapper.config.name}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <paper-dropdown-menu id="resource" label="Resource">
+        <paper-listbox slot="dropdown-content" selected="1">
+          <template is="dom-repeat" items="{{resources}}" as="resource">
+            <paper-item item="{{resource}}">{{resource.customName}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
+    </div>
+    <div>
+      <div class="flex flex-horizontal-end" style="margin-top: 20px;">
+        <paper-button on-tap="upsertTimeslot">Add</paper-button>
+      </div>
+    </div>
+  </template>
+
+  <script>
+    class ElementTimeslotViewUpsert extends Polymer.Element {
+
+      static get is() { return 'timeslot-view-upsert'; }
+
+      static get fs() { return require('fs') }
+
+      static get path() { return require('path') }
+
+      static get properties() {
+          return {
+
+              timeslot: {
+                  type: Object,
+                  notify: true,
+                  value: {},
+                  observer: '_timeslotChanged'
+              },
+
+              selected: {
+                  type: Number,
+                  notify: true
+              },
+
+              monitors: {
+                  type: Array,
+                  notify: true,
+                  value: [],
+                  observer: '_monitorsChanged'
+              },
+
+              resources: {
+                  type: Array,
+                  value: []
+              }
+          }
+      }
+
+      connectedCallback () {
+          super.connectedCallback();
+          let virtualMonitors = LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE).getAll();
+          let monitors =  [];
+          for (let cont = 0; virtualMonitors.length > cont; cont++) {
+              for (let index = 0; virtualMonitors[cont].monitors.length > index; index++) {
+                  monitors.push({
+                      monitor : virtualMonitors[cont].monitors[index],
+                      config : virtualMonitors[cont]
+                  });
+              }
+          }
+          this.monitors = monitors;
+      }
+
+      _monitorsChanged(newValue, oldValue) {
+
+          if (!newValue && newValue.length === 0) {
+              return;
+          }
+
+          this.resources = LocalStoragePluginManager.getInstance().get(RESOURCE_NAME_SERVICE).getAll();
+      }
+
+      _timeslotChanged(newValue, oldValue) {
+      }
+
+      upsertTimeslot() {
+
+          // TODO VALIDATION
+          if (!this.$.name || !this.$.duration || !this.$.resource.value || !this.$.monitor.value) {
+              return;
+          }
+
+          let timeslot = new Timeslot();
+          let method = 'save';
+          let timeslotLocalStorage = LocalStoragePluginManager.getInstance().get(TIMESLOT_NAME_SERVICE);
+
+          if (this.timeslot.id) {
+            //  method = 'update';
+          } else {
+              timeslot.id = Utils.uid;
+              this.timeslot = timeslot;
+          }
+
+          this.timeslot.name = this.$.name.value;
+          this.timeslot.duration = this.$.duration.value;
+          this.timeslot.monitor = this.$.monitor.selectedItem.item.monitor;
+          this.timeslot.resources.push(
+              this.$.resource.selectedItem.item
+          );
+
+
+          timeslotLocalStorage[method](this.timeslot);
+      }
+    }
+
+    window.customElements.define(ElementTimeslotViewUpsert.is, ElementTimeslotViewUpsert);
+
+  </script>
+</dom-module>

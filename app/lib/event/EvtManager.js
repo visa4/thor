@@ -40,3 +40,5 @@ class EvtManager {
         }
     }
 }
+
+module.exports = EvtManager;

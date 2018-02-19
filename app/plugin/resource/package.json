@@ -1,7 +1,10 @@
 {
-  "name": "Thor",
+  "name": "resource",
   "version": "0.1.0",
   "author": "antonino visalli <antonino.visalli@gmail.com>",
   "description": "Thor",
-  "homepage": "www.visa4.it"
+  "homepage": "www.visa4.it",
+  "autoload": [
+    "config.js"
+  ]
 }

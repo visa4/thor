@@ -1,11 +1,11 @@
 
 try {
     AbstractHydrator = require('./AbstractHydrator');
-    Utils = require('./../service/Utils');
+    Utils = require('./../Utils');
 }
 catch(err) {
     AbstractHydrator = require(__dirname + '/lib/hydrator/AbstractHydrator');
-    Utils = require(__dirname + '/lib/service/Utils');
+    Utils = require(__dirname + '/lib/Utils');
 }
 
 /**
@@ -27,6 +27,7 @@ class AggregatePropertyHydrator extends AbstractHydrator {
     /**
      * @param {Object} hydrator
      * @param {array} arrayMap
+     * @return {AggregatePropertyHydrator}
      */
     addHydratorMap(hydrator, arrayMap) {
         if (this.hydratorMap[hydrator.objectPrototype.constructor.name]) {
@@ -47,6 +48,7 @@ class AggregatePropertyHydrator extends AbstractHydrator {
                 'map' : arrayMap
             };
         }
+        return this;
     }
 
     /**
@@ -92,11 +94,20 @@ class AggregatePropertyHydrator extends AbstractHydrator {
     hydrate(data) {
         super.hydrate(data);
 
-        if (!data[this.type]) {
-            throw 'Type not found in data';
+        let hydrator = null;
+
+        if (this.referenceObject) {
+            hydrator = this._getHydratorFromObject(this.referenceObject);
+            hydrator.referenceObject = this.referenceObject;
         }
 
-        let hydrator = this._getHydratorFromType(data[this.type]);
+        if (!hydrator) {
+            hydrator = this._getHydratorFromObject(data);
+        }
+
+        if (!hydrator && data[this.type]) {
+            hydrator = this._getHydratorFromType(data[this.type]);
+        }
 
         if (!hydrator) {
             throw 'Hydrator not found';

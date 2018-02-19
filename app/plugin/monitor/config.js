@@ -1,8 +1,49 @@
-const CONFIGURATION_NAME_SERVICE = 'configuration.service';
-const CONFIGURATION_NAME_STORAGE = 'configuration.data';
+global.VIRTUAL_MONITOR_NAME_SERVICE = 'virtual-monitor.service';
+global.VIRTUAL_MONITOR_NAME_STORAGE = 'virtual-monitor.data';
 
-let manager = LocalStorageManager.getInstance();
-manager.set(
-    CONFIGURATION_NAME_SERVICE,
-    new LocalStorage(CONFIGURATION_NAME_STORAGE, new PropertyHydrator(new Configuration()))
-);
+/**
+ *
+ */
+class MonitorConfig {
+
+    init() {
+
+        this._loadHydrator();
+
+        let manager = LocalStoragePluginManager.getInstance();
+        manager.set(
+            VIRTUAL_MONITOR_NAME_SERVICE,
+            new LocalStorage(
+                VIRTUAL_MONITOR_NAME_STORAGE,
+                HydratorPluginManager.getInstance().get('virtualMonitorHydrator'),
+            )
+        );
+
+    }
+
+    _loadHydrator() {
+        let virtualMonitorHydrator = new PropertyHydrator(
+            new VirtualMonitor(),
+            {
+                'monitors' :  new HydratorStrategy(new PropertyHydrator(new Monitor()))
+            }
+        );
+
+        virtualMonitorHydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('enable')
+            .enableHydrateProperty('monitors');
+
+        virtualMonitorHydrator.enableExtractProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('enable')
+            .enableHydrateProperty('monitors');
+
+        HydratorPluginManager.getInstance().set(
+            'virtualMonitorHydrator',
+            virtualMonitorHydrator
+        );
+    }
+}
+
+module.exports = MonitorConfig;

@@ -1,4 +1,5 @@
-class LocalStorageManager {
+
+class ServiceManager {
 
     /**
      *
@@ -10,7 +11,7 @@ class LocalStorageManager {
     /**
      * @param name
      * @param service
-     * @returns {LocalStorageManager}
+     * @returns {ServiceManager}
      */
     set(name, service) {
         this.__checkNameService(name);
@@ -46,14 +47,14 @@ class LocalStorageManager {
     }
 
     /**
-     * @returns LocalStorageModel
+     * @returns ServiceManager
      */
     static getInstance() {
         if (!this.instance) {
-            this.instance = new LocalStorageManager();
+            this.instance = new ServiceManager();
         }
         return this.instance;
     }
 }
 
-module.exports = LocalStorageManager;
+module.exports = ServiceManager;

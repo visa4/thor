@@ -31,3 +31,5 @@ class HydratorAware {
         return this._hydrator;
     }
 }
+
+module.exports = HydratorAware;
