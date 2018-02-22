@@ -26,16 +26,16 @@
     <slot name="header"></slot>
     <div>
       <paper-input id="name" name="name" label="Name"></paper-input>
-      <paper-input id="duration" name="duration" label="Duration" type="number"></paper-input>
+      <paper-input id="duration" name="duration" label="Duration" type="number" min="1"></paper-input>
       <paper-dropdown-menu id="monitor" label="Monitor">
-        <paper-listbox slot="dropdown-content" selected="1">
+        <paper-listbox id="monitors" slot="dropdown-content">
           <template is="dom-repeat" items="{{monitors}}" as="monitorWrapper">
             <paper-item item="{{monitorWrapper}}">{{monitorWrapper.monitor.name}} - {{monitorWrapper.config.name}}</paper-item>
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu id="resource" label="Resource">
-        <paper-listbox slot="dropdown-content" selected="1">
+        <paper-listbox id="resources" slot="dropdown-content" selected="1">
           <template is="dom-repeat" items="{{resources}}" as="resource">
             <paper-item item="{{resource}}">{{resource.customName}}</paper-item>
           </template>
@@ -66,11 +66,6 @@
                   notify: true,
                   value: {},
                   observer: '_timeslotChanged'
-              },
-
-              selected: {
-                  type: Number,
-                  notify: true
               },
 
               monitors: {
@@ -112,6 +107,25 @@
       }
 
       _timeslotChanged(newValue, oldValue) {
+
+          this.$.name.value = newValue.name;
+          this.$.duration.value = newValue.duration;
+
+          for (let cont = 0; this.$.monitors.items.length > cont; cont++) {
+            console.log('tonino', this.$.monitors.items[cont].item.monitor.id, newValue.monitor.id);
+            if (this.$.monitors.items[cont].item.monitor.id === newValue.monitor.id) {
+                this.$.monitors.selected = cont;
+                break;
+            }
+          }
+
+          for (let cont = 0; this.$.resources.items.length > cont; cont++) {
+              if (this.$.resources.items[cont].item.id === newValue.resources[0].id) {
+                  this.$.resources.selected = cont;
+                  break;
+              }
+          }
+
       }
 
       upsertTimeslot() {
@@ -126,7 +140,7 @@
           let timeslotLocalStorage = LocalStoragePluginManager.getInstance().get(TIMESLOT_NAME_SERVICE);
 
           if (this.timeslot.id) {
-            //  method = 'update';
+              method = 'update';
           } else {
               timeslot.id = Utils.uid;
               this.timeslot = timeslot;

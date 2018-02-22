@@ -29,12 +29,12 @@ class MonitorConfig {
             }
         );
 
-        virtualMonitorHydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('name')
-            .enableHydrateProperty('enable')
-            .enableHydrateProperty('monitors');
-
         virtualMonitorHydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('enable')
+            .enableExtractProperty('monitors');
+
+        virtualMonitorHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('enable')
             .enableHydrateProperty('monitors');

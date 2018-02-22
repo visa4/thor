@@ -76,7 +76,6 @@ function createWindowsPlayer(monitorsConfig) {
  */
 function createWindowPlayer(mainMonitor) {
 
-    console.log('create monitor:', parseInt(mainMonitor.width), parseInt(mainMonitor.height));
     let browserWindows = new BrowserWindow({
         width: parseInt(mainMonitor.width),
         height: parseInt(mainMonitor.height),
@@ -188,6 +187,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                 }
 
                 for (let cont = 0; message.monitors.length > cont; cont++) {
+
                     let currentMonitor = monitorsWrapper.getMonitor(message.monitors[cont].id);
 
                     if (!currentMonitor) {
@@ -209,12 +209,16 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                     }
 
                     if (changeSize) {
-                        //console.log('Cambia dim:',    currentMonitor.width, currentMonitor.height, message.monitors[cont].width, message.monitors[cont].height);
 
                         currentMonitor.browserWindows.setSize(
                             parseInt(message.monitors[cont].width),
                             parseInt(message.monitors[cont].height)
                         );
+
+                        currentMonitor.height = message.monitors[cont].height;
+                        currentMonitor.width = message.monitors[cont].width;
+
+                        currentMonitor.browserWindows.send('player-monitor-update-size', message.monitors[cont]);
                     }
 
 
@@ -233,8 +237,10 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                             parseInt(message.monitors[cont].offsetX),
                             parseInt(message.monitors[cont].offsetY)
                         );
-                    }
 
+                        currentMonitor.offsetY = message.monitors[cont].offsetY
+                        currentMonitor.offsetX = message.monitors[cont].offsetX;
+                    }
                 }
             }
         );

@@ -1,0 +1,32 @@
+
+<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+
+<dom-module id="player-timeslot">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+        </style>
+
+
+    </template>
+
+    <script>
+        class ElementPlayerTimeslot extends Polymer.Element {
+
+            static get is() { return 'player-timeslot'; }
+
+            static get properties() {
+                return {
+                    timeslot: {
+                        type: Object,
+                    },
+                }
+            }
+        }
+
+        window.customElements.define(ElementPlayerTimeslot.is, ElementPlayerTimeslot);
+
+    </script>
+</dom-module>

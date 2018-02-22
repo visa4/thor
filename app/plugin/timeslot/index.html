@@ -20,7 +20,7 @@
     </style>
     <iron-pages id="ironPages" selected="{{selected}}">
       <div id="list">
-        <timeslot-view-list>
+        <timeslot-view-list selected="{{selected}}" timeslot-selected="{{timeslot}}">
           <div slot="header" class="flex flex-horizontal flex-center flex-horizontal-space-between header">
             <div>Lista timeslots</div>
             <paper-icon-button
@@ -45,7 +45,7 @@
         </timeslot-view-upsert>
       </div>
       <div id="update">
-        <timeslot-view-upsert>
+        <timeslot-view-upsert timeslot="{{timeslot}}">
           <div slot="header" class="flex flex-horizontal flex-vertical-center header">
             <paper-icon-button
                     icon="app:back"
@@ -69,7 +69,7 @@
 
               selected: {
                   type: Number,
-                  value: 1
+                  value: 0
               }
           }
       }

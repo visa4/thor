@@ -172,7 +172,6 @@
               this.splice('monitors', evt.target.index, 1);
           }
 
-
           _monitorChanged(newValue, oldValue) {
               this.identifier = newValue.name;
               this.set('monitors', (newValue.monitors) ? newValue.monitors : []);

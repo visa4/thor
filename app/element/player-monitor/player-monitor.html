@@ -6,18 +6,54 @@
         <style>
             :host {
                 display: block;
-                opacity: 0.5;
-
+                background-color: #8c9eff;
             }
+
+            .layers {
+                padding: 0;
+                margin: 0;
+                height: 100%;
+                width: 100%;
+                position: relative;
+                opacity: 0.4;
+            }
+
+            .layer {
+                position: absolute;
+                top: 0;
+                left: 0;
+                height: 100%;
+                width: 100%;
+                background-color: transparent;
+            }
+
+            .default {
+                z-index: 1;
+            }
+
+            .standard {
+                z-index: 2;
+            }
+
+            .overlay {
+                z-index: 3;
+            }
+
         </style>
 
-        <div style="border: red solid 2px">fdsafdsfdsfdsaf</div>
+        <div class="layers">
+            <div id="default"  class="layer default"></div>
+            <div id="standard" class="layer standard"></div>
+            <div id="overlay"  class="layer overlay"></div>
+        </div>
     </template>
 
     <script>
         class ElementPlayerMonitor extends Polymer.Element {
 
             static get is() { return 'player-monitor'; }
+
+            static get ipc() { return  require('electron').ipcRenderer; }
 
             static get properties() {
                 return {
@@ -27,16 +63,34 @@
                     },
                     height: {
                         type: Number,
+                        notify : true,
                         observer: '_changeHeight'
                     },
                     width: {
                         type: Number,
+                        notify : true,
                         observer: '_changeWidth'
                     },
                     backgroundColor : {
                         type: String,
                         observer: '_changeBackgroundColor'
                     }
+                }
+            }
+
+            constructor() {
+                super();
+                ElementPlayerMonitorManager.ipc.on('player-monitor-update-size', this.updateSize.bind(this));
+            }
+
+            updateSize(evt, msg) {
+                console.log('update size', evt, msg);
+                if (this.height !==  msg.height) {
+                    this.height = msg.height;
+                }
+
+                if (this.width !==  msg.width) {
+                    this.width = msg.width;
                 }
             }
 

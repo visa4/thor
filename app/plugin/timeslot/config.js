@@ -31,13 +31,13 @@ class TimeslotConfig {
 
         timeslotHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
-            .enableHydrateProperty('enable')
+            .enableHydrateProperty('duration')
             .enableHydrateProperty('monitor')
             .enableHydrateProperty('resources');
 
         timeslotHydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
-            .enableExtractProperty('enable')
+            .enableExtractProperty('duration')
             .enableExtractProperty('monitor')
             .enableExtractProperty('resources');
 
