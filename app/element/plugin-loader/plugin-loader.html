@@ -27,15 +27,21 @@
             }
 
             autoloadConfig(plugin) {
-                //console.log('autoload config', __dirname, plugin);
+
                 if (plugin.autoload && Array.isArray(plugin.autoload)) {
                     for (let length = 0; plugin.autoload.length > length; length++) {
                         // TODO CONTROLLARE SE ESISTE IL FILE
-                        let config = require(`${__dirname}/plugin/${plugin.name}/${plugin.autoload[length]}`);
-
-                        let pluginConfig = new config();
-                        pluginConfig.init();
+                        let importClass = require(`${__dirname}/plugin/${plugin.name}/${plugin.autoload[length]}`);
+                        global[(new importClass()).constructor.name] = importClass;
                     }
+                }
+
+                if (plugin.config) {
+
+                    let config = require(`${__dirname}/plugin/${plugin.name}/${plugin.config}`);
+                    console.log('CONFIG PLUGIN', plugin);
+                    let pluginConfig = new config(serviceManager);
+                    pluginConfig.init();
                 }
             }
         }

@@ -1,23 +1,35 @@
-global.TIMESLOT_NAME_SERVICE = 'timeslot.service';
-global.TIMESLOT_NAME_STORAGE = 'timeslot.data';
-
 /**
  *
  */
-class TimeslotConfig {
+class TimeslotConfig extends PluginConfig {
+
+    /**
+     *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_SERVICE() { return 'timeslot.service'; };
+
+    /**
+     *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_STORAGE() { return 'timeslot.data'; };
 
     init() {
 
         this._loadHydrator();
 
-        let manager = LocalStoragePluginManager.getInstance();
-        manager.set(
-            TIMESLOT_NAME_SERVICE,
+        this.serviceManager.get('LocalStoragePluginManager').set(
+            TimeslotConfig.NAME_SERVICE,
             new LocalStorage(
-                TIMESLOT_NAME_STORAGE,
-                HydratorPluginManager.getInstance().get('timeslotHydrator')
+                TimeslotConfig.NAME_STORAGE,
+                this.serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
             )
         );
+
+        this.serviceManager.set('TimeslotService', new TimeslotService());
     }
 
     _loadHydrator() {
@@ -25,7 +37,7 @@ class TimeslotConfig {
             new Timeslot(),
             {
                 'monitor' : new HydratorStrategy(new PropertyHydrator(new Monitor())),
-                'resources' : new HydratorStrategy(HydratorPluginManager.getInstance().get('resourceHydrator'))
+                'resources' : new HydratorStrategy(this.serviceManager.get('HydratorPluginManager').get('resourceHydrator'))
             }
         );
 
@@ -41,7 +53,7 @@ class TimeslotConfig {
             .enableExtractProperty('monitor')
             .enableExtractProperty('resources');
 
-        HydratorPluginManager.getInstance().set(
+        this.serviceManager.get('HydratorPluginManager').set(
             'timeslotHydrator',
             timeslotHydrator
         );

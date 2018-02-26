@@ -90,7 +90,7 @@
 
       ready() {
           super.ready();
-          this.set('monitors', LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE).getAll());
+          this.set('monitors',  serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).getAll());
       }
 
       _monitorChanged(newValue, oldValue) {
@@ -120,7 +120,7 @@
           });
 
           this.splice('monitors', index, 1);
-          LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE).remove(event.target.item.id);
+          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).remove(event.target.item.id);
       }
 
       /**
@@ -132,11 +132,11 @@
               if (this.monitors[cont].enable && event.target.item.id !==  this.monitors[cont].id) {
                   this.set(`monitors.${cont}.enable`, false);
                   this.monitors[cont].enable = false;
-                  LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE).update(this.monitors[cont]);
+                  LocalStoragePluginManager.getInstance().get(MonitorConfig.NAME_SERVICE).update(this.monitors[cont]);
               }
           }
           event.target.item.enable = true;
-          LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE).update(event.target.item);
+          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).update(event.target.item);
           PluginMonitorIndex.electronIpc.send('change-monitors-configuration', event.target.item);
       }
 

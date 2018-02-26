@@ -4,18 +4,31 @@ global.RESOURCE_NAME_STORAGE = 'resource.data';
 /**
  *
  */
-class ResourceConfig {
+class ResourceConfig extends PluginConfig {
+
+    /**
+     *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_SERVICE() { return 'resource.service'; };
+
+    /**
+     *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_STORAGE() { return 'resource.data'; };
 
     /**
      *
      */
     init() {
-        let manager = LocalStoragePluginManager.getInstance();
         this._loadHydrator();
 
         let resourceLocalStorage = new LocalStorage(
-            RESOURCE_NAME_STORAGE,
-            HydratorPluginManager.getInstance().get('resourceHydrator')
+            ResourceConfig.NAME_STORAGE,
+            this.serviceManager.get('HydratorPluginManager').get('resourceHydrator')
         );
 
         resourceLocalStorage.eventManager.on(
@@ -33,8 +46,8 @@ class ResourceConfig {
             this.onUpdate.bind(resourceLocalStorage)
         );
 
-        manager.set(
-            RESOURCE_NAME_SERVICE,
+        this.serviceManager.get('LocalStoragePluginManager').set(
+            ResourceConfig.NAME_SERVICE,
             resourceLocalStorage
         );
 
@@ -53,17 +66,17 @@ class ResourceConfig {
 
         let hydrator = new AggregatePropertyHydrator('type');
         hydrator.addHydratorMap(
-            HydratorPluginManager.getInstance().get('imageHydrator'),
+            this.serviceManager.get('HydratorPluginManager').get('imageHydrator'),
             ['image/jpeg', 'image/png']
         ).addHydratorMap(
-            HydratorPluginManager.getInstance().get('videoHydrator'),
+            this.serviceManager.get('HydratorPluginManager').get('videoHydrator'),
             ['video/mp4']
         ).addHydratorMap(
-            HydratorPluginManager.getInstance().get('genericHydrator'),
+            this.serviceManager.get('HydratorPluginManager').get('genericHydrator'),
             ['application/zip']
         );
 
-        HydratorPluginManager.getInstance().set(
+        this.serviceManager.get('HydratorPluginManager').set(
             'resourceHydrator',
             hydrator
         );
@@ -92,7 +105,7 @@ class ResourceConfig {
             .enableExtractProperty('lastModified')
             .enableExtractProperty('dimension');
 
-        HydratorPluginManager.getInstance().set(
+        this.serviceManager.get('HydratorPluginManager').set(
             'videoHydrator',
             videoHydrator
         );
@@ -121,7 +134,7 @@ class ResourceConfig {
             .enableExtractProperty('lastModified')
             .enableExtractProperty('dimension');
 
-        HydratorPluginManager.getInstance().set(
+        this.serviceManager.get('HydratorPluginManager').set(
             'imageHydrator',
             imageHydrator
         );
@@ -148,7 +161,7 @@ class ResourceConfig {
             .enableExtractProperty('location')
             .enableExtractProperty('lastModified');
 
-        HydratorPluginManager.getInstance().set(
+        this.serviceManager.get('HydratorPluginManager').set(
             'genericHydrator',
             genericHydrator
         );

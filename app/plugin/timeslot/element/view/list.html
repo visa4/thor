@@ -74,7 +74,8 @@
 
         ready() {
             super.ready();
-            this.set('timeslots', LocalStoragePluginManager.getInstance().get(TIMESLOT_NAME_SERVICE).getAll());
+            this.set('timeslots', serviceManager.get('LocalStoragePluginManager')
+                .get(TimeslotConfig.NAME_SERVICE).getAll());
         }
 
         /**
@@ -91,7 +92,9 @@
             });
 
             this.splice('timeslots', index, 1);
-            LocalStoragePluginManager.getInstance().get(TIMESLOT_NAME_SERVICE).remove(event.target.item.id);
+            serviceManager.get('LocalStoragePluginManager')
+                .get(TimeslotConfig.NAME_SERVICE)
+                .remove(event.target.item.id);
         }
 
         displayUpdateView(evt) {

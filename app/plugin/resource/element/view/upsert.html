@@ -59,7 +59,7 @@
           }
 
           let data = {};
-          let resourceLocalStorage = LocalStoragePluginManager.getInstance().get(RESOURCE_NAME_SERVICE);
+          let resourceLocalStorage = serviceManager.get('LocalStoragePluginManager').get(ResourceConfig.NAME_SERVICE);
           let file = this.$.fileUpload.files[0];
           let nameFile = this.$.name.value;
 

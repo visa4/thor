@@ -1,8 +1,11 @@
+/**
+ *
+ */
 class TimeslotService {
 
-    constructor() {
-        this.monitors = null;
-
+    constructor(monitorStorage) {
+        this.monitorStorage = monitorStorage ? monitorStorage : null;
+        this.ipc = require('electron').ipcRenderer;
     }
 
     /**
@@ -12,5 +15,8 @@ class TimeslotService {
      */
     run(timeslot, options) {
 
+        this.ipc.send('run-timeslot', timeslot);
     }
 }
+
+module.exports = TimeslotService;

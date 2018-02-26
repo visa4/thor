@@ -137,9 +137,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'label' : 'Monitor',
                       'plugin' : true,
                       'style' : 'color: green;',
-                      "autoload": [
-                          "config.js"
-                      ],
+                      "config": "config.js",
                       name: 'monitor'
                   },
                   {
@@ -148,9 +146,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'label' : 'Resource',
                       'plugin' : true,
                       'style' : 'color: green;',
-                      "autoload": [
-                          "config.js"
-                      ],
+                      "config": "config.js",
                       name: 'resource'
                   },
                   {
@@ -159,8 +155,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                       'label' : 'Timeslot',
                       'plugin' : true,
                       'style' : 'color: green;',
+                      "config": "config.js",
                       "autoload": [
-                          "config.js"
+                          "src/TimeslotService.js",
                       ],
                       name: 'timeslot'
                   }

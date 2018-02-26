@@ -4,6 +4,7 @@
   "author": "antonino visalli <antonino.visalli@gmail.com>",
   "description": "Thor",
   "homepage": "www.visa4.it",
+  "config": "config.js",
   "autoload": [
     "config.js"
   ]

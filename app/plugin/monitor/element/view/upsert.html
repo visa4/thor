@@ -162,7 +162,7 @@
               this.monitor.name =  this.identifier;
               this.monitor.monitors =  this.monitors;
 
-              let monitor = LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE)[this.monitor.id ?  'update' : 'save'](this.monitor);
+              let monitor =  serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE)[this.monitor.id ?  'update' : 'save'](this.monitor);
               if (monitor.enable) {
                   PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
               }

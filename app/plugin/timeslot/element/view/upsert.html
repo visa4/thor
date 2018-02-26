@@ -84,7 +84,7 @@
 
       connectedCallback () {
           super.connectedCallback();
-          let virtualMonitors = LocalStoragePluginManager.getInstance().get(VIRTUAL_MONITOR_NAME_SERVICE).getAll();
+          let virtualMonitors =  serviceManager.get('LocalStoragePluginManager').get(VIRTUAL_MONITOR_NAME_SERVICE).getAll();
           let monitors =  [];
           for (let cont = 0; virtualMonitors.length > cont; cont++) {
               for (let index = 0; virtualMonitors[cont].monitors.length > index; index++) {
@@ -99,11 +99,11 @@
 
       _monitorsChanged(newValue, oldValue) {
 
-          if (!newValue && newValue.length === 0) {
+          if (!newValue || newValue.length === 0) {
               return;
           }
 
-          this.resources = LocalStoragePluginManager.getInstance().get(RESOURCE_NAME_SERVICE).getAll();
+          this.resources = serviceManager.get('LocalStoragePluginManager').get(RESOURCE_NAME_SERVICE).getAll();
       }
 
       _timeslotChanged(newValue, oldValue) {
@@ -112,7 +112,7 @@
           this.$.duration.value = newValue.duration;
 
           for (let cont = 0; this.$.monitors.items.length > cont; cont++) {
-            console.log('tonino', this.$.monitors.items[cont].item.monitor.id, newValue.monitor.id);
+
             if (this.$.monitors.items[cont].item.monitor.id === newValue.monitor.id) {
                 this.$.monitors.selected = cont;
                 break;
@@ -137,7 +137,7 @@
 
           let timeslot = new Timeslot();
           let method = 'save';
-          let timeslotLocalStorage = LocalStoragePluginManager.getInstance().get(TIMESLOT_NAME_SERVICE);
+          let timeslotLocalStorage = serviceManager.get('LocalStoragePluginManager').get(TimeslotConfig.NAME_SERVICE);
 
           if (this.timeslot.id) {
               method = 'update';
