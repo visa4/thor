@@ -1,12 +1,13 @@
 
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../player-timeslot/player-timeslot.html">
 
 <dom-module id="player-monitor">
     <template>
         <style>
             :host {
-                display: block;
-                background-color: #8c9eff;
+                display: flex;
+                position: absolute;
             }
 
             .layers {
@@ -15,7 +16,6 @@
                 height: 100%;
                 width: 100%;
                 position: relative;
-                opacity: 0.4;
             }
 
             .layer {
@@ -45,6 +45,7 @@
             <div id="default"  class="layer default"></div>
             <div id="standard" class="layer standard"></div>
             <div id="overlay"  class="layer overlay"></div>
+            <div id="monitors" class="layer monitors"></div>
         </div>
     </template>
 
@@ -57,34 +58,79 @@
 
             static get properties() {
                 return {
+                    nodeName : {
+                        type: String,
+                        readOnly: true,
+                        value: 'playerMonitor'
+                    },
+
                     identifier: {
                         type: String,
                         reflectToAttribute : true,
                     },
+
                     height: {
                         type: Number,
                         notify : true,
                         observer: '_changeHeight'
                     },
+
                     width: {
                         type: Number,
                         notify : true,
                         observer: '_changeWidth'
                     },
+
                     backgroundColor : {
                         type: String,
                         observer: '_changeBackgroundColor'
+                    },
+
+                    offsetX : {
+                        type: Number,
+                        value: 0,
+                        observer: '_changeOffsetX'
+                    },
+
+                    offsetY : {
+                        type: Number,
+                        value: 0,
+                        observer: '_changeOffsetY'
+                    },
+
+                    timeslotDefault : {
+
                     }
                 }
             }
 
             constructor() {
                 super();
-                ElementPlayerMonitorManager.ipc.on('player-monitor-update-size', this.updateSize.bind(this));
+                ElementPlayerMonitorManager.ipc.on('start-timeslot', this.start.bind(this));
+            }
+
+            start(evt, msg) {
+
+                if (msg.timeslot.monitor.id != this.identifier) {
+                    return;
+                }
+
+                let timeslot = document.createElement('player-timeslot');
+                timeslot.height = this.height;
+                timeslot.width  = this.width;
+                timeslot.config(msg.timeslot);
+
+                let context = msg.opstions && msg.options.context ? msg.options.context : 'standard';
+
+                // Clear layer
+                while ( this.$[context].firstChild) {
+                    this.$[context].removeChild(this.$[context].firstChild);
+                }
+
+                this.$[context].appendChild(timeslot);
             }
 
             updateSize(evt, msg) {
-                console.log('update size', evt, msg);
                 if (this.height !==  msg.height) {
                     this.height = msg.height;
                 }
@@ -112,7 +158,22 @@
                 if (!newValue) {
                     return;
                 }
-                this.style.backgroundColor = newValue;
+
+                this.style.backgroundColor = newValue === '#ffffff' ? 'transparent' : newValue
+            }
+
+            _changeOffsetX(newValue, oldValue) {
+                if (!newValue || this.parentElement.tagName === 'BODY') {
+                    return;
+                }
+                this.style.left = newValue + 'px';
+            }
+
+            _changeOffsetY(newValue, oldValue) {
+                if (!newValue || this.parentElement.tagName === 'BODY') {
+                    return;
+                }
+                this.style.top = newValue + 'px';
             }
         }
 

@@ -1,4 +1,3 @@
-
 <link rel="import" href="../../bower_components/polymer/polymer-element.html">
 <link rel="import" href="../player-monitor/player-monitor.html">
 
@@ -6,30 +5,142 @@
     <script>
         class ElementPlayerMonitorManager extends Polymer.Element {
 
-            static get is() { return 'player-monitor-manager'; }
+            static get is() {
+                return 'player-monitor-manager';
+            }
 
-            static get ipc() { return  require('electron').ipcRenderer; }
+            static get ipc() {
+                return require('electron').ipcRenderer;
+            }
 
             static get properties() {
-                return {
-                }
+                return {}
             }
 
             constructor() {
                 super();
-                ElementPlayerMonitorManager.ipc.on('player-monitor-config', this.configMonitor);
+                ElementPlayerMonitorManager.ipc.on('player-monitor-config', this.configMonitor.bind(this));
+                ElementPlayerMonitorManager.ipc.on('player-monitor-update', this.updateMonitors.bind(this));
             }
 
+            /**
+             * @param evt
+             * @param msg
+             */
             configMonitor(evt, msg) {
-         //       console.log('Configura monitor', msg);
-                let monitor = document.createElement("player-monitor");
-                monitor.identifier = msg.id;
-                monitor.height = msg.height;
-                monitor.width = msg.width;
-        //        monitor.backgroundColor = msg.backgroundColor;
-                document.body.appendChild(monitor);
+
+                this._appendRecursiveMonitor(document.body, msg);
             }
 
+            /**
+             * @param node
+             * @param monitor
+             * @private
+             */
+            _appendRecursiveMonitor(node, monitor) {
+
+                let monitorElement = document.createElement("player-monitor");
+                this._setStyleNode(monitorElement, monitor);
+
+                Polymer.dom(node.root ? node.root.getElementById('monitors') : node).appendChild(monitorElement);
+
+                if (monitor.monitors && Array.isArray(monitor.monitors) && monitor.monitors.length > 0) {
+                    for (let cont = 0; monitor.monitors.length > cont; cont++) {
+                        this._appendRecursiveMonitor(monitorElement, monitor.monitors[cont]);
+                    }
+                }
+            }
+
+            /**
+             * @param node
+             * @param config
+             * @private
+             */
+            _setStyleNode(node, config) {
+                node.identifier = config.id;
+                node.height = config.height;
+                node.width = config.width;
+                node.offsetX = config.offsetX;
+                node.offsetY = config.offsetY;
+                node.backgroundColor = config.backgroundColor;
+            }
+
+
+            updateMonitors(evt, msg) {
+                let monitors = this._getMonitorFromMessage(msg);
+                let domMonitors = this._getMonitorFromDom(document);
+
+                let cont = 0;
+                while (cont < monitors.length) {
+                    let node = domMonitors.find( (element) => {
+                        console.log(monitors[cont].id , element.identifier, monitors[cont].id === element.identifier);
+                        return monitors[cont].id === element.identifier;
+                    });
+
+                    if (node) {
+                        this._setStyleNode(node, monitors[cont]);
+                        monitors.splice(cont, 1);
+
+                    } else {
+                        cont++
+                    }
+                }
+            }
+
+            /**
+             * @param msg
+             * @param parent
+             * @return []
+             * @private
+             */
+            _getMonitorFromMessage(msg, parent) {
+                // TODO retrive from service manager and hydrator manager
+                let hydrator = new PropertyHydrator(new Monitor());
+                hydrator.enableHydrateProperty('id')
+                    .enableHydrateProperty('brightness')
+                    .enableHydrateProperty('offsetX')
+                    .enableHydrateProperty('offsetY')
+                    .enableHydrateProperty('width')
+                    .enableHydrateProperty('height')
+                    .enableHydrateProperty('backgroundColor');
+
+                let monitor = hydrator.hydrate(msg);
+                let monitors = [];
+
+                if (msg.monitors && Array.isArray(msg.monitors) && msg.monitors.length > 0) {
+                    for (let cont = 0; msg.monitors.length > cont; cont ++) {
+                        monitors = monitors.concat(this._getMonitorFromMessage(msg.monitors[cont], monitor));
+                    }
+                    return monitors.concat([monitor]);
+                } else {
+                    return [monitor];
+                }
+            }
+
+            _getMonitorFromDom(node) {
+
+                let nodeList = [];
+                let monitors = [];
+
+                if (node.nodeName === 'playerMonitor') {
+                    monitors.push(node);
+                }
+
+                if (node.root) {
+                    nodeList = node.root.querySelectorAll('player-monitor');
+                } else {
+                    nodeList = node.querySelectorAll('player-monitor');
+                }
+
+                if (nodeList.length === 0) {
+                    return monitors;
+                } else {
+                    for (let cont = 0; nodeList.length > cont; cont++) {
+                        monitors = monitors.concat(this._getMonitorFromDom(nodeList[cont]));
+                    }
+                    return monitors;
+                }
+            }
         }
 
         window.customElements.define(ElementPlayerMonitorManager.is, ElementPlayerMonitorManager);

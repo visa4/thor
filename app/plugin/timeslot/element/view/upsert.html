@@ -108,19 +108,21 @@
 
       _timeslotChanged(newValue, oldValue) {
 
+
+
           this.$.name.value = newValue.name;
           this.$.duration.value = newValue.duration;
 
           for (let cont = 0; this.$.monitors.items.length > cont; cont++) {
 
-            if (this.$.monitors.items[cont].item.monitor.id === newValue.monitor.id) {
+            if (newValue.monitor && this.$.monitors.items[cont].item.monitor.id === newValue.monitor.id) {
                 this.$.monitors.selected = cont;
                 break;
             }
           }
 
           for (let cont = 0; this.$.resources.items.length > cont; cont++) {
-              if (this.$.resources.items[cont].item.id === newValue.resources[0].id) {
+              if (newValue.resources[0] && this.$.resources.items[cont].item.id === newValue.resources[0].id) {
                   this.$.resources.selected = cont;
                   break;
               }
@@ -149,6 +151,7 @@
           this.timeslot.name = this.$.name.value;
           this.timeslot.duration = this.$.duration.value;
           this.timeslot.monitor = this.$.monitor.selectedItem.item.monitor;
+          this.timeslot.resources = []; // TODO REMOVE AND CONTROLL
           this.timeslot.resources.push(
               this.$.resource.selectedItem.item
           );

@@ -29,7 +29,9 @@ class TimeslotConfig extends PluginConfig {
             )
         );
 
-        this.serviceManager.set('TimeslotService', new TimeslotService());
+        this.serviceManager.set('TimeslotService', new TimeslotService(
+            this.serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE)
+        ));
     }
 
     _loadHydrator() {

@@ -15,7 +15,13 @@ class TimeslotService {
      */
     run(timeslot, options) {
 
-        this.ipc.send('run-timeslot', timeslot);
+        this.ipc.send(
+            'start-timeslot',
+            {
+                'timeslot': timeslot,
+                'options': {'test':'test'}
+            }
+        );
     }
 }
 

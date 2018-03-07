@@ -64,9 +64,7 @@ class PropertyHydrator extends AbstractHydrator {
                 continue;
             }
 
-            obj[property] = (this.strategies[property]) ?
-                this.strategies[property].hydrateStrategy(data[property]) :
-                data[property];
+            obj[property] = this._hydrateProperty(property, data[property]);
         }
 
         // TODO create strategy
@@ -75,6 +73,33 @@ class PropertyHydrator extends AbstractHydrator {
         }
 
         return obj;
+    }
+
+    /**
+     *
+     * @param name
+     * @param value
+     * @private
+     */
+    _hydrateProperty(name, value) {
+
+        let strategy = this.strategies[name];
+
+        let data = value;
+        if (strategy) {
+
+            if (
+                this.referenceObject !== null &&
+                typeof this.referenceObject === 'object' &&
+                this.referenceObject[name] !== null &&
+                typeof this.referenceObject[name] === 'object'
+            ) {
+                strategy.referenceObject = this.referenceObject[name]
+            }
+
+            data = strategy.hydrateStrategy(data);
+        }
+        return data;
     }
 
     /**

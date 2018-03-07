@@ -218,9 +218,8 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                         currentMonitor.height = message.monitors[cont].height;
                         currentMonitor.width = message.monitors[cont].width;
 
-                        currentMonitor.browserWindows.send('player-monitor-update-size', message.monitors[cont]);
+                        //currentMonitor.browserWindows.send('player-monitor-update-size', message.monitors[cont]);
                     }
-
 
                     let position = false;
 
@@ -231,8 +230,6 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                     }
 
                     if (position) {
-                        //console.log('Cambia pos:',    currentMonitor.offsetX, currentMonitor.offsetX, message.monitors[cont].offsetY, message.monitors[cont].offsetX);
-
                         currentMonitor.browserWindows.setPosition(
                             parseInt(message.monitors[cont].offsetX),
                             parseInt(message.monitors[cont].offsetY)
@@ -241,10 +238,24 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                         currentMonitor.offsetY = message.monitors[cont].offsetY
                         currentMonitor.offsetX = message.monitors[cont].offsetX;
                     }
+                    currentMonitor.browserWindows.send('player-monitor-update', message.monitors[cont]);
                 }
             }
         );
 
     }
 
+});
+
+
+ipcMain.on('start-timeslot', (event, message) => {
+
+    let monitor = monitorsWrapper.getMonitor(message.timeslot.monitor.id);
+
+    if (!monitor) {
+        console.warn('monitor not set');
+        return;
+    }
+
+    monitor.browserWindows.send('start-timeslot', message);
 });

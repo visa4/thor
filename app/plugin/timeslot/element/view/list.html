@@ -8,6 +8,7 @@
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/iconset/iconset.html">
+<link rel="import" href="../../element/iconset/iconset.html">
 
 <dom-module id="timeslot-view-list">
   <template>
@@ -26,6 +27,13 @@
           <div class="title">{{timeslot.name}}</div>
         </div>
         <div class="card-actions">
+          <paper-icon-button
+                  icon="timeslot:run"
+                  item="[[timeslot]]"
+                  on-click="run"
+                  class="circle-small"
+                  title="Run">
+          </paper-icon-button>
           <paper-icon-button
                   icon="app:edit"
                   item="[[timeslot]]"
@@ -95,6 +103,14 @@
             serviceManager.get('LocalStoragePluginManager')
                 .get(TimeslotConfig.NAME_SERVICE)
                 .remove(event.target.item.id);
+        }
+
+        run(evt) {
+
+            serviceManager.get('TimeslotService').run(
+                evt.target.item,
+                {}
+            );
         }
 
         displayUpdateView(evt) {

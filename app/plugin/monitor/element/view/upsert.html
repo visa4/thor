@@ -5,6 +5,10 @@
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
+<link rel="import" href="../../../../bower_components/neon-animation/web-animations.html">
 <link rel="import" href="../iconset/iconset.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
@@ -17,9 +21,6 @@
     <style include="global-style"></style>
     <style>
       /* TODO add local css*/
-      paper-card  {
-        width: 100%;
-      }
 
       .margin-top-20 {
         margin-top: 20px;
@@ -37,10 +38,15 @@
         margin-top: 16px;
       }
 
-      .paper-monitor {
+      .paper-monitor,
+      .paper-sub-monitor{
         padding: 6px;
         margin-top: 10px;
         display: flex;
+      }
+
+      .paper-sub-monitor {
+        margin-left: 30px ;
       }
 
       .paper-monitor paper-input {
@@ -65,11 +71,26 @@
             <paper-input name="width" label="Width" type="number" value="{{monitor.width}}" style="flex-basis: 10%;"></paper-input>
             <paper-input name="offsetX" label="Offeset X" type="number" value="{{monitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
             <paper-input name="offsetY" label="Offeset Y" type="number" value="{{monitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
+            <paper-input name="backgroundColor" label="Background color" type="color" value="{{monitor.backgroundColor}}" style="flex-basis: 10%;"></paper-input>
             <div class="flex flex-center" style="flex-basis: 10%;">
               <paper-icon-button icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
               </paper-icon-button>
             </div>
           </paper-card>
+          <template submonitor-repeat is="dom-repeat" items="{{monitor.monitors}}" as="submonitor">
+            <paper-card class="paper-sub-monitor">
+              <paper-input name="name" label="Name" value="{{submonitor.name}}" style="flex-basis: 50%;"></paper-input>
+              <paper-input name="height" label="Height" type="number" value="{{submonitor.height}}" style="flex-basis: 10%;"></paper-input>
+              <paper-input name="width" label="Width" type="number" value="{{submonitor.width}}" style="flex-basis: 10%;"></paper-input>
+              <paper-input name="offsetX" label="Offeset X" type="number" value="{{submonitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
+              <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
+              <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" style="flex-basis: 10%;"></paper-input>
+              <div class="flex flex-center" style="flex-basis: 10%;">
+                <paper-icon-button icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
+                </paper-icon-button>
+              </div>
+            </paper-card>
+          </template>
         </template>
         <div class="flex flex-horizontal-end">
           <paper-button on-tap="upsertConfiguration" class="margin-top-16">Save</paper-button>
@@ -83,6 +104,13 @@
             <paper-input name="width" type="number" label="Width"></paper-input>
             <paper-input name="offsetX" type="number" label="Offeset X"></paper-input>
             <paper-input name="offsetY" type="number" label="Offeset Y"></paper-input>
+            <paper-dropdown-menu id="monitor" label="Monitor">
+              <paper-listbox id="subMonitor" slot="dropdown-content">
+                <template is="dom-repeat" items="{{allMonitors}}" as="monitor">
+                  <paper-item item="{{monitor}}">{{monitor.name}}</paper-item>
+                </template>
+              </paper-listbox>
+            </paper-dropdown-menu>
           </div>
           <div class="flex flex-horizontal-center container-add-action">
             <paper-button on-tap="addMonitor">Add</paper-button>
@@ -101,6 +129,12 @@
               return {
 
                   monitors : {
+                      type: Array,
+                      value: [],
+                      notify: true
+                  },
+
+                  allMonitors : {
                       type: Array,
                       value: [],
                       notify: true
@@ -153,8 +187,21 @@
                   data[dataArray[i].name] = dataArray[i].value;
               }
 
+
               let hydrator = new PropertyHydrator(new Monitor());
-              this.push('monitors', hydrator.hydrate(data));
+              let monitor = hydrator.hydrate(data);
+
+
+              if (this.$.subMonitor.selectedItem) {
+                  this.$.subMonitor.selectedItem.item.pushMonitor(monitor);
+                  this.notifyPath('monitor.monitors');
+                  let render = this.root.querySelectorAll('dom-repeat[submonitor-repeat]');
+                  for (let cont = 0; render.length > cont; cont++) {
+                      render[cont].render();
+                  }
+              } else {
+                  this.push('monitors', monitor);
+              }
           }
 
           upsertConfiguration() {
@@ -173,8 +220,10 @@
           }
 
           _monitorChanged(newValue, oldValue) {
+
               this.identifier = newValue.name;
-              this.set('monitors', (newValue.monitors) ? newValue.monitors : []);
+              this.set('monitors', newValue.getMonitors());
+              this.set('allMonitors', newValue.getMonitors({nested:true}));
           }
       }
 

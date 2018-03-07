@@ -4,11 +4,30 @@
 <dom-module id="player-timeslot">
     <template>
         <style>
-            :host {
+            #resources {
                 display: block;
+                height: 100%;
+                width: 100%;
             }
-        </style>
 
+            div.image {
+                height: 100%;
+                width: 100%;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-size: cover;
+            }
+
+            video {
+                height: 100%;
+                width: 100%;
+                object-fit: fill;
+            }
+
+        </style>
+        <div id="resources">
+
+        </div>
 
     </template>
 
@@ -20,9 +39,93 @@
             static get properties() {
                 return {
                     timeslot: {
-                        type: Object,
+                        type: Object
+                    },
+
+                    timeslotId: {
+                        type: String,
+                        reflectToAttribute: true,
+                    },
+
+                    height: {
+                        type: Number,
+                        notify : true
+                    },
+
+                    width: {
+                        type: Number,
+                        notify : true
                     },
                 }
+            }
+
+            config(timeslot) {
+                this.timeslot = timeslot;
+                this.timeslotId = timeslot.id;
+            }
+
+            /**
+             * Event when append element
+             */
+            connectedCallback() {
+                super.connectedCallback();
+
+                if (this.timeslot.duration > 0) {
+                    setTimeout(this._timeout.bind(this), this.timeslot.duration * 1000);
+                }
+
+                for (let cont = 0; this.timeslot.resources.length > cont; cont++) {
+                    let src = '';
+                    let element = '';
+                    switch ( this.timeslot.resources[cont].type) {
+                        case 'image/png':
+                            element = document.createElement('div');
+
+                            element.classList.add("image");
+                            element.style.backgroundImage = `url('${this.timeslot.resources[cont].location.path}${this.timeslot.resources[cont].location.name}')`;
+                            this.$.resources.appendChild(element);
+                            break
+                        case 'video/mp4':
+                            element = document.createElement('video');
+                            element.src = `${this.timeslot.resources[cont].location.path}${this.timeslot.resources[cont].location.name}`;
+                            element.autoplay = true;
+
+                            let isRunning = true;
+                            element.addEventListener('timeupdate', function() {
+                                if ((this.currentTime + 0.5) >= this.duration && isRunning) {
+                                    this.pause();
+                                    isRunning = false;
+                                }
+                            }, false);
+
+                            this.$.resources.appendChild(element);
+                            break
+                        case 'text/html':
+                            element = document.createElement('webview');
+                            element.addEventListener('did-finish-load', function (evt) {
+
+                                this.send('timeslot-config', {'test': 'test'});
+                            });
+
+                            element.src = `${this.timeslot.resources[cont].location.path}${this.timeslot.resources[cont].location.name}`;
+                            element.setAttribute('nodeintegration', '');
+                            element.style.height = '100%';
+                            element.style.width = '100%';
+
+                            this.$.resources.appendChild(element);
+                            break
+                    }
+                }
+            }
+
+            disconnectedCallback() {
+                super.disconnectedCallback();
+                console.log('remove');
+            }
+
+
+            _timeout() {
+                this.remove();
             }
         }
 

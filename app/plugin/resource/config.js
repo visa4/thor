@@ -73,7 +73,7 @@ class ResourceConfig extends PluginConfig {
             ['video/mp4']
         ).addHydratorMap(
             this.serviceManager.get('HydratorPluginManager').get('genericHydrator'),
-            ['application/zip']
+            ['application/zip', 'text/html']
         );
 
         this.serviceManager.get('HydratorPluginManager').set(
@@ -205,6 +205,7 @@ class ResourceConfig extends PluginConfig {
                 let unzip= require('unzip');
                 fs.createReadStream(evt.data.getPath()).pipe(unzip.Extract({ path: `${pathName}${evt.data.id}` }));
                 evt.data.location.name = evt.data.id + '/index.html';
+                evt.data.type = 'text/html';
             }
 
             this.update(evt.data);
@@ -255,6 +256,7 @@ class ResourceConfig extends PluginConfig {
                 let unzip= require('unzip');
                 fs.createReadStream(evt.data.getPath()).pipe(unzip.Extract({ path: `${pathName}${evt.data.id}` }));
                 evt.data.location.name = evt.data.id + '/index.html';
+                evt.data.type = 'text/html';
             }
 
             this.update(evt.data);
