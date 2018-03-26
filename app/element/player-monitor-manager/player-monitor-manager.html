@@ -1,4 +1,4 @@
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../player-monitor/player-monitor.html">
 
 <dom-module id="player-monitor-manager">
@@ -28,7 +28,6 @@
              * @param msg
              */
             configMonitor(evt, msg) {
-
                 this._appendRecursiveMonitor(document.body, msg);
             }
 
@@ -42,13 +41,17 @@
                 let monitorElement = document.createElement("player-monitor");
                 this._setStyleNode(monitorElement, monitor);
 
-                Polymer.dom(node.root ? node.root.getElementById('monitors') : node).appendChild(monitorElement);
+                Polymer.dom(this._getNodeToAppend(node)).appendChild(monitorElement);
 
                 if (monitor.monitors && Array.isArray(monitor.monitors) && monitor.monitors.length > 0) {
                     for (let cont = 0; monitor.monitors.length > cont; cont++) {
                         this._appendRecursiveMonitor(monitorElement, monitor.monitors[cont]);
                     }
                 }
+            }
+
+            _getNodeToAppend(node) {
+                return node.root ? node.root.getElementById('monitors') : node;
             }
 
             /**
@@ -67,15 +70,19 @@
 
 
             updateMonitors(evt, msg) {
-                let monitors = this._getMonitorFromMessage(msg);
-                let domMonitors = this._getMonitorFromDom(document);
+                let monitors = this._getMonitorsFromMessage(msg);
+                let domMonitors = this._getMonitorsFromDom(document);
 
                 let cont = 0;
                 while (cont < monitors.length) {
                     let node = domMonitors.find( (element) => {
-                        console.log(monitors[cont].id , element.identifier, monitors[cont].id === element.identifier);
                         return monitors[cont].id === element.identifier;
                     });
+
+                    let index = domMonitors.findIndex(node => node.identifier ===  monitors[cont].id);
+                    if (index > -1) {
+                        domMonitors.splice(index, 1);
+                    }
 
                     if (node) {
                         this._setStyleNode(node, monitors[cont]);
@@ -85,6 +92,29 @@
                         cont++
                     }
                 }
+
+                for (let cont = 0; monitors.length > cont; cont++) {
+                    let monitorElement = document.createElement("player-monitor");
+                    this._setStyleNode(monitorElement,  monitors[cont]);
+                    this._appendToParent(monitors[cont]._parent.id, monitorElement);
+                }
+
+                for (let cont = 0; domMonitors.length > cont; cont++) {
+                    domMonitors[cont].remove();
+                }
+            }
+
+            _appendToParent(id, element) {
+                let domMonitors = this._getMonitorsFromDom(document);
+                let domElement = domMonitors.find( (element) => {
+                    return element.identifier === id;
+                });
+
+                if (domElement) {
+                    Polymer.dom(this._getNodeToAppend(domElement)).appendChild(element);
+                } else {
+                    throw 'player-monitor parent not found';
+                }
             }
 
             /**
@@ -93,7 +123,7 @@
              * @return []
              * @private
              */
-            _getMonitorFromMessage(msg, parent) {
+            _getMonitorsFromMessage(msg, parent) {
                 // TODO retrive from service manager and hydrator manager
                 let hydrator = new PropertyHydrator(new Monitor());
                 hydrator.enableHydrateProperty('id')
@@ -109,15 +139,18 @@
 
                 if (msg.monitors && Array.isArray(msg.monitors) && msg.monitors.length > 0) {
                     for (let cont = 0; msg.monitors.length > cont; cont ++) {
-                        monitors = monitors.concat(this._getMonitorFromMessage(msg.monitors[cont], monitor));
+                        monitors = monitors.concat(this._getMonitorsFromMessage(msg.monitors[cont], monitor));
                     }
                     return monitors.concat([monitor]);
                 } else {
+                    if (parent) {
+                        monitor._parent = parent;
+                    }
                     return [monitor];
                 }
             }
 
-            _getMonitorFromDom(node) {
+            _getMonitorsFromDom(node) {
 
                 let nodeList = [];
                 let monitors = [];
@@ -136,7 +169,7 @@
                     return monitors;
                 } else {
                     for (let cont = 0; nodeList.length > cont; cont++) {
-                        monitors = monitors.concat(this._getMonitorFromDom(nodeList[cont]));
+                        monitors = monitors.concat(this._getMonitorsFromDom(nodeList[cont]));
                     }
                     return monitors;
                 }

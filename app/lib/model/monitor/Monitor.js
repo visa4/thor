@@ -42,6 +42,8 @@ class Monitor {
         this.monitors.push(monitor);
         return this;
     }
+
+
 }
 
 module.exports = Monitor;

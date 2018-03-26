@@ -1,5 +1,5 @@
 
-<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
@@ -86,7 +86,7 @@
               <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
               <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" style="flex-basis: 10%;"></paper-input>
               <div class="flex flex-center" style="flex-basis: 10%;">
-                <paper-icon-button icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
+                <paper-icon-button item="{{submonitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
                 </paper-icon-button>
               </div>
             </paper-card>
@@ -215,8 +215,19 @@
               }
           }
 
+          _refreshMonitors() {
+              let templates = this.root.querySelectorAll('dom-repeat');
+
+              for (let cont  = 0; templates.length > cont; cont++) {
+                  templates[cont].render();
+              }
+          }
+
           deleteMonitor(evt) {
-              this.splice('monitors', evt.target.index, 1);
+              this.monitor.removeMonitor(evt.target.item)
+              this.set('monitors', []);
+              this.set('monitors', this.monitor.getMonitors());
+              this._refreshMonitors();
           }
 
           _monitorChanged(newValue, oldValue) {

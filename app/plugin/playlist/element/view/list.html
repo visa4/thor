@@ -4,27 +4,24 @@
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../iconset/iconset.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 
 
-<dom-module id="monitor-view-list">
+<dom-module id="playlist-view-list">
   <template>
     <style include="global-layout"></style>
     <style include="global-style"></style>
     <style>
 
-
-
     </style>
     <slot name="header"></slot>
     <div hidden$="{{!hideMonitorNotFound}}" style="padding-top: 20px;">
-      <template is="dom-repeat" items="[[monitors]]" as="configuration">
+      <template is="dom-repeat" items="[[playlists]]" as="playlist">
         <paper-card class="horizontal">
           <div class="card-content">
-            <div class="title">{{configuration.name}}</div>
+            <div class="title">{{playlist.name}}</div>
           </div>
           <div class="card-actions">
             <paper-radio-button
@@ -57,87 +54,24 @@
   </template>
 
   <script>
-    class ElementMonitorViewList extends Polymer.Element {
+    class ElementPlaylistViewList extends Polymer.Element {
 
-      static get is() { return 'monitor-view-list'; }
+      static get is() { return 'playlist-view-list'; }
 
       static get properties() {
           return {
 
-              monitors: {
+              playlists: {
                   type: Array,
                   notify: true,
                   value: [],
-                  observer: '_monitorChanged'
               },
 
-              selected: {
-                  type: Number,
-                  notify: true
-              },
-
-              hideMonitorNotFound: {
-                  type: Boolean,
-                  value: false
-              },
-
-              monitorSelected: {
-                  type: Object,
-                  notify: true
-              }
           };
       }
 
       ready() {
           super.ready();
-          this.set('monitors',  serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).getAll());
-      }
-
-      _monitorChanged(newValue, oldValue) {
-          if (oldValue === undefined) {
-              return;
-          }
-
-          let monitors = this.get('monitors');
-          if (monitors && Array.isArray(monitors) && monitors.length > 0) {
-              this.hideMonitorNotFound = true;
-          } else {
-              this.hideMonitorNotFound = false;
-          }
-      }
-
-      /**
-       * @param event
-       */
-      removeConfiguration(event) {
-
-          let index = null;
-          this.monitors.find((element, ind) => {
-              if ( element.id === event.target.item.id) {
-                  index = ind;
-                  return element;
-              }
-          });
-
-          this.splice('monitors', index, 1);
-          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).remove(event.target.item.id);
-      }
-
-      /**
-       * @param event
-       */
-      choiceConfiguration(event) {
-
-          for (let cont = 0; this.monitors.length > cont; cont++) {
-              if (this.monitors[cont].enable && event.target.item.id !==  this.monitors[cont].id) {
-                  this.set(`monitors.${cont}.enable`, false);
-                  this.monitors[cont].enable = false;
-                  LocalStoragePluginManager.getInstance().get(MonitorConfig.NAME_SERVICE).update(this.monitors[cont]);
-              }
-          }
-          event.target.item.enable = true;
-          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).update(event.target.item);
-          PluginMonitorIndex.electronIpc.send('change-monitors-configuration', event.target.item);
       }
 
       displayUpdateView(evt) {
@@ -146,7 +80,7 @@
       }
     }
 
-    window.customElements.define(ElementMonitorViewList.is, ElementMonitorViewList);
+    window.customElements.define(ElementPlaylistViewList.is, ElementPlaylistViewList);
 
   </script>
 </dom-module>

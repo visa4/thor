@@ -6,11 +6,31 @@ const MainMonitor = require('./lib/model/monitor/Monitor.js');
 const mainMonitorWrapper = require('./lib/model/monitor/VirtualMonitor.js');
 const PropertyHydrator = require('./lib/hydrator/PropertyHydrator.js');
 const HydratorStrategy = require('./lib/hydrator/strategy/HydratorStrategy.js');
+const HydratorManager = require('./lib/hydrator/pluginManager/HydratorPluginManager');
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let config;
 let monitorsWrapper = null;
+let hydratorManager = new HydratorManager();
+
+
+let monitorHydrator = new PropertyHydrator(
+    new MainMonitor(),
+    {
+        'monitors' :  new HydratorStrategy(new PropertyHydrator(new MainMonitor()))
+    }
+);
+
+let mainMonitorHydrator = new PropertyHydrator(
+    new mainMonitorWrapper(),
+    {
+        'monitors' :  new HydratorStrategy(monitorHydrator)
+    }
+);
+
+hydratorManager.set('mainMonitorHydrator', mainMonitorHydrator)
+    .set('monitorHydrator', monitorHydrator);
 
 function loadConfig () {
     config = JSON.parse(fs.readFileSync( path.join(__dirname, '/config/global.json'), {'encoding': 'UTF8'}));
@@ -23,7 +43,7 @@ function createWindowDashboard () {
 
     // App
     dashboard = new BrowserWindow({
-        width: 700,
+        width: 1000,
         height: 500,
         titleBarStyle: 'hidden',
         x: 0,
@@ -54,14 +74,7 @@ function createWindowDashboard () {
  */
 function createWindowsPlayer(monitorsConfig) {
 
-    let hydrator = new PropertyHydrator(
-        new mainMonitorWrapper(),
-        {
-            'monitors' :  new HydratorStrategy(new PropertyHydrator(new MainMonitor()))
-        }
-    );
-
-    let monitorWrapper = hydrator.hydrate(monitorsConfig);
+    let monitorWrapper = hydratorManager.get('mainMonitorHydrator').hydrate(monitorsConfig);
 
     for (let cont = 0; monitorWrapper.monitors.length > cont; cont++) {
 
@@ -192,8 +205,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
 
                     if (!currentMonitor) {
 
-                        let hydrator = new PropertyHydrator(new MainMonitor());
-                        let mainMonitor = hydrator.hydrate(message.monitors[cont]);
+                        let mainMonitor = hydratorManager.get('moonitorHydrator').hydrate(message.monitors[cont]);
 
                         mainMonitor.browserWindows = createWindowPlayer(mainMonitor);
                         monitorsWrapper.pushMonitor(mainMonitor);
@@ -240,6 +252,13 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                     }
                     currentMonitor.browserWindows.send('player-monitor-update', message.monitors[cont]);
                 }
+
+                /**
+                 * Save runtime config
+                 */
+                let hydrator = hydratorManager.get('mainMonitorHydrator');
+                hydrator.referenceObject = monitorsWrapper;
+                hydrator.hydrate(message);
             }
         );
 

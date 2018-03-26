@@ -1,5 +1,5 @@
 
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../player-timeslot/player-timeslot.html">
 
 <dom-module id="player-monitor">
@@ -118,7 +118,7 @@
                 let timeslot = document.createElement('player-timeslot');
                 timeslot.height = this.height;
                 timeslot.width  = this.width;
-                timeslot.config(msg.timeslot);
+                timeslot.config(msg.timeslot, msg.options);
 
                 let context = msg.opstions && msg.options.context ? msg.options.context : 'standard';
 
@@ -158,19 +158,19 @@
                 if (!newValue) {
                     return;
                 }
-
+                // TODO migliore il color picker per gestire la trasparenza
                 this.style.backgroundColor = newValue === '#ffffff' ? 'transparent' : newValue
             }
 
             _changeOffsetX(newValue, oldValue) {
-                if (!newValue || this.parentElement.tagName === 'BODY') {
+                if (!newValue || (this.parentElement && this.parentElement.tagName === 'BODY')) {
                     return;
                 }
                 this.style.left = newValue + 'px';
             }
 
             _changeOffsetY(newValue, oldValue) {
-                if (!newValue || this.parentElement.tagName === 'BODY') {
+                if (!newValue || (this.parentElement && this.parentElement.tagName === 'BODY')) {
                     return;
                 }
                 this.style.top = newValue + 'px';

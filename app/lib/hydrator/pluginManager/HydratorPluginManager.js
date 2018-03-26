@@ -1,9 +1,9 @@
 
 try {
-    ServiceManager = require('/../../ServiceManager');
+    ServiceManager = require('./../../service-manager/ServiceManager.js');
 }
 catch(err) {
-    ServiceManager = require(__dirname + '/lib/service-manager/ServiceManager');
+    ServiceManager = require(__dirname + '/lib/service-manager/ServiceManager.js');
 }
 
 /**

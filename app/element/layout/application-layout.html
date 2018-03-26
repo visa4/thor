@@ -8,7 +8,7 @@ Code distributed by Google as part of the polymer project is also
 subject to an additional IP rights grant found at http://polymer.github.io/PATENTS.txt
 -->
 
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer/app-drawer.html">
 <link rel="import" href="../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
 <link rel="import" href="../../bower_components/app-layout/app-header/app-header.html">
@@ -160,6 +160,15 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                           "src/TimeslotService.js",
                       ],
                       name: 'timeslot'
+                  },
+                  {
+                      'icon' : 'app:playlist',
+                      'element' : 'playlist-index',
+                      'label' : 'Playlist',
+                      'plugin' : true,
+                      'style' : 'color: green;',
+                      "config": "config.js",
+                      name: 'playlist'
                   }
               ],
           },
@@ -168,7 +177,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
             type: String,
             reflectToAttribute: true,
             observer: '_pageChanged',
-            value: 'monitor-index'
+            value: 'playlist-index'
           },
 
           routeData: Object

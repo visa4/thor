@@ -1,5 +1,5 @@
 
-<link rel="import" href="../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../bower_components/polymer/polymer.html">
 
 <dom-module id="player-timeslot">
     <template>
@@ -8,6 +8,15 @@
                 display: block;
                 height: 100%;
                 width: 100%;
+                position: relative;
+            }
+
+            .resource {
+                position: absolute;
+                height: 100%;
+                width: 100%;
+                top:0;
+                left: 0;
             }
 
             div.image {
@@ -59,9 +68,17 @@
                 }
             }
 
-            config(timeslot) {
+            config(timeslot, options) {
                 this.timeslot = timeslot;
                 this.timeslotId = timeslot.id;
+                this.timeslotOptions = options;
+            }
+
+            /**
+             *
+             */
+            hasTimeslotOptions(name) {
+                return !!this.timeslotOptions && typeof this.timeslotOptions === 'object' && this.timeslotOptions[name];
             }
 
             /**
@@ -70,60 +87,115 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                if (this.timeslot.duration > 0) {
+                if (this.timeslot.duration && !this.hasTimeslotOptions('loop')) {
                     setTimeout(this._timeout.bind(this), this.timeslot.duration * 1000);
                 }
 
                 for (let cont = 0; this.timeslot.resources.length > cont; cont++) {
-                    let src = '';
-                    let element = '';
+
+                    let divResource = this._createResourceDiv();
                     switch ( this.timeslot.resources[cont].type) {
                         case 'image/png':
-                            element = document.createElement('div');
 
-                            element.classList.add("image");
-                            element.style.backgroundImage = `url('${this.timeslot.resources[cont].location.path}${this.timeslot.resources[cont].location.name}')`;
-                            this.$.resources.appendChild(element);
-                            break
+                            let divImage = this._creteImage(this.timeslot.resources[cont]);
+                            divResource.appendChild(divImage);
+                            this.$.resources.appendChild(divResource);
+                            break;
                         case 'video/mp4':
-                            element = document.createElement('video');
-                            element.src = `${this.timeslot.resources[cont].location.path}${this.timeslot.resources[cont].location.name}`;
-                            element.autoplay = true;
-
-                            let isRunning = true;
-                            element.addEventListener('timeupdate', function() {
-                                if ((this.currentTime + 0.5) >= this.duration && isRunning) {
-                                    this.pause();
-                                    isRunning = false;
-                                }
-                            }, false);
-
-                            this.$.resources.appendChild(element);
-                            break
+                            let tagVideo = this._createVideo(this.timeslot.resources[cont]);
+                            divResource.appendChild(tagVideo);
+                            this.$.resources.appendChild(divResource);
+                            break;
                         case 'text/html':
-                            element = document.createElement('webview');
-                            element.addEventListener('did-finish-load', function (evt) {
-
-                                this.send('timeslot-config', {'test': 'test'});
-                            });
-
-                            element.src = `${this.timeslot.resources[cont].location.path}${this.timeslot.resources[cont].location.name}`;
-                            element.setAttribute('nodeintegration', '');
-                            element.style.height = '100%';
-                            element.style.width = '100%';
-
-                            this.$.resources.appendChild(element);
-                            break
+                            let tagWebView = this._createWebView(this.timeslot.resources[cont]);
+                            divResource.appendChild(tagWebView);
+                            this.$.resources.appendChild(divResource);
+                            break;
                     }
                 }
             }
 
-            disconnectedCallback() {
-                super.disconnectedCallback();
-                console.log('remove');
+            /**
+             * Create div resource that wrap resource
+             *
+             * @private
+             * @return Element
+             */
+            _createResourceDiv() {
+                let element = document.createElement('div');
+                element.classList.add("resource");
+                return element;
             }
 
+            /**
+             * Create image tag
+             *
+             * @private
+             * @param resource
+             * @return Element
+             */
+            _creteImage(resource) {
 
+                let element = document.createElement('div');
+
+                element.classList.add("image");
+                element.style.backgroundImage = `url('${resource.location.path}${resource.location.name}')`;
+                return element;
+            }
+
+            /**
+             * Create video tag
+             *
+             * @private
+             * @param resource
+             * @return Element
+             */
+            _createVideo(resource) {
+
+                let element = document.createElement('video');
+                element.src = `${resource.location.path}${resource.location.name}`;
+                element.autoplay = true;
+                element.loop = this.hasTimeslotOptions('loop');
+
+                if (!element.loop) {
+                    let isRunning = true;
+                    element.addEventListener('timeupdate', function() {
+                        if ((this.currentTime + 0.5) >= this.duration && isRunning) {
+                            this.pause();
+                            isRunning = false;
+                        }
+                    }, false);
+                }
+
+                return element;
+            }
+
+            /**
+             * Create webview
+             *
+             * @private
+             * @param resource
+             * @return Element
+             */
+            _createWebView(resource) {
+                let element = document.createElement('webview');
+                element.addEventListener('did-finish-load', function (evt) {
+                    // TODO send metadata
+                    this.send('timeslot-config', {'test': 'test'});
+                });
+
+                element.src = `${resource.location.path}${resource.location.name}`;
+                element.setAttribute('nodeintegration', '');
+                element.style.height = '100%';
+                element.style.width = '100%';
+
+                return element;
+            }
+
+            disconnectedCallback() {
+                super.disconnectedCallback();
+            }
+            
             _timeout() {
                 this.remove();
             }

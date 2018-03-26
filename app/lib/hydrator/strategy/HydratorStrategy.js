@@ -18,14 +18,14 @@ class HydratorStrategy {
         if (Array.isArray(data)) {
             for (let cont = 0; data.length > cont; cont++) {
 
-                hydrate.referenceObject = this._getReferenceObject(cont);
+                this.hydrator.referenceObject = this._getReferenceObject(cont);
                 hydrate[cont] = this.hydrator.hydrate(
                     data[cont]
                 );
             }
         } else {
 
-            hydrate.referenceObject = this._getReferenceObject();
+            this.hydrator.referenceObject = this._getReferenceObject();
             hydrate = this.hydrator.hydrate(
                 data
             );

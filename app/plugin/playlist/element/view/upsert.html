@@ -15,230 +15,63 @@
 <link rel="import" href="../../../../css/global-styles.html">
 
 
-<dom-module id="monitor-view-upsert">
+<dom-module id="playlist-view-upsert">
   <template>
     <style include="global-layout"></style>
     <style include="global-style"></style>
     <style>
       /* TODO add local css*/
 
-      .margin-top-20 {
-        margin-top: 20px;
-      }
 
-      .container-add-action {
-        padding: 10px;
-      }
 
-      .margin-bottom-16  {
-        margin-bottom: 16px;
-      }
 
-      .margin-top-16 {
-        margin-top: 16px;
-      }
-
-      .paper-monitor,
-      .paper-sub-monitor{
-        padding: 6px;
-        margin-top: 10px;
-        display: flex;
-      }
-
-      .paper-sub-monitor {
-        margin-left: 30px ;
-      }
-
-      .paper-monitor paper-input {
-        padding-left: 6px;
-      }
-
-      paper-icon-button {
-
-        color: var(--accent-color);
-      }
 
     </style>
 
     <slot name="header"></slot>
-    <div class="flex flex-horizontal">
-      <div class="flex-basis-70" style="padding-right:16px;">
-        <paper-input id="name" name="name" label="Name" value="{{identifier}}" class="margin-bottom-16" require></paper-input>
-        <template is="dom-repeat" items="{{monitors}}" as="monitor">
-          <paper-card class="paper-monitor">
-            <paper-input name="name" label="Name" value="{{monitor.name}}" style="flex-basis: 50%;"></paper-input>
-            <paper-input name="height" label="Height" type="number" value="{{monitor.height}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="width" label="Width" type="number" value="{{monitor.width}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="offsetX" label="Offeset X" type="number" value="{{monitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="offsetY" label="Offeset Y" type="number" value="{{monitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="backgroundColor" label="Background color" type="color" value="{{monitor.backgroundColor}}" style="flex-basis: 10%;"></paper-input>
-            <div class="flex flex-center" style="flex-basis: 10%;">
-              <paper-icon-button icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
-              </paper-icon-button>
-            </div>
-          </paper-card>
-          <template submonitor-repeat is="dom-repeat" items="{{monitor.monitors}}" as="submonitor">
-            <paper-card class="paper-sub-monitor">
-              <paper-input name="name" label="Name" value="{{submonitor.name}}" style="flex-basis: 50%;"></paper-input>
-              <paper-input name="height" label="Height" type="number" value="{{submonitor.height}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="width" label="Width" type="number" value="{{submonitor.width}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="offsetX" label="Offeset X" type="number" value="{{submonitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" style="flex-basis: 10%;"></paper-input>
-              <div class="flex flex-center" style="flex-basis: 10%;">
-                <paper-icon-button item="{{submonitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
-                </paper-icon-button>
-              </div>
-            </paper-card>
+
+    <div class="flex flex-vertical">
+      <paper-input name="name" label="Name" value="{{playlist.name}}"></paper-input>
+      <paper-dropdown-menu id="monitor" label="Timelosts">
+        <paper-listbox id="subMonitor" slot="dropdown-content" multi>
+          <template is="dom-repeat" items="{{timeslots}}" as="timeslot">
+            <paper-item item="{{timeslot}}">{{timeslot.name}}</paper-item>
           </template>
-        </template>
-        <div class="flex flex-horizontal-end">
-          <paper-button on-tap="upsertConfiguration" class="margin-top-16">Save</paper-button>
-        </div>
-      </div>
-      <div class="flex-basis-30">
-        <paper-card id="cardMonitor" heading="Monitor" alt="Monitor">
-          <div class="card-content">
-            <paper-input name="name" label="Name"></paper-input>
-            <paper-input name="height" type="number" label="Height"></paper-input>
-            <paper-input name="width" type="number" label="Width"></paper-input>
-            <paper-input name="offsetX" type="number" label="Offeset X"></paper-input>
-            <paper-input name="offsetY" type="number" label="Offeset Y"></paper-input>
-            <paper-dropdown-menu id="monitor" label="Monitor">
-              <paper-listbox id="subMonitor" slot="dropdown-content">
-                <template is="dom-repeat" items="{{allMonitors}}" as="monitor">
-                  <paper-item item="{{monitor}}">{{monitor.name}}</paper-item>
-                </template>
-              </paper-listbox>
-            </paper-dropdown-menu>
-          </div>
-          <div class="flex flex-horizontal-center container-add-action">
-            <paper-button on-tap="addMonitor">Add</paper-button>
-          </div>
-        </paper-card>
+        </paper-listbox>
+      </paper-dropdown-menu>
+      <div class="flex flex-horizontal-end">
+        <paper-button on-tap="addMonitor">Add</paper-button>
       </div>
     </div>
   </template>
 
   <script>
-      class ElementMonitorViewUpsert extends Polymer.Element {
+      class ElementPlaylistViewUpsert extends Polymer.Element {
 
-          static get is() { return 'monitor-view-upsert'; }
+          static get is() { return 'playlist-view-upsert'; }
 
           static get properties() {
               return {
 
-                  monitors : {
-                      type: Array,
-                      value: [],
-                      notify: true
-                  },
-
-                  allMonitors : {
-                      type: Array,
-                      value: [],
-                      notify: true
-                  },
-
-                  identifier: {
-                      type: String,
-                  },
-
-                  height: {
-                      type: Number,
-                  },
-
-                  width: {
-                      type: Number,
-                  },
-
-                  top: {
-                      type: Number,
-                  },
-
-                  left: {
-                      type: Number,
-                  },
-
-                  zoom: {
-                      type: Number,
-                      value: 5
-                  },
-
-                  monitor: {
+                  playlist: {
                       type: Object,
-                      notify: true,
-                      value: new VirtualMonitor(),
-                      observer: '_monitorChanged'
+                      notify: true
                   },
 
-                  selected: {
-                      type: Number,
+                  timeslots: {
+                      type: Array,
                       notify: true
                   }
               };
           }
 
-          addMonitor() {
-
-              let dataArray = this.$.cardMonitor.querySelectorAll('paper-input');
-              let data = {};
-              for (let i = 0; i < dataArray.length; i++) {
-                  data[dataArray[i].name] = dataArray[i].value;
-              }
-
-
-              let hydrator = new PropertyHydrator(new Monitor());
-              let monitor = hydrator.hydrate(data);
-
-
-              if (this.$.subMonitor.selectedItem) {
-                  this.$.subMonitor.selectedItem.item.pushMonitor(monitor);
-                  this.notifyPath('monitor.monitors');
-                  let render = this.root.querySelectorAll('dom-repeat[submonitor-repeat]');
-                  for (let cont = 0; render.length > cont; cont++) {
-                      render[cont].render();
-                  }
-              } else {
-                  this.push('monitors', monitor);
-              }
-          }
-
-          upsertConfiguration() {
-
-              this.monitor.name =  this.identifier;
-              this.monitor.monitors =  this.monitors;
-
-              let monitor =  serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE)[this.monitor.id ?  'update' : 'save'](this.monitor);
-              if (monitor.enable) {
-                  PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
-              }
-          }
-
-          _refreshMonitors() {
-              let templates = this.root.querySelectorAll('dom-repeat');
-
-              for (let cont  = 0; templates.length > cont; cont++) {
-                  templates[cont].render();
-              }
-          }
-
-          deleteMonitor(evt) {
-              this.monitor.removeMonitor(evt.target.item)
-              this.set('monitors', []);
-              this.set('monitors', this.monitor.getMonitors());
-              this._refreshMonitors();
-          }
-
-          _monitorChanged(newValue, oldValue) {
-
-              this.identifier = newValue.name;
-              this.set('monitors', newValue.getMonitors());
-              this.set('allMonitors', newValue.getMonitors({nested:true}));
+          ready() {
+              super.ready();
+              this.set('timeslots',  serviceManager.get('LocalStoragePluginManager').get(TimeslotConfig.NAME_SERVICE).getAll());
           }
       }
 
-      window.customElements.define(ElementMonitorViewUpsert.is, ElementMonitorViewUpsert);
+      window.customElements.define(ElementPlaylistViewUpsert.is, ElementPlaylistViewUpsert);
 
   </script>
 </dom-module>

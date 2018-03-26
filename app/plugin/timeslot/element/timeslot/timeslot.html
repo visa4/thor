@@ -1,5 +1,5 @@
 
-<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
@@ -10,117 +10,87 @@
 <link rel="import" href="../../../../element/iconset/iconset.html">
 <link rel="import" href="../../element/iconset/iconset.html">
 
-<dom-module id="timeslot-view-list">
+<dom-module id="timeslot-wc">
   <template>
     <style include="global-layout"></style>
     <style include="global-style"></style>
     <style>
-      /** TODO insert style    */
-      :host ::slotted(.header) {
-          margin-bottom: 16px;
+
+      .card-content {
+        padding: 0;
       }
+
+      .data {
+        padding: 8px;
+      }
+
+      .flags {
+
+      }
+
+      .activePaperButton {
+        color: var(--app-primary-color);
+      }
+
     </style>
-    <slot name="header"></slot>
-    <template is="dom-repeat" items="[[timeslots]]" as="timeslot">
-      <paper-card class="horizontal">
-        <div class="card-content">
-          <div class="title">{{timeslot.name}}</div>
+    <paper-card class="horizontal">
+      <div class="card-content flex flex-horizontal">
+        <div class="data flex-basis-80 flex flex-vertical">
+          <div>{{timeslot.name}}</div>
+          <div>{{timeslot.duration}} sec</div>
         </div>
-        <div class="card-actions">
-          <paper-icon-button
-                  icon="timeslot:run"
-                  item="[[timeslot]]"
-                  on-click="run"
-                  class="circle-small"
-                  title="Run">
-          </paper-icon-button>
-          <paper-icon-button
-                  icon="app:edit"
-                  item="[[timeslot]]"
-                  on-click="displayUpdateView"
-                  class="circle-small"
-                  title="Modify">
-          </paper-icon-button>
-          <paper-icon-button
-                  icon="app:remove"
-                  item="[[timeslot]]"
-                  on-click="removeTimeslot"
-                  class="circle-small"
-                  title="Delete">
-          </paper-icon-button>
+        <div class="flags flex-basis-20">
+          <paper-icon-button id="loopIcon" item="{{timeslot}}" icon="timeslot:loop" on-tap="_tapLoop"></paper-icon-button>
         </div>
-        <div class$="rate-image paper-card-rirght-bk-{{timeslot.typeLabel}}"></div>
-      </paper-card>
-    </template>
+      </div>
+      <div class="card-actions">
+        <paper-icon-button icon="timeslot:run" on-click="_run" class="circle-small" title="Run"></paper-icon-button>
+        <paper-icon-button icon="app:edit"  on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
+        <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
+        </paper-icon-button>
+      </div>
+      <div class$="rate-image paper-card-rirght-bk-{{timeslot.typeLabel}}"></div>
+    </paper-card>
   </template>
 
   <script>
-    class ElementTimeslotViewList extends Polymer.Element {
+    class ElementTimeslot extends Polymer.Element {
 
-      static get is() { return 'timeslot-view-list'; }
+      static get is() { return 'timeslot-wc'; }
 
       static get properties() {
           return {
 
-              timeslots: {
-                  type: Array,
-                  value: []
-              },
-
-              timeslotSelected: {
-                  type: Object,
-                  notify: true,
-                  value: {}
-              },
-
-              selected: {
-                  type: Number,
-                  notify: true
+              timeslot: {
+                  type: Object
               }
           };
       }
 
-        ready() {
-            super.ready();
-            this.set('timeslots', serviceManager.get('LocalStoragePluginManager')
-                .get(TimeslotConfig.NAME_SERVICE).getAll());
-        }
+      _tapLoop(evt) {
+          this.timeslot.options.loop =  !this.timeslot.options.loop;
+          if ( this.timeslot.options.loop) {
+              this.$.loopIcon.classList.add("activePaperButton");
+          } else {
+              this.$.loopIcon.classList.remove("activePaperButton");
+          }
+          this.dispatchEvent(new CustomEvent('update', {detail: this.timeslot}));
+      }
 
-        /**
-         * @param event
-         */
-        removeTimeslot(event) {
+      _run(evt) {
+          this.dispatchEvent(new CustomEvent('run', {detail: this.timeslot}));
+      }
 
-            let index = null;
-            this.timeslots.find((element, ind) => {
-                if ( element.id === event.target.item.id) {
-                    index = ind;
-                    return element;
-                }
-            });
+      _remove(evt) {
+          this.dispatchEvent(new CustomEvent('remove', {detail: this.timeslot}));
+      }
 
-            this.splice('timeslots', index, 1);
-            serviceManager.get('LocalStoragePluginManager')
-                .get(TimeslotConfig.NAME_SERVICE)
-                .remove(event.target.item.id);
-        }
-
-        run(evt) {
-
-            serviceManager.get('TimeslotService').run(
-                evt.target.item,
-                {}
-            );
-        }
-
-        displayUpdateView(evt) {
-            this.timeslotSelected = evt.target.item;
-            this.selected = 2;
-        }
-
+      _update(evt) {
+          this.dispatchEvent(new CustomEvent('update-view', {detail: this.timeslot}));
+      }
     }
 
-    window.customElements.define(ElementTimeslotViewList.is, ElementTimeslotViewList);
+    window.customElements.define(ElementTimeslot.is, ElementTimeslot);
 
   </script>
 </dom-module>

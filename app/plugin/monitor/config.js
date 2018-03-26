@@ -37,7 +37,12 @@ class MonitorConfig extends PluginConfig {
         let virtualMonitorHydrator = new PropertyHydrator(
             new VirtualMonitor(),
             {
-                'monitors' :  new HydratorStrategy(new PropertyHydrator(new Monitor()))
+                'monitors' :  new HydratorStrategy(
+                    new PropertyHydrator(
+                        new Monitor(),
+                        { 'monitors' :  new HydratorStrategy(new PropertyHydrator(new Monitor())) }
+                    )
+                )
             }
         );
 

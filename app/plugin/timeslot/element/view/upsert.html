@@ -1,5 +1,5 @@
 
-<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
@@ -35,7 +35,7 @@
         </paper-listbox>
       </paper-dropdown-menu>
       <paper-dropdown-menu id="resource" label="Resource">
-        <paper-listbox id="resources" slot="dropdown-content" selected="1">
+        <paper-listbox id="resources" slot="dropdown-content" multi>
           <template is="dom-repeat" items="{{resources}}" as="resource">
             <paper-item item="{{resource}}">{{resource.customName}}</paper-item>
           </template>
@@ -109,9 +109,13 @@
       _timeslotChanged(newValue, oldValue) {
 
 
+          if (newValue.name) {
+              this.$.name.value = newValue.name;
+          }
 
-          this.$.name.value = newValue.name;
-          this.$.duration.value = newValue.duration;
+          if (newValue.duration) {
+              this.$.duration.value = newValue.duration;
+          }
 
           for (let cont = 0; this.$.monitors.items.length > cont; cont++) {
 
@@ -121,13 +125,24 @@
             }
           }
 
-          for (let cont = 0; this.$.resources.items.length > cont; cont++) {
-              if (newValue.resources[0] && this.$.resources.items[cont].item.id === newValue.resources[0].id) {
-                  this.$.resources.selected = cont;
-                  break;
-              }
+
+          if (!newValue.resources || newValue.resources.length === 0) {
+              return;
           }
 
+          let multiselect = [];
+          for (let cont = 0; newValue.resources.length > cont; cont++) {
+
+              let index =  this.$.resources.items.findIndex(
+                  (paperItem) => {
+                      console.log(  newValue.resources[cont].id, paperItem.item.id);
+                      return newValue.resources[cont].id  === paperItem.item.id
+                  }
+              )
+              multiselect.push(index);
+          }
+
+          this.$.resources.selectedValues = multiselect;
       }
 
       upsertTimeslot() {
@@ -152,10 +167,9 @@
           this.timeslot.duration = this.$.duration.value;
           this.timeslot.monitor = this.$.monitor.selectedItem.item.monitor;
           this.timeslot.resources = []; // TODO REMOVE AND CONTROLL
-          this.timeslot.resources.push(
-              this.$.resource.selectedItem.item
+          this.$.resources.selectedItems.forEach(
+              (paperItem) => {this.timeslot.resources.push(paperItem.item)}
           );
-
 
           timeslotLocalStorage[method](this.timeslot);
       }
