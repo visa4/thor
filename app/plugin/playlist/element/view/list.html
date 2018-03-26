@@ -1,0 +1,152 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../iconset/iconset.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+
+
+<dom-module id="monitor-view-list">
+  <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
+    <style>
+
+
+
+    </style>
+    <slot name="header"></slot>
+    <div hidden$="{{!hideMonitorNotFound}}" style="padding-top: 20px;">
+      <template is="dom-repeat" items="[[monitors]]" as="configuration">
+        <paper-card class="horizontal">
+          <div class="card-content">
+            <div class="title">{{configuration.name}}</div>
+          </div>
+          <div class="card-actions">
+            <paper-radio-button
+                    class="monitor-configuration"
+                    on-click="choiceConfiguration"
+                    item="[[configuration]]"
+                    checked="{{configuration.enable}}"
+                    title="Enable/Disabled" >
+            </paper-radio-button>
+            <paper-icon-button
+                    icon="monitor:edit"
+                    item="[[configuration]]"
+                    on-click="displayUpdateView"
+                    class="circle-small"
+                    title="Modify">
+            </paper-icon-button>
+            <paper-icon-button
+                    icon="monitor:remove"
+                    item="[[configuration]]"
+                    on-click="removeConfiguration"
+                    class="circle-small"
+                    title="Delete">
+            </paper-icon-button>
+          </div>
+          <div class="rate-image"></div>
+         </paper-card>
+      </template>
+    </div>
+    <div hidden$="{{hideMonitorNotFound}}">Non sono presenti monitor virtuali</div>
+  </template>
+
+  <script>
+    class ElementMonitorViewList extends Polymer.Element {
+
+      static get is() { return 'monitor-view-list'; }
+
+      static get properties() {
+          return {
+
+              monitors: {
+                  type: Array,
+                  notify: true,
+                  value: [],
+                  observer: '_monitorChanged'
+              },
+
+              selected: {
+                  type: Number,
+                  notify: true
+              },
+
+              hideMonitorNotFound: {
+                  type: Boolean,
+                  value: false
+              },
+
+              monitorSelected: {
+                  type: Object,
+                  notify: true
+              }
+          };
+      }
+
+      ready() {
+          super.ready();
+          this.set('monitors',  serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).getAll());
+      }
+
+      _monitorChanged(newValue, oldValue) {
+          if (oldValue === undefined) {
+              return;
+          }
+
+          let monitors = this.get('monitors');
+          if (monitors && Array.isArray(monitors) && monitors.length > 0) {
+              this.hideMonitorNotFound = true;
+          } else {
+              this.hideMonitorNotFound = false;
+          }
+      }
+
+      /**
+       * @param event
+       */
+      removeConfiguration(event) {
+
+          let index = null;
+          this.monitors.find((element, ind) => {
+              if ( element.id === event.target.item.id) {
+                  index = ind;
+                  return element;
+              }
+          });
+
+          this.splice('monitors', index, 1);
+          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).remove(event.target.item.id);
+      }
+
+      /**
+       * @param event
+       */
+      choiceConfiguration(event) {
+
+          for (let cont = 0; this.monitors.length > cont; cont++) {
+              if (this.monitors[cont].enable && event.target.item.id !==  this.monitors[cont].id) {
+                  this.set(`monitors.${cont}.enable`, false);
+                  this.monitors[cont].enable = false;
+                  LocalStoragePluginManager.getInstance().get(MonitorConfig.NAME_SERVICE).update(this.monitors[cont]);
+              }
+          }
+          event.target.item.enable = true;
+          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).update(event.target.item);
+          PluginMonitorIndex.electronIpc.send('change-monitors-configuration', event.target.item);
+      }
+
+      displayUpdateView(evt) {
+          this.monitorSelected = evt.target.item;
+          this.selected = 2;
+      }
+    }
+
+    window.customElements.define(ElementMonitorViewList.is, ElementMonitorViewList);
+
+  </script>
+</dom-module>

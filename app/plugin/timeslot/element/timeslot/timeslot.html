@@ -1,0 +1,126 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer-element.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../../../element/iconset/iconset.html">
+<link rel="import" href="../../element/iconset/iconset.html">
+
+<dom-module id="timeslot-view-list">
+  <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
+    <style>
+      /** TODO insert style    */
+      :host ::slotted(.header) {
+          margin-bottom: 16px;
+      }
+    </style>
+    <slot name="header"></slot>
+    <template is="dom-repeat" items="[[timeslots]]" as="timeslot">
+      <paper-card class="horizontal">
+        <div class="card-content">
+          <div class="title">{{timeslot.name}}</div>
+        </div>
+        <div class="card-actions">
+          <paper-icon-button
+                  icon="timeslot:run"
+                  item="[[timeslot]]"
+                  on-click="run"
+                  class="circle-small"
+                  title="Run">
+          </paper-icon-button>
+          <paper-icon-button
+                  icon="app:edit"
+                  item="[[timeslot]]"
+                  on-click="displayUpdateView"
+                  class="circle-small"
+                  title="Modify">
+          </paper-icon-button>
+          <paper-icon-button
+                  icon="app:remove"
+                  item="[[timeslot]]"
+                  on-click="removeTimeslot"
+                  class="circle-small"
+                  title="Delete">
+          </paper-icon-button>
+        </div>
+        <div class$="rate-image paper-card-rirght-bk-{{timeslot.typeLabel}}"></div>
+      </paper-card>
+    </template>
+  </template>
+
+  <script>
+    class ElementTimeslotViewList extends Polymer.Element {
+
+      static get is() { return 'timeslot-view-list'; }
+
+      static get properties() {
+          return {
+
+              timeslots: {
+                  type: Array,
+                  value: []
+              },
+
+              timeslotSelected: {
+                  type: Object,
+                  notify: true,
+                  value: {}
+              },
+
+              selected: {
+                  type: Number,
+                  notify: true
+              }
+          };
+      }
+
+        ready() {
+            super.ready();
+            this.set('timeslots', serviceManager.get('LocalStoragePluginManager')
+                .get(TimeslotConfig.NAME_SERVICE).getAll());
+        }
+
+        /**
+         * @param event
+         */
+        removeTimeslot(event) {
+
+            let index = null;
+            this.timeslots.find((element, ind) => {
+                if ( element.id === event.target.item.id) {
+                    index = ind;
+                    return element;
+                }
+            });
+
+            this.splice('timeslots', index, 1);
+            serviceManager.get('LocalStoragePluginManager')
+                .get(TimeslotConfig.NAME_SERVICE)
+                .remove(event.target.item.id);
+        }
+
+        run(evt) {
+
+            serviceManager.get('TimeslotService').run(
+                evt.target.item,
+                {}
+            );
+        }
+
+        displayUpdateView(evt) {
+            this.timeslotSelected = evt.target.item;
+            this.selected = 2;
+        }
+
+    }
+
+    window.customElements.define(ElementTimeslotViewList.is, ElementTimeslotViewList);
+
+  </script>
+</dom-module>
