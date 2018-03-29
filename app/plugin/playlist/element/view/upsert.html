@@ -9,7 +9,6 @@
 <link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../../bower_components/neon-animation/web-animations.html">
-<link rel="import" href="../iconset/iconset.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -31,16 +30,16 @@
     <slot name="header"></slot>
 
     <div class="flex flex-vertical">
-      <paper-input name="name" label="Name" value="{{playlist.name}}"></paper-input>
+      <paper-input id="name" name="name" label="Name" value="{{playlist.name}}"></paper-input>
       <paper-dropdown-menu id="monitor" label="Timelosts">
-        <paper-listbox id="subMonitor" slot="dropdown-content" multi>
+        <paper-listbox id="timeslots" slot="dropdown-content" multi>
           <template is="dom-repeat" items="{{timeslots}}" as="timeslot">
             <paper-item item="{{timeslot}}">{{timeslot.name}}</paper-item>
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
       <div class="flex flex-horizontal-end">
-        <paper-button on-tap="addMonitor">Add</paper-button>
+        <paper-button on-tap="upsertPlaylist">Add</paper-button>
       </div>
     </div>
   </template>
@@ -55,7 +54,9 @@
 
                   playlist: {
                       type: Object,
-                      notify: true
+                      notify: true,
+                      value: new Playlist,
+                      observer: '_playlistChanged'
                   },
 
                   timeslots: {
@@ -68,6 +69,43 @@
           ready() {
               super.ready();
               this.set('timeslots',  serviceManager.get('LocalStoragePluginManager').get(TimeslotConfig.NAME_SERVICE).getAll());
+          }
+
+          _playlistChanged(newValue, oldValue) {
+              console.log(this.playlist);
+
+              if (!newValue || !newValue.id) {
+                  return;
+              }
+
+              this.$.name.value = newValue.name;
+
+              let multiselect = [];
+              for (let cont = 0; newValue.timeslots.length > cont; cont++) {
+
+                  let index =  this.$.timeslots.items.findIndex(
+                      (paperItem) => {
+                          return newValue.timeslots[cont].id  === paperItem.item.id
+                      }
+                  )
+                  multiselect.push(index);
+              }
+
+              this.$.timeslots.selectedValues = multiselect;
+          }
+
+          upsertPlaylist() {
+
+              this.playlist.name =  this.$.name.value;
+              this.$.timeslots.selectedItems.forEach(
+                  (paperItem) => {this.playlist.append(paperItem.item)}
+              );
+
+              let playlistLocalStorage = serviceManager.get('LocalStoragePluginManager').get(PlaylistConfig.NAME_SERVICE);
+              let method = this.playlist.id ? 'update' : 'save';
+              playlistLocalStorage[method](this.playlist);
+
+              serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) +' playlist')
           }
       }
 

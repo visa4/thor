@@ -9,11 +9,13 @@ class Playlist {
     static get IDLE() { return 'idle'; }
     static get PAUSE() { return 'pause'; }
 
+    /**
+     *
+     */
     constructor() {
 
         this.name       = null;
-        this.status     = null;
-
+        this.status     = Playlist.IDLE;
         this.timeslots = [];
     }
 
@@ -57,7 +59,7 @@ class Playlist {
         if (index > -1) {
             this.timeslots.slice(index, 1);
         }
-        return index > -1 ? true : false;
+        return index > -1;
     }
 
     /**

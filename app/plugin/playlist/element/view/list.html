@@ -17,31 +17,24 @@
 
     </style>
     <slot name="header"></slot>
-    <div hidden$="{{!hideMonitorNotFound}}" style="padding-top: 20px;">
+    <div hidden$="{{!notFound}}" style="padding-top: 20px;">
       <template is="dom-repeat" items="[[playlists]]" as="playlist">
         <paper-card class="horizontal">
           <div class="card-content">
             <div class="title">{{playlist.name}}</div>
           </div>
           <div class="card-actions">
-            <paper-radio-button
-                    class="monitor-configuration"
-                    on-click="choiceConfiguration"
-                    item="[[configuration]]"
-                    checked="{{configuration.enable}}"
-                    title="Enable/Disabled" >
-            </paper-radio-button>
             <paper-icon-button
-                    icon="monitor:edit"
-                    item="[[configuration]]"
+                    icon="app:edit"
+                    item="[[playlist]]"
                     on-click="displayUpdateView"
                     class="circle-small"
                     title="Modify">
             </paper-icon-button>
             <paper-icon-button
-                    icon="monitor:remove"
-                    item="[[configuration]]"
-                    on-click="removeConfiguration"
+                    icon="app:remove"
+                    item="[[playlist]]"
+                    on-click="remove"
                     class="circle-small"
                     title="Delete">
             </paper-icon-button>
@@ -50,7 +43,7 @@
          </paper-card>
       </template>
     </div>
-    <div hidden$="{{hideMonitorNotFound}}">Non sono presenti monitor virtuali</div>
+    <div hidden$="{{notFound}}">Non sono presenti monitor virtuali</div>
   </template>
 
   <script>
@@ -65,17 +58,65 @@
                   type: Array,
                   notify: true,
                   value: [],
+                  observer: '_playlistChanged'
               },
 
+              playlistSelected: {
+                  type: Object,
+                  notify: true,
+                  value: {}
+              },
+
+              selected: {
+                  type: Number,
+                  notify: true
+              },
+
+              notFound: {
+                  type:Boolean,
+                  notify: true,
+                  value: true,
+              }
           };
       }
 
       ready() {
           super.ready();
+          this.set('playlists',  serviceManager.get('LocalStoragePluginManager').get(PlaylistConfig.NAME_SERVICE).getAll());
+      }
+
+      _playlistChanged(newValue, oldValue) {
+          if (oldValue === undefined) {
+              return;
+          }
+
+          this.hideMonitorNotFound = newValue && Array.isArray(newValue) && newValue.length > 0;
+      }
+
+      remove(evt) {
+
+          let index = -1;
+          let element = this.playlists.find((element, ind) => {
+              if ( element.id === evt.target.item.id) {
+                  index = ind;
+                  return element;
+              }
+          });
+
+          if (index < 0 ) {
+              return;
+          }
+
+          this.splice('playlists', index, 1);
+          serviceManager.get('LocalStoragePluginManager')
+              .get(PlaylistConfig.NAME_SERVICE)
+              .remove(evt.target.item.id);
+
+          serviceManager.get('PaperToastNotification').notify('Remove playlist')
       }
 
       displayUpdateView(evt) {
-          this.monitorSelected = evt.target.item;
+          this.playlistSelected = evt.target.item;
           this.selected = 2;
       }
     }

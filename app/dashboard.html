@@ -6,6 +6,7 @@
     <!-- Load your application shell -->
     <link rel="stylesheet" type="text/css"  href="css/dashboard-styles.css">
     <link rel="import" href="element/layout/application-layout.html">
+    <link rel="import" href="bower_components/paper-toast/paper-toast.html">
 
     <!-- TODO move into one file -->
     <script src="lib/hydrator/HydratorAware.js"></script>
@@ -22,6 +23,7 @@
     <script src="lib/local-storage/LocalStorage.js"></script>
 
     <script src="lib/plugin/PluginConfig.js"></script>
+    <script src="lib/notification/PaperToastNotification.js"></script>
 
     <script src="lib/model/monitor/VirtualMonitor.js"></script>
     <script src="lib/model/monitor/Monitor.js"></script>
@@ -29,6 +31,7 @@
     <script src="lib/model/file/Video.js"></script>
     <script src="lib/model/file/Image.js"></script>
     <script src="lib/model/timeslot/Timeslot.js"></script>
+    <script src="lib/model/playlist/Playlist.js"></script>
     <script src="dashboard.js"></script>
 
     <script src="lib/Utils.js"></script>
@@ -36,5 +39,6 @@
   </head>
   <body>
     <application-layout></application-layout>
+    <paper-toast id="notification"></paper-toast>
   </body>
 </html>

@@ -18,9 +18,9 @@
       }
 
     </style>
-    <iron-pages id="ironPages" selected="{{selected}}">
+    <iron-pages id="ironPages" selected="{{selected}}" >
       <div id="list">
-        <playlist-view-list>
+        <playlist-view-list selected="{{selected}}" playlist-selected="{{playlist}}">
             <div slot="header" class="flex-horizontal flex-1 flex-vertical-center">
                 <div class="flex flex-1 flex-vertical-center">Lista Playlist</div>
                 <paper-icon-button
@@ -46,7 +46,16 @@
           </playlist-view-upsert>
       </div>
       <div id="edit">
-EDIT
+          <playlist-view-upsert playlist="{{playlist}}">
+              <div slot="header" class="flex-horizontal flex-1 flex-vertical-center">
+                  <paper-icon-button
+                          icon="app:back"
+                          title="Torna alla lista delle configurazioni"
+                          on-tap="displayListView">
+                  </paper-icon-button>
+                  <div>Edit playlist</div>
+              </div>
+          </playlist-view-upsert>
       </div>
     </iron-pages>
   </template>

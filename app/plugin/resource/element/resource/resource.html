@@ -10,7 +10,7 @@
 <link rel="import" href="../../../../element/iconset/iconset.html">
 <link rel="import" href="../../element/iconset/iconset.html">
 
-<dom-module id="timeslot-wc">
+<dom-module id="resource-wc">
   <template>
     <style include="global-layout"></style>
     <style include="global-style"></style>
@@ -24,12 +24,16 @@
         padding: 8px;
       }
 
-      .flags {
-
+      .imgBackground {
+        background-image: url("img/image.jpeg") !important;
       }
-      
-      #rightSection {
-        background-image: url("img/timslot.jpg");
+
+      .videoBackground {
+        background-image: url("img/video.jpeg") !important;
+      }
+
+      .webBackground {
+        background-image: url("img/web.jpeg") !important;
       }
 
       .activePaperButton {
@@ -40,15 +44,10 @@
     <paper-card class="horizontal">
       <div class="card-content flex flex-horizontal">
         <div class="data flex-basis-80 flex flex-vertical">
-          <div>{{timeslot.name}}</div>
-          <div>{{timeslot.duration}} sec</div>
-        </div>
-        <div class="flags flex-basis-20">
-          <paper-icon-button id="loopIcon" item="{{timeslot}}" icon="timeslot:loop" on-tap="_tapLoop"></paper-icon-button>
+          <div>{{resource.customName}}</div>
         </div>
       </div>
       <div class="card-actions">
-        <paper-icon-button icon="timeslot:run" on-click="_run" class="circle-small" title="Run"></paper-icon-button>
         <paper-icon-button icon="app:edit"  on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
         <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
         </paper-icon-button>
@@ -58,43 +57,50 @@
   </template>
 
   <script>
-    class ElementTimeslot extends Polymer.Element {
+    class ElementResource extends Polymer.Element {
 
-      static get is() { return 'timeslot-wc'; }
+      static get is() { return 'resource-wc'; }
 
       static get properties() {
           return {
 
-              timeslot: {
+              resource: {
                   type: Object,
+                  observer: '_resourceChanged'
               }
           };
       }
-      
-      _tapLoop(evt) {
-          this.timeslot.options.loop =  !this.timeslot.options.loop;
-          if ( this.timeslot.options.loop) {
-              this.$.loopIcon.classList.add("activePaperButton");
-          } else {
-              this.$.loopIcon.classList.remove("activePaperButton");
-          }
-          this.dispatchEvent(new CustomEvent('update', {detail: this.timeslot}));
-      }
 
-      _run(evt) {
-          this.dispatchEvent(new CustomEvent('run', {detail: this.timeslot}));
+
+      _resourceChanged(newValue, oldValue) {
+          if (!newValue) {
+              return;
+          }
+
+          switch (true) {
+              case newValue.type === 'text/html':
+                  this.$.rightSection.classList.add("webBackground");
+                  break;
+              case newValue.type === 'image/png':
+                  this.$.rightSection.classList.add("imgBackground");
+                  break;
+              case newValue.type === 'video/mp4':
+                  this.$.rightSection.classList.add("videoBackground");
+                  break;
+
+          }
       }
 
       _remove(evt) {
-          this.dispatchEvent(new CustomEvent('remove', {detail: this.timeslot}));
+          this.dispatchEvent(new CustomEvent('remove', {detail: this.resource}));
       }
 
       _update(evt) {
-          this.dispatchEvent(new CustomEvent('update-view', {detail: this.timeslot}));
+          this.dispatchEvent(new CustomEvent('update-view', {detail: this.resource}));
       }
     }
 
-    window.customElements.define(ElementTimeslot.is, ElementTimeslot);
+    window.customElements.define(ElementResource.is, ElementResource);
 
   </script>
 </dom-module>

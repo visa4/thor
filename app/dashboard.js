@@ -23,4 +23,7 @@ serviceManager.set(
 ).set(
     locatStoragePluginManager.constructor.name,
     locatStoragePluginManager
+).set(
+    'PaperToastNotification',
+    new PaperToastNotification('notification')
 );

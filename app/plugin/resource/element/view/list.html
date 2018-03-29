@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../iconset/iconset.html">
+<link rel="import" href="../resource/resource.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -21,28 +22,11 @@
     </style>
     <slot name="header"></slot>
     <template is="dom-repeat" items="[[resources]]" as="resource">
-      <paper-card class="horizontal">
-        <div class="card-content">
-          <div class="title">{{resource.customName}}</div>
-        </div>
-        <div class="card-actions">
-          <paper-icon-button
-                  icon="resource:edit"
-                  item="[[resource]]"
-                  on-click="displayUpdateView"
-                  class="circle-small"
-                  title="Modify">
-          </paper-icon-button>
-          <paper-icon-button
-                  icon="resource:remove"
-                  item="[[resource]]"
-                  on-click="removeResource"
-                  class="circle-small"
-                  title="Delete">
-          </paper-icon-button>
-        </div>
-        <div class$="rate-image paper-card-rirght-bk-{{resource.typeLabel}}"></div>
-      </paper-card>
+      <resource-wc
+              resource="{{resource}}"
+              on-update-view="displayUpdateView"
+              on-remove="remove">
+      </resource-wc>
     </template>
   </template>
 
@@ -78,27 +62,29 @@
         }
 
         /**
-         * @param event
+         * @param evt
          */
-        removeResource(event) {
+        remove(evt) {
 
             let index = null;
             this.resources.find((element, ind) => {
-                if ( element.id === event.target.item.id) {
+                if ( element.id === evt.detail.id) {
                     index = ind;
                     return element;
                 }
             });
 
             this.splice('resources', index, 1);
-            serviceManager.get('LocalStoragePluginManager').get(ResourceConfig.NAME_SERVICE).remove(event.target.item.id);
+            serviceManager.get('LocalStoragePluginManager').get(ResourceConfig.NAME_SERVICE).remove(evt.detail.id);
         }
 
+        /**
+         * @param evt
+         */
         displayUpdateView(evt) {
-            this.resourceSelected = evt.target.item;
+            this.resourceSelected = evt.detail;
             this.selected = 2;
         }
-
     }
 
     window.customElements.define(ElementResourceViewList.is, ElementResourceViewList);
