@@ -7,6 +7,7 @@
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../element/playlist/playlist.html">
 
 
 <dom-module id="playlist-view-list">
@@ -19,28 +20,7 @@
     <slot name="header"></slot>
     <div hidden$="{{!notFound}}" style="padding-top: 20px;">
       <template is="dom-repeat" items="[[playlists]]" as="playlist">
-        <paper-card class="horizontal">
-          <div class="card-content">
-            <div class="title">{{playlist.name}}</div>
-          </div>
-          <div class="card-actions">
-            <paper-icon-button
-                    icon="app:edit"
-                    item="[[playlist]]"
-                    on-click="displayUpdateView"
-                    class="circle-small"
-                    title="Modify">
-            </paper-icon-button>
-            <paper-icon-button
-                    icon="app:remove"
-                    item="[[playlist]]"
-                    on-click="remove"
-                    class="circle-small"
-                    title="Delete">
-            </paper-icon-button>
-          </div>
-          <div class="rate-image"></div>
-         </paper-card>
+        <playlist-wc playlist="{{playlist}}" on-wrap-remove="remove" on-wrap-update="displayUpdateView"></playlist-wc>
       </template>
     </div>
     <div hidden$="{{notFound}}">Non sono presenti monitor virtuali</div>
@@ -82,7 +62,14 @@
 
       ready() {
           super.ready();
-          this.set('playlists',  serviceManager.get('LocalStoragePluginManager').get(PlaylistConfig.NAME_SERVICE).getAll());
+
+          serviceManager.get('StoragePluginManager')
+              .get(PlaylistConfig.NAME_SERVICE)
+              .getAll()
+              .then((data) =>  {
+                  this.set('playlists', data)
+              });
+
       }
 
       _playlistChanged(newValue, oldValue) {
@@ -97,7 +84,7 @@
 
           let index = -1;
           let element = this.playlists.find((element, ind) => {
-              if ( element.id === evt.target.item.id) {
+              if ( element.id === evt.detail.id) {
                   index = ind;
                   return element;
               }
@@ -108,15 +95,17 @@
           }
 
           this.splice('playlists', index, 1);
-          serviceManager.get('LocalStoragePluginManager')
+          serviceManager.get('StoragePluginManager')
               .get(PlaylistConfig.NAME_SERVICE)
-              .remove(evt.target.item.id);
-
-          serviceManager.get('PaperToastNotification').notify('Remove playlist')
+              .remove(evt.detail)
+              .then((data) =>  {
+                  this.set('playlists', data)
+                  serviceManager.get('PaperToastNotification').notify('Remove playlist')
+              });
       }
 
       displayUpdateView(evt) {
-          this.playlistSelected = evt.target.item;
+          this.playlistSelected = evt.detail;
           this.selected = 2;
       }
     }

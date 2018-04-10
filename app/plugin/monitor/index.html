@@ -14,7 +14,7 @@
 <link rel="import" href="element/iconset/iconset.html">
 <link rel="import" href="element/view/list.html">
 <link rel="import" href="element/view/upsert.html">
-<link rel="import" href="element/monitor/monitor.html">
+<link rel="import" href="element/monitor/system-monitor.html">
 
 <dom-module id="monitor-index">
   <template>
@@ -67,12 +67,12 @@
     <iron-pages id="ironPages" selected="{{selected}}">
       <div id="current_settings" class="container">
         <template is="dom-repeat" items="{{monitors}}">
-          <monitor-monitor
+          <system-monitor-wc
                   width="{{item.size.width}}"
                   height="{{item.size.height}}"
                   top="{{item.bounds.y}}"
                   left="{{item.bounds.x}}">
-          </monitor-monitor>
+          </system-monitor-wc>
         </template>
       </div>
       <div id="virtual_monitor" class="flex-vertical">

@@ -2,12 +2,10 @@
   "name": "Dsign",
   "description": "Dsign",
   "devDependencies": {
-    "bower": "^1.8.2",
-    "polymer-cli": "^1.5.4",
-    "electron": "~1.8.2",
+    "bower": "^1.8.4",
+    "electron": "1.8.4",
     "electron-builder": "~19.20.0",
-    "app-layout": "PolymerElements/app-layout#^2.0.0",
-    "web-animations-js": "^2.3.1"
+    "polymer-cli": "^1.5.4"
   },
   "scripts": {
     "postinstall": "install-app-deps",
@@ -24,6 +22,7 @@
     }
   },
   "dependencies": {
+    "adm-zip": "^0.4.7",
     "fluent-ffmpeg": "^2.1.2",
     "image-size": "^0.6.2"
   }

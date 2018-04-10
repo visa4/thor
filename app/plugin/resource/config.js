@@ -150,6 +150,7 @@ class ResourceConfig extends PluginConfig {
         genericHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('customName')
             .enableHydrateProperty('size')
+            .enableHydrateProperty('wcName')
             .enableHydrateProperty('type')
             .enableHydrateProperty('location')
             .enableHydrateProperty('lastModified');
@@ -157,6 +158,7 @@ class ResourceConfig extends PluginConfig {
         genericHydrator.enableExtractProperty('id')
             .enableExtractProperty('customName')
             .enableExtractProperty('size')
+            .enableExtractProperty('wcName')
             .enableExtractProperty('type')
             .enableExtractProperty('location')
             .enableExtractProperty('lastModified');
@@ -202,10 +204,21 @@ class ResourceConfig extends PluginConfig {
             };
 
             if (evt.data.type === "application/zip") {
-                let unzip= require('unzip');
-                fs.createReadStream(evt.data.getPath()).pipe(unzip.Extract({ path: `${pathName}${evt.data.id}` }));
-                evt.data.location.name = evt.data.id + '/index.html';
-                evt.data.type = 'text/html';
+                let AdmZip = require('adm-zip');
+                let fs = require('fs');
+
+                let zip =  new AdmZip(evt.data.getPath());
+                zip.extractAllTo(`${pathName}${evt.data.id}`, true);
+
+                if (fs.existsSync(`${pathName}${evt.data.id}/package.json`)) {
+                    let wcConfig = JSON.parse(
+                        fs.readFileSync(`${pathName}${evt.data.id}/package.json`).toString()
+                    );
+
+                    evt.data.location.name = `${evt.data.id}/${wcConfig.main}`;
+                    evt.data.type = 'text/html';
+                    evt.data.wcName = wcConfig.name;
+                }
             }
 
             this.update(evt.data);

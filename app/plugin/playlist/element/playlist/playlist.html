@@ -4,9 +4,12 @@
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
 
-<dom-module id="monitor-wc">
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../../../element/iconset/iconset.html">
+
+<dom-module id="playlist-wc">
   <template>
     <style include="global-layout"></style>
     <style include="global-style"></style>
@@ -19,9 +22,9 @@
       .data {
         padding: 8px;
       }
-
+      
       #rightSection {
-        background-image: url("img/monitor.jpg");
+        background-image: url("img/playlist.jpg");
       }
 
       .activePaperButton {
@@ -32,16 +35,10 @@
     <paper-card class="horizontal">
       <div class="card-content flex flex-horizontal">
         <div class="data flex flex-vertical">
-          <div>{{monitor.name}}</div>
+          <div>{{playlist.name}}</div>
         </div>
       </div>
       <div class="card-actions">
-        <paper-radio-button
-                class="monitor-configuration"
-                on-click="_changeEnableMonitor"
-                checked="{{monitor.enable}}"
-                title="Enable/Disabled" >
-        </paper-radio-button>
         <paper-icon-button icon="app:edit"  on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
         <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
         </paper-icon-button>
@@ -51,33 +48,29 @@
   </template>
 
   <script>
-      class ElementMonitor extends Polymer.Element {
+    class ElementPlaylist extends Polymer.Element {
 
-          static get is() { return 'monitor-wc'; }
+      static get is() { return 'playlist-wc'; }
 
-          static get properties() {
-              return {
+      static get properties() {
+          return {
 
-                  monitor: {
-                      type: Object,
-                  }
-              };
-          }
-
-          _remove(evt) {
-              this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.monitor}));
-          }
-
-          _changeEnableMonitor() {
-              this.dispatchEvent(new CustomEvent('wrap-change-enable-monitor', {detail: this.monitor}));
-          }
-
-          _update(evt) {
-              this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.monitor}));
-          }
+              playlist: {
+                  type: Object,
+              }
+          };
       }
 
-      window.customElements.define(ElementMonitor.is, ElementMonitor);
+      _remove(evt) {
+          this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.playlist}));
+      }
+
+      _update(evt) {
+          this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.playlist}));
+      }
+    }
+
+    window.customElements.define(ElementPlaylist.is, ElementPlaylist);
 
   </script>
 </dom-module>

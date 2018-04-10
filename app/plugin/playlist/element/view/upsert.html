@@ -96,16 +96,23 @@
 
           upsertPlaylist() {
 
-              this.playlist.name =  this.$.name.value;
+              this.playlist.name = this.$.name.value;
               this.$.timeslots.selectedItems.forEach(
-                  (paperItem) => {this.playlist.append(paperItem.item)}
+                  (paperItem) => {
+                      this.playlist.append(paperItem.item)
+                  }
               );
 
-              let playlistLocalStorage = serviceManager.get('LocalStoragePluginManager').get(PlaylistConfig.NAME_SERVICE);
               let method = this.playlist.id ? 'update' : 'save';
-              playlistLocalStorage[method](this.playlist);
-
-              serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) +' playlist')
+              let playlistLocalStorage = serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE);
+              playlistLocalStorage[method](this.playlist)
+                  .then((data) => {
+                      serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' playlist');
+                  })
+                  .catch((err) => {
+                          console.log(err)
+                      }
+                  );
           }
       }
 

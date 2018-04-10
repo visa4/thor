@@ -5,6 +5,7 @@
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../iconset/iconset.html">
+<link rel="import" href="../monitor/monitor.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -14,43 +15,16 @@
   <template>
     <style include="global-layout"></style>
     <style include="global-style"></style>
-    <style>
-
-
-
-    </style>
     <slot name="header"></slot>
     <div hidden$="{{!hideMonitorNotFound}}" style="padding-top: 20px;">
-      <template is="dom-repeat" items="[[monitors]]" as="configuration">
-        <paper-card class="horizontal">
-          <div class="card-content">
-            <div class="title">{{configuration.name}}</div>
-          </div>
-          <div class="card-actions">
-            <paper-radio-button
-                    class="monitor-configuration"
-                    on-click="choiceConfiguration"
-                    item="[[configuration]]"
-                    checked="{{configuration.enable}}"
-                    title="Enable/Disabled" >
-            </paper-radio-button>
-            <paper-icon-button
-                    icon="monitor:edit"
-                    item="[[configuration]]"
-                    on-click="displayUpdateView"
-                    class="circle-small"
-                    title="Modify">
-            </paper-icon-button>
-            <paper-icon-button
-                    icon="monitor:remove"
-                    item="[[configuration]]"
-                    on-click="removeConfiguration"
-                    class="circle-small"
-                    title="Delete">
-            </paper-icon-button>
-          </div>
-          <div class="rate-image"></div>
-         </paper-card>
+      <template is="dom-repeat" items="[[monitors]]" as="monitor">
+        <monitor-wc
+                monitor="{{monitor}}"
+                on-wrap-update="displayUpdateView"
+                on-wrap-remove="remove"
+                on-wrap-change-enable-monitor="changeEnableMonior"
+        >
+        </monitor-wc>
       </template>
     </div>
     <div hidden$="{{hideMonitorNotFound}}">Non sono presenti monitor virtuali</div>
@@ -107,41 +81,41 @@
       }
 
       /**
-       * @param event
+       * @param evt
        */
-      removeConfiguration(event) {
+      remove(evt) {
 
           let index = null;
           this.monitors.find((element, ind) => {
-              if ( element.id === event.target.item.id) {
+              if ( element.id === evt.detail.id) {
                   index = ind;
                   return element;
               }
           });
 
           this.splice('monitors', index, 1);
-          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).remove(event.target.item.id);
+          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).remove(evt.detail.id);
       }
 
       /**
-       * @param event
+       * @param evt
        */
-      choiceConfiguration(event) {
+      changeEnableMonior(evt) {
 
           for (let cont = 0; this.monitors.length > cont; cont++) {
-              if (this.monitors[cont].enable && event.target.item.id !==  this.monitors[cont].id) {
+              if (this.monitors[cont].enable && evt.detail.id !==  this.monitors[cont].id) {
                   this.set(`monitors.${cont}.enable`, false);
                   this.monitors[cont].enable = false;
-                  LocalStoragePluginManager.getInstance().get(MonitorConfig.NAME_SERVICE).update(this.monitors[cont]);
+                  serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).update(this.monitors[cont]);
               }
           }
-          event.target.item.enable = true;
-          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).update(event.target.item);
-          PluginMonitorIndex.electronIpc.send('change-monitors-configuration', event.target.item);
+          evt.detail.enable = true;
+          serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE).update(evt.detail);
+          PluginMonitorIndex.electronIpc.send('change-monitors-configuration', evt.detail);
       }
 
       displayUpdateView(evt) {
-          this.monitorSelected = evt.target.item;
+          this.monitorSelected = evt.detail;
           this.selected = 2;
       }
     }

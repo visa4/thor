@@ -17,12 +17,20 @@ const hydratorPluginManager = new HydratorPluginManager();
  */
 const locatStoragePluginManager = new LocalStoragePluginManager();
 
+/**
+ * @type {StoragePluginManager}
+ */
+const storagePluginManager = new StoragePluginManager();
+
 serviceManager.set(
     hydratorPluginManager.constructor.name,
     hydratorPluginManager
 ).set(
     locatStoragePluginManager.constructor.name,
     locatStoragePluginManager
+).set(
+    storagePluginManager.constructor.name,
+    storagePluginManager
 ).set(
     'PaperToastNotification',
     new PaperToastNotification('notification')

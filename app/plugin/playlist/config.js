@@ -1,4 +1,3 @@
-
 /**
  *
  */
@@ -24,14 +23,14 @@ class PlaylistConfig extends PluginConfig {
     init() {
         this._loadHydrator();
 
-        let playlistLocalStorage = new LocalStorage(
-            PlaylistConfig.NAME_STORAGE,
+        let storage = new Storage(
+            new IndexedDbStorage('Dsign', 'playlist'),
             this.serviceManager.get('HydratorPluginManager').get('playlistHydrator')
         );
 
-        this.serviceManager.get('LocalStoragePluginManager').set(
+        this.serviceManager.get('StoragePluginManager').set(
             PlaylistConfig.NAME_SERVICE,
-            playlistLocalStorage
+            storage
         );
     }
 

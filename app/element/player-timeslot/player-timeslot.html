@@ -107,9 +107,17 @@
                             this.$.resources.appendChild(divResource);
                             break;
                         case 'text/html':
-                            let tagWebView = this._createWebView(this.timeslot.resources[cont]);
-                            divResource.appendChild(tagWebView);
-                            this.$.resources.appendChild(divResource);
+                            this._createWebComponent(this.timeslot.resources[cont])
+                                .then(
+                                    function(data) {
+                                        this.$.resources.appendChild(data);
+                                    }.bind(this)
+                                )
+                                .catch(
+                                    function(data) {
+                                        console.warn(data);
+                                    }
+                                );
                             break;
                     }
                 }
@@ -177,19 +185,33 @@
              * @param resource
              * @return Element
              */
-            _createWebView(resource) {
-                let element = document.createElement('webview');
-                element.addEventListener('did-finish-load', function (evt) {
-                    // TODO send metadata
-                    this.send('timeslot-config', {'test': 'test'});
+            _createWebComponent(resource) {
+                let fs = require('fs');
+                let promise = new Promise((resolve, reject) => {
+                    let entryPoint = `${resource.location.path}${resource.location.name}`;
+                    if (fs.existsSync(entryPoint)) {
+
+                        if (!customElements.get(resource.wcName)) {
+
+                            Polymer.importHref(
+                                entryPoint,
+                                () => {
+                                    console.log('console;');
+                                    resolve(document.createElement(resource.wcName)); }
+                            );
+                        } else {
+                            resolve(
+                                document.createElement(resource.wcName)
+                            );
+                        }
+
+                    } else {
+                        console.warn(`Web component entry point not found: ${entryPoint}`)
+                        reject(`Web component entry point not found: ${entryPoint}`);
+
+                    }
                 });
-
-                element.src = `${resource.location.path}${resource.location.name}`;
-                element.setAttribute('nodeintegration', '');
-                element.style.height = '100%';
-                element.style.width = '100%';
-
-                return element;
+                return promise;
             }
 
             disconnectedCallback() {
@@ -205,3 +227,4 @@
 
     </script>
 </dom-module>
+
