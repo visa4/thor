@@ -154,7 +154,6 @@
 
           let timeslot = new Timeslot();
           let method = 'save';
-          let timeslotLocalStorage = serviceManager.get('LocalStoragePluginManager').get(TimeslotConfig.NAME_SERVICE);
 
           if (this.timeslot.id) {
               method = 'update';
@@ -171,7 +170,15 @@
               (paperItem) => {this.timeslot.resources.push(paperItem.item)}
           );
 
-          timeslotLocalStorage[method](this.timeslot);
+         serviceManager.get('StoragePluginManager')
+              .get(TimeslotConfig.NAME_SERVICE)[method](this.timeslot)
+              .then((data) => {
+                  serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' timeslot');
+              })
+              .catch((err) => {
+                      console.log(err)
+                  }
+              );
       }
     }
 

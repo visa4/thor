@@ -4,6 +4,19 @@
 class IndexedDbStorage {
 
     /**
+     * @param indexedDB
+     */
+    setConnection(indexedDB) {
+        let nameDb = 'db' + this.dbName.charAt(0).toUpperCase() +  this.dbName.slice(1);
+        window[nameDb] = indexedDB;
+    }
+
+    getConnection() {
+        let nameDb = 'db' + this.dbName.charAt(0).toUpperCase() +  this.dbName.slice(1);
+        return window[nameDb] ? window[nameDb] : null;
+    }
+
+    /**
      *
      * @param dbName
      * @param collectionName
@@ -21,6 +34,7 @@ class IndexedDbStorage {
         }
 
         this.collectionName = collectionName;
+        this.dbName = dbName;
 
 
         /**
@@ -39,17 +53,30 @@ class IndexedDbStorage {
          * @param evt
          */
         request.onupgradeneeded = (evt) => {
-            this.db = evt.target.result;
-            this.db.createObjectStore(this.collectionName, { keyPath: "id" });
+            this.setConnection(evt.target.result);
+            this.getConnection().createObjectStore(this.collectionName, { keyPath: "id" });
         };
 
         /**
          * @param evt
          */
         request.onsuccess = (evt) => {
-            this.db = evt.target.result;
-            if (!this.db.objectStoreNames.contains(this.collectionName)) {
-                this.db.createObjectStore(this.collectionName, { keyPath: "id" });
+            this.setConnection(evt.target.result);
+            if (!this.getConnection().objectStoreNames.contains(this.collectionName)) {
+
+                this.getConnection().close();
+                let request = indexedDB.open(dbName, this._getUpgradedVersion());
+                console.log('updrade');
+                request.onupgradeneeded = (evt) => {
+                    this.setConnection(evt.target.result);
+                    this.getConnection().createObjectStore(this.collectionName, { keyPath: "id" });
+                };
+
+                request.onsuccess = (evt) => {
+                    this.setConnection(evt.target.result);
+                };
+
+                request.onerror = this._dbError;
             }
         }
     }
@@ -63,7 +90,7 @@ class IndexedDbStorage {
         let promise = new Promise((resolve, reject) => {
 
             try {
-                let request = this.db.transaction([this.collectionName], "readwrite")
+                let request = this.getConnection().transaction([this.collectionName], "readwrite")
                     .objectStore(this.collectionName)
                     .add(obj);
 
@@ -96,7 +123,7 @@ class IndexedDbStorage {
         let promise = new Promise((resolve, reject) => {
 
             try {
-                let request = this.db.transaction([this.collectionName], "readwrite")
+                let request = this.getConnection().transaction([this.collectionName], "readwrite")
                     .objectStore(this.collectionName)
                     .put(obj);
 
@@ -129,7 +156,7 @@ class IndexedDbStorage {
         let promise = new Promise((resolve, reject) => {
 
             try {
-                let request = this.db.transaction([this.collectionName], "readwrite")
+                let request = this.getConnection().transaction([this.collectionName], "readwrite")
                     .objectStore(this.collectionName)
                     .delete(obj.id);
 
@@ -162,7 +189,7 @@ class IndexedDbStorage {
         let promise = new Promise((resolve, reject) => {
 
             try {
-                let request = this.db.transaction([this.collectionName], "readonly")
+                let request = this.getConnection().transaction([this.collectionName], "readonly")
                     .objectStore(this.collectionName)
                     .get(id);
 
@@ -203,7 +230,7 @@ class IndexedDbStorage {
 
             try {
 
-                let request = this.db.transaction([this.collectionName], "readonly")
+                let request = this.getConnection().transaction([this.collectionName], "readonly")
                     .objectStore(this.collectionName)
                     .openCursor();
 
@@ -255,6 +282,45 @@ class IndexedDbStorage {
         });
 
         return promise;
+    }
+
+    _dropObjectStorage() {
+
+        this.getConnection().close();
+        let request = indexedDB.open(this.dbName, this._getUpgradedVersion());
+
+        /**
+         * @param evt
+         */
+        request.onerror = this._dbError;
+
+        /**
+         * @param evt
+         */
+        request.onupgradeneeded = (evt) => {
+            console.log('remove storage');
+            this.setConnection(evt.target.result);
+            if (this.getConnection().objectStoreNames.contains(this.collectionName)) {
+                this.getConnection() .deleteObjectStore(this.collectionName);
+            }
+        };
+    }
+
+    /**
+     * @return {*}
+     * @private
+     */
+    _getUpgradedVersion() {
+        return this.getConnection().version + 1;
+    }
+
+    /**
+     *
+     * @param evt
+     * @private
+     */
+    _dbError(evt) {
+        console.error('Error',evt);
     }
 }
 

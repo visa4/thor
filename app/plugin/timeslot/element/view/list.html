@@ -62,9 +62,12 @@
 
         ready() {
             super.ready();
-            this.set('timeslots', serviceManager.get('LocalStoragePluginManager')
-                .get(TimeslotConfig.NAME_SERVICE).getAll());
-
+            serviceManager.get('StoragePluginManager')
+                .get(TimeslotConfig.NAME_SERVICE)
+                .getAll()
+                .then((data) =>  {
+                    this.set('timeslots', data)
+                });
         }
 
         /**
@@ -73,7 +76,7 @@
         remove(evt) {
 
             let index = null;
-            this.timeslots.find((element, ind) => {
+            let element = this.timeslots.find((element, ind) => {
                 if ( element.id === evt.detail.id) {
                     index = ind;
                     return element;
@@ -81,9 +84,13 @@
             });
 
             this.splice('timeslots', index, 1);
-            serviceManager.get('LocalStoragePluginManager')
+            serviceManager.get('StoragePluginManager')
                 .get(TimeslotConfig.NAME_SERVICE)
-                .remove(evt.detail.id);
+                .remove(evt.detail)
+                .then((data) =>  {
+                    this.set('playlists', data)
+                    serviceManager.get('PaperToastNotification').notify('Remove timeslot')
+                });
         }
 
 

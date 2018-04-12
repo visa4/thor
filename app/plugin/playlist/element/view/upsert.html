@@ -68,11 +68,15 @@
 
           ready() {
               super.ready();
-              this.set('timeslots',  serviceManager.get('LocalStoragePluginManager').get(TimeslotConfig.NAME_SERVICE).getAll());
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                      this.set('timeslots', data)
+                  });
           }
 
           _playlistChanged(newValue, oldValue) {
-              console.log(this.playlist);
 
               if (!newValue || !newValue.id) {
                   return;

@@ -21,12 +21,14 @@ class TimeslotConfig extends PluginConfig {
 
         this._loadHydrator();
 
-        this.serviceManager.get('LocalStoragePluginManager').set(
+        let storage = new Storage(
+            new IndexedDbStorage('Dsign', 'timeslot'),
+            this.serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
+        );
+
+        this.serviceManager.get('StoragePluginManager').set(
             TimeslotConfig.NAME_SERVICE,
-            new LocalStorage(
-                TimeslotConfig.NAME_STORAGE,
-                this.serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
-            )
+            storage
         );
 
         this.serviceManager.set('TimeslotService', new TimeslotService(
