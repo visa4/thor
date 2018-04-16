@@ -209,7 +209,17 @@
               this.monitor.name =  this.identifier;
               this.monitor.monitors =  this.monitors;
 
-              let monitor =  serviceManager.get('LocalStoragePluginManager').get(MonitorConfig.NAME_SERVICE)[this.monitor.id ?  'update' : 'save'](this.monitor);
+              let method = this.monitor.id ? 'update' : 'save';
+              let monitorStorage = serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE);
+              let monitor =  monitorStorage[method](this.monitor)
+                  .then((data) => {
+                      serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' monitor');
+                  })
+                  .catch((err) => {
+                          console.log(err)
+                      }
+                  );
+
               if (monitor.enable) {
                   PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
               }

@@ -58,7 +58,12 @@
 
         ready() {
             super.ready();
-            this.set('resources', serviceManager.get('LocalStoragePluginManager').get(ResourceConfig.NAME_SERVICE).getAll());
+            serviceManager.get('StoragePluginManager')
+                .get(ResourceConfig.NAME_SERVICE)
+                .getAll()
+                .then((data) =>  {
+                    this.set('resources', data)
+                });
         }
 
         /**
@@ -75,7 +80,13 @@
             });
 
             this.splice('resources', index, 1);
-            serviceManager.get('LocalStoragePluginManager').get(ResourceConfig.NAME_SERVICE).remove(evt.detail.id);
+
+            serviceManager.get('StoragePluginManager')
+                .get(ResourceConfig.NAME_SERVICE)
+                .remove(evt.detail)
+                .then((data) =>  {
+                    serviceManager.get('PaperToastNotification').notify('Remove resource')
+                });
         }
 
         /**

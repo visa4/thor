@@ -3,6 +3,7 @@
   "description": "Dsign",
   "devDependencies": {
     "bower": "^1.8.4",
+    "devtron": "^1.4.0",
     "electron": "1.8.4",
     "electron-builder": "~19.20.0",
     "polymer-cli": "^1.5.4"

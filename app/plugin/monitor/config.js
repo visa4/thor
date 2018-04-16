@@ -1,6 +1,3 @@
-global.VIRTUAL_MONITOR_NAME_SERVICE = 'virtual-monitor.service';
-global.VIRTUAL_MONITOR_NAME_STORAGE = 'virtual-monitor.data';
-
 /**
  *
  */
@@ -24,12 +21,14 @@ class MonitorConfig extends PluginConfig {
 
         this._loadHydrator();
 
-        this.serviceManager.get('LocalStoragePluginManager').set(
+        let storage = new Storage(
+            new IndexedDbStorage('Dsign', 'virtualMonitor'),
+            this.serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator')
+        );
+
+        this.serviceManager.get('StoragePluginManager').set(
             MonitorConfig.NAME_SERVICE,
-            new LocalStorage(
-                MonitorConfig.NAME_STORAGE,
-                this.serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator'),
-            )
+            storage
         );
     }
 

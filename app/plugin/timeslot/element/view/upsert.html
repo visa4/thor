@@ -84,7 +84,15 @@
 
       connectedCallback () {
           super.connectedCallback();
-          let virtualMonitors =  serviceManager.get('LocalStoragePluginManager').get(VIRTUAL_MONITOR_NAME_SERVICE).getAll();
+          let virtualMonitors = [];
+
+          serviceManager.get('StoragePluginManager')
+              .get(MonitorConfig.NAME_SERVICE)
+              .getAll()
+              .then((data) =>  {
+                  virtualMonitors = data;
+              });
+
           let monitors =  [];
           for (let cont = 0; virtualMonitors.length > cont; cont++) {
               for (let index = 0; virtualMonitors[cont].monitors.length > index; index++) {
@@ -103,7 +111,16 @@
               return;
           }
 
-          this.resources = serviceManager.get('LocalStoragePluginManager').get(RESOURCE_NAME_SERVICE).getAll();
+          serviceManager.get('StoragePluginManager')
+              .get(ResourceConfig.NAME_SERVICE)
+              .getAll()
+              .then((data) => {
+                  this.resources = data;
+              })
+              .catch((err) => {
+                      console.log(err)
+                  }
+              );
       }
 
       _timeslotChanged(newValue, oldValue) {

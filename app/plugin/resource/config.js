@@ -1,6 +1,3 @@
-global.RESOURCE_NAME_SERVICE = 'resource.service';
-global.RESOURCE_NAME_STORAGE = 'resource.data';
-
 /**
  *
  */
@@ -26,31 +23,30 @@ class ResourceConfig extends PluginConfig {
     init() {
         this._loadHydrator();
 
-        let resourceLocalStorage = new LocalStorage(
-            ResourceConfig.NAME_STORAGE,
+        let storage = new Storage(
+            new IndexedDbStorage('Dsign', 'resource'),
             this.serviceManager.get('HydratorPluginManager').get('resourceHydrator')
         );
 
-        resourceLocalStorage.eventManager.on(
-            LocalStorage.LOCAL_STORAGE_REMOVE_EVT,
-            this.onRemove.bind(resourceLocalStorage)
+        storage.eventManager.on(
+            Storage.STORAGE_POST_SAVE,
+            this.onSave.bind(storage)
         );
 
-        resourceLocalStorage.eventManager.on(
-            LocalStorage.LOCAL_STORAGE_SAVE_EVT,
-            this.onSave.bind(resourceLocalStorage)
+        storage.eventManager.on(
+            Storage.STORAGE_POST_UPDATE,
+            this.onUpdate.bind(storage)
         );
 
-        resourceLocalStorage.eventManager.on(
-            LocalStorage.LOCAL_STORAGE_UPDATE_EVT,
-            this.onUpdate.bind(resourceLocalStorage)
+        storage.eventManager.on(
+            Storage.STORAGE_POST_REMOVE,
+            this.onRemove.bind(storage)
         );
 
-        this.serviceManager.get('LocalStoragePluginManager').set(
+        this.serviceManager.get('StoragePluginManager').set(
             ResourceConfig.NAME_SERVICE,
-            resourceLocalStorage
+            storage
         );
-
     }
 
     /**
@@ -174,11 +170,16 @@ class ResourceConfig extends PluginConfig {
      */
     onRemove(evt) {
         let fs = require('fs');
-        fs.unlink(evt.data.getPath(), function (err) {
-            if (err) {
-                throw err;
-            }
-        })
+
+        if (evt.data.type == 'text/html') {
+            Utils.removeDir(evt.data.location.path + evt.data.id);
+        } else {
+            fs.unlink(evt.data.getPath(), function (err) {
+                if (err) {
+                    throw err;
+                }
+            })
+        }
     }
 
     /**
@@ -187,6 +188,11 @@ class ResourceConfig extends PluginConfig {
     onSave(evt) {
         let fs = require('fs');
         let path = require('path');
+
+        // TODO accept only domain object
+        evt.data.getPath = function () {
+            return this.location.path + this.location.name;
+        }.bind(evt.data);
 
         let arrayName = path.win32.basename(evt.data.getPath()).split('.');
         let pathName = `${__dirname}/../../storage/resource/`;
@@ -209,6 +215,7 @@ class ResourceConfig extends PluginConfig {
 
                 let zip =  new AdmZip(evt.data.getPath());
                 zip.extractAllTo(`${pathName}${evt.data.id}`, true);
+                Utils.move(evt.data.getPath(), `${evt.data.location.path}${evt.data.id}/${evt.data.location.name}`);
 
                 if (fs.existsSync(`${pathName}${evt.data.id}/package.json`)) {
                     let wcConfig = JSON.parse(
@@ -233,6 +240,11 @@ class ResourceConfig extends PluginConfig {
         let fs = require('fs');
         let path = require('path');
 
+        // TODO accept only domain object
+        evt.data.getPath = function () {
+            return this.location.path + this.location.name;
+        }.bind(evt.data);
+
         let arrayName = path.win32.basename(evt.data.getPath()).split('.');
         if (arrayName[0] !== 'resource') {
             // Break because the resource is already move
@@ -240,19 +252,31 @@ class ResourceConfig extends PluginConfig {
         }
 
         let pathName = `${__dirname}/../../storage/resource/`;
+        let filePath = `${__dirname}/../../storage/resource/${evt.data.id}`;
         let fileName = `${evt.data.id}.${arrayName[1]}`;
         let url = `${pathName}${fileName}`;
 
-        fs.readdir(pathName, (error, files) => {
-            if (error) throw error;
+        fs.lstat(filePath, (err, stats) => {
 
-            files.filter(nameFile => nameFile.indexOf(evt.data.id) >= 0).forEach(fileToRemove => {
-                fs.unlink(pathName + fileToRemove, function (err) {
-                    if (err) {
-                        throw err;
-                    }
-                })
-            });
+            if(err) {
+                console.log(err);
+                fs.readdir(pathName, (error, files) => {
+                    if (error) throw error;
+
+                    files.filter(nameFile => nameFile.indexOf(evt.data.id) >= 0).forEach(fileToRemove => {
+                        fs.unlink(pathName + fileToRemove, function (err) {
+                            if (err) {
+                                throw err;
+                            }
+                        })
+                    });
+                });
+                return;
+            }
+
+            if (stats.isDirectory()) {
+                Utils.removeDir(filePath);
+            }
         });
 
         fs.rename(evt.data.getPath(), url , function (err) {
@@ -266,10 +290,22 @@ class ResourceConfig extends PluginConfig {
             };
 
             if (evt.data.type === "application/zip") {
-                let unzip= require('unzip');
-                fs.createReadStream(evt.data.getPath()).pipe(unzip.Extract({ path: `${pathName}${evt.data.id}` }));
-                evt.data.location.name = evt.data.id + '/index.html';
-                evt.data.type = 'text/html';
+                let AdmZip = require('adm-zip');
+                let fs = require('fs');
+
+                let zip =  new AdmZip(evt.data.getPath());
+                zip.extractAllTo(`${pathName}${evt.data.id}`, true);
+                Utils.move(evt.data.getPath(), `${evt.data.location.path}${evt.data.id}/${evt.data.location.name}`);
+
+                if (fs.existsSync(`${pathName}${evt.data.id}/package.json`)) {
+                    let wcConfig = JSON.parse(
+                        fs.readFileSync(`${pathName}${evt.data.id}/package.json`).toString()
+                    );
+
+                    evt.data.location.name = `${evt.data.id}/${wcConfig.main}`;
+                    evt.data.type = 'text/html';
+                    evt.data.wcName = wcConfig.name;
+                }
             }
 
             this.update(evt.data);

@@ -108,8 +108,8 @@
               );
 
               let method = this.playlist.id ? 'update' : 'save';
-              let playlistLocalStorage = serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE);
-              playlistLocalStorage[method](this.playlist)
+              let playlistStorage = serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE);
+              playlistStorage[method](this.playlist)
                   .then((data) => {
                       serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' playlist');
                   })

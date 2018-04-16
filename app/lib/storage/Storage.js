@@ -13,6 +13,20 @@ catch(err) {
  */
 class Storage extends HydratorAware {
 
+
+    static get STORAGE_PRE_SAVE() { return 'pre-save'};
+
+    static get STORAGE_POST_SAVE() { return 'post-save'};
+
+    static get STORAGE_PRE_UPDATE() { return 'pre-update'};
+
+    static get STORAGE_POST_UPDATE() { return 'post-update'};
+
+    static get STORAGE_PRE_REMOVE() { return 'pre-remove'};
+
+    static get STORAGE_POST_REMOVE() { return 'post-remove'};
+
+
     /**
      * @return {number}
      */
@@ -42,13 +56,57 @@ class Storage extends HydratorAware {
      * @return {Promise}
      */
     save(obj) {
+
         let data = this.hydrator ? this.hydrator.extract(obj) : obj;
-        return this.adapter.save(data);
+
+        let promise = new Promise((resolve, reject) => {
+
+            this.eventManager.fire(Storage.STORAGE_PRE_SAVE, obj);
+
+            this.adapter.save(data)
+                .then(
+                    (data) => {
+
+                        this.eventManager.fire(Storage.STORAGE_POST_SAVE, obj);
+
+                        resolve(obj);
+                    }
+                ).catch(
+                    (err) => {
+                        console.error(err);
+                        reject(null);
+                })
+        });
+
+        return promise;
     }
 
+    /**
+     * @param obj
+     * @return {Promise}
+     */
     update(obj) {
         let data = this.hydrator ? this.hydrator.extract(obj) : obj;
-        return this.adapter.update(data);
+
+        let promise = new Promise((resolve, reject) => {
+
+            this.eventManager.fire(Storage.STORAGE_PRE_UPDATE, obj);
+
+            this.adapter.update(data)
+                .then(
+                    (data) => {
+
+                        this.eventManager.fire(Storage.STORAGE_POST_UPDATE, obj);
+
+                        resolve(obj);
+                    }
+                ).catch(
+                (err) => {
+                    console.error(err);
+                    reject(null);
+                })
+        });
+        return promise;
     }
 
     /**
@@ -107,8 +165,31 @@ class Storage extends HydratorAware {
         return promise;
     }
 
+    /**
+     * @param obj
+     * @return {Promise}
+     */
     remove(obj) {
-        return this.adapter.remove(obj);
+
+        let promise = new Promise((resolve, reject) => {
+
+            this.eventManager.fire(Storage.STORAGE_PRE_REMOVE, obj);
+            this.adapter.remove(obj)
+                .then(
+                    (data) => {
+                        this.eventManager.fire(Storage.STORAGE_POST_REMOVE, obj);
+                        resolve(data);
+                    }
+                ).catch(
+                (err) => {
+                    console.error(err);
+                    reject([]);
+                }
+            );
+        });
+
+        return promise;
+
     }
 
 

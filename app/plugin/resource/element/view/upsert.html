@@ -58,13 +58,13 @@
           }
 
           let data = {};
-          let resourceLocalStorage = serviceManager.get('LocalStoragePluginManager').get(ResourceConfig.NAME_SERVICE);
+          let resourceStorage = serviceManager.get('StoragePluginManager').get(ResourceConfig.NAME_SERVICE)
           let file = this.$.fileUpload.files[0];
           let nameFile = this.$.name.value;
 
           if (this.resource.id) {
 
-              data = resourceLocalStorage.hydrator.extract(this.resource);
+              data = resourceStorage.hydrator.extract(this.resource);
               data.customName = nameFile;
 
               if (file) {
@@ -85,12 +85,21 @@
 
           } else {
               if (file) {
-                  data = resourceLocalStorage.hydrator.extract(file);
+                  data = resourceStorage.hydrator.extract(file);
               }
               data.customName = nameFile;
           }
 
-          let monitor = resourceLocalStorage[this.resource.id ?  'update' : 'save'](data);
+          let method = this.resource.id ?  'update' : 'save';
+          serviceManager.get('StoragePluginManager')
+              .get(ResourceConfig.NAME_SERVICE)[method](data)
+              .then((data) => {
+                  serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' resource');
+              })
+              .catch((err) => {
+                      console.log(err)
+                  }
+              );
       }
     }
 
