@@ -20,90 +20,108 @@
     </div>
     <div>
       <div class="flex flex-horizontal-end" style="margin-top: 20px;">
-        <paper-button on-tap="upsertResoruce">Add</paper-button>
+        <paper-button on-tap="upsertResoruce">{{labelAction}}</paper-button>
       </div>
     </div>
   </template>
 
   <script>
-    class ElementResourceViewUpsert extends Polymer.Element {
+      class ElementResourceViewUpsert extends Polymer.Element {
 
-      static get is() { return 'resource-view-upsert'; }
+          static get is() { return 'resource-view-upsert'; }
 
-      static get fs() { return require('fs') }
+          static get fs() { return require('fs') }
 
-      static get path() { return require('path') }
+          static get path() { return require('path') }
 
-      static get properties() {
-          return {
+          static get properties() {
+              return {
 
-              resource: {
-                  type: Object,
-                  notify: true,
-                  value: {},
-                  observer: '_resourceChanged'
+                  resource: {
+                      type: Object,
+                      notify: true,
+                      value: {},
+                      observer: '_resourceChanged'
+                  },
+
+                  labelAction: {
+                      type: String,
+                      value: 'Save'
+                  }
               }
           }
-      }
 
-
-      _resourceChanged(newValue, oldValue) {
-          this.$.name.value =  newValue.customName;
-      }
-
-      upsertResoruce() {
-
-          if (!this.$.name.value) {
-              return;
-          }
-
-          let data = {};
-          let resourceStorage = serviceManager.get('StoragePluginManager').get(ResourceConfig.NAME_SERVICE)
-          let file = this.$.fileUpload.files[0];
-          let nameFile = this.$.name.value;
-
-          if (this.resource.id) {
-
-              data = resourceStorage.hydrator.extract(this.resource);
-              data.customName = nameFile;
-
-              if (file) {
-                  data.size = file.size;
-                  data.lastModified = file.lastModified;
-                  data.location = file.location;
-                  data.type = file.type;
-
-                  if (file.dimension) {
-                      data.dimension = file.dimension;
-                  }
-
-                  if (file.duration) {
-                      data.duration = file.duration;
-                  }
-
-              }
-
-          } else {
-              if (file) {
-                  data = resourceStorage.hydrator.extract(file);
-              }
-              data.customName = nameFile;
-          }
-
-          let method = this.resource.id ?  'update' : 'save';
-          serviceManager.get('StoragePluginManager')
-              .get(ResourceConfig.NAME_SERVICE)[method](data)
-              .then((data) => {
-                  serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' resource');
-              })
-              .catch((err) => {
-                      console.log(err)
-                  }
+          ready() {
+              super.ready();
+              serviceManager.get('StoragePluginManager')
+                  .get(ResourceConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
               );
-      }
-    }
+          }
 
-    window.customElements.define(ElementResourceViewUpsert.is, ElementResourceViewUpsert);
+          _clearData() {
+              this.$.name.value = null;
+              this.$.fileUpload.clearName();
+          }
+
+          _resourceChanged(newValue, oldValue) {
+              this.$.name.value =  newValue.customName;
+              this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
+          }
+
+          upsertResoruce() {
+
+              if (!this.$.name.value) {
+                  return;
+              }
+
+              let data = {};
+              let resourceStorage = serviceManager.get('StoragePluginManager').get(ResourceConfig.NAME_SERVICE)
+              let file = this.$.fileUpload.files[0];
+              let nameFile = this.$.name.value;
+
+              if (this.resource.id) {
+
+                  data = resourceStorage.hydrator.extract(this.resource);
+                  data.customName = nameFile;
+
+                  if (file) {
+                      data.size = file.size;
+                      data.lastModified = file.lastModified;
+                      data.location = file.location;
+                      data.type = file.type;
+
+                      if (file.dimension) {
+                          data.dimension = file.dimension;
+                      }
+
+                      if (file.duration) {
+                          data.duration = file.duration;
+                      }
+
+                  }
+
+              } else {
+                  if (file) {
+                      data = resourceStorage.hydrator.extract(file);
+                  }
+                  data.customName = nameFile;
+              }
+
+              let method = this.resource.id ?  'update' : 'save';
+              serviceManager.get('StoragePluginManager')
+                  .get(ResourceConfig.NAME_SERVICE)[method](data)
+                  .then((data) => {
+                      serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' resource');
+                  })
+                  .catch((err) => {
+                          console.log(err)
+                      }
+                  );
+          }
+      }
+
+      window.customElements.define(ElementResourceViewUpsert.is, ElementResourceViewUpsert);
 
   </script>
 </dom-module>

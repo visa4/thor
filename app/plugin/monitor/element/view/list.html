@@ -31,125 +31,138 @@
   </template>
 
   <script>
-    class ElementMonitorViewList extends Polymer.Element {
+      class ElementMonitorViewList extends Polymer.Element {
 
-      static get is() { return 'monitor-view-list'; }
+          static get is() { return 'monitor-view-list'; }
 
-      static get properties() {
-          return {
+          static get properties() {
+              return {
 
-              monitors: {
-                  type: Array,
-                  notify: true,
-                  value: [],
-                  observer: '_monitorChanged'
-              },
+                  monitors: {
+                      type: Array,
+                      notify: true,
+                      value: [],
+                      observer: '_monitorChanged'
+                  },
 
-              selected: {
-                  type: Number,
-                  notify: true
-              },
+                  selected: {
+                      type: Number,
+                      notify: true
+                  },
 
-              hideMonitorNotFound: {
-                  type: Boolean,
-                  value: false
-              },
+                  hideMonitorNotFound: {
+                      type: Boolean,
+                      value: false
+                  },
 
-              monitorSelected: {
-                  type: Object,
-                  notify: true
-              }
-          };
-      }
-
-      ready() {
-          super.ready();
-
-          serviceManager.get('StoragePluginManager')
-              .get(MonitorConfig.NAME_SERVICE)
-              .getAll()
-              .then((data) =>  {
-                  this.set('monitors', data)
-              });
-      }
-
-      _monitorChanged(newValue, oldValue) {
-          if (oldValue === undefined) {
-              return;
-          }
-
-          let monitors = this.get('monitors');
-          if (monitors && Array.isArray(monitors) && monitors.length > 0) {
-              this.hideMonitorNotFound = true;
-          } else {
-              this.hideMonitorNotFound = false;
-          }
-      }
-
-      /**
-       * @param evt
-       */
-      remove(evt) {
-
-          let index = null;
-          this.monitors.find((element, ind) => {
-              if ( element.id === evt.detail.id) {
-                  index = ind;
-                  return element;
-              }
-          });
-
-          this.splice('monitors', index, 1);
-          serviceManager.get('StoragePluginManager')
-              .get(MonitorConfig.NAME_SERVICE)
-              .remove(evt.detail)
-              .then((data) =>  {
-                  this.set('playlists', data)
-                  serviceManager.get('PaperToastNotification').notify('Remove playlist')
-              });
-      }
-
-      /**
-       * @param evt
-       */
-      changeEnableMonior(evt) {
-
-          for (let cont = 0; this.monitors.length > cont; cont++) {
-              if (this.monitors[cont].enable && evt.detail.id !==  this.monitors[cont].id) {
-                  this.set(`monitors.${cont}.enable`, false);
-                  this.monitors[cont].enable = false;
-
-                  serviceManager.get('StoragePluginManager')
-                      .get(MonitorConfig.NAME_SERVICE)
-                      .update(this.monitors[cont])
-                      .then((data) => {})
-                      .catch((err) => {
-                              console.log(err)
-                          }
-                      );
-              }
-          }
-          evt.detail.enable = true;
-          serviceManager.get('StoragePluginManager')
-              .get(MonitorConfig.NAME_SERVICE)
-              .update(evt.detail)
-              .then((data) => {
-                  serviceManager.get('PaperToastNotification').notify(' Enable ' + evt.detail.name);
-              })
-              .catch((err) => {
-                      console.log(err)
+                  monitorSelected: {
+                      type: Object,
+                      notify: true
                   }
+              };
+          }
+
+          ready() {
+              super.ready();
+
+              this._loadResource();
+              serviceManager.get('StoragePluginManager')
+                  .get(MonitorConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
               );
-          PluginMonitorIndex.electronIpc.send('change-monitors-configuration', evt.detail);
+
+              serviceManager.get('StoragePluginManager')
+                  .get(MonitorConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_UPDATE, this._loadResource.bind(this)
+              );
+          }
+
+          _loadResource() {
+              serviceManager.get('StoragePluginManager')
+                  .get(MonitorConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                      this.set('monitors', data)
+                  });
+          }
+
+          _monitorChanged(newValue, oldValue) {
+              if (oldValue === undefined) {
+                  return;
+              }
+
+              let monitors = this.get('monitors');
+              if (monitors && Array.isArray(monitors) && monitors.length > 0) {
+                  this.hideMonitorNotFound = true;
+              } else {
+                  this.hideMonitorNotFound = false;
+              }
+          }
+
+          /**
+           * @param evt
+           */
+          remove(evt) {
+
+              let index = null;
+              this.monitors.find((element, ind) => {
+                  if ( element.id === evt.detail.id) {
+                      index = ind;
+                      return element;
+                  }
+              });
+
+              this.splice('monitors', index, 1);
+              serviceManager.get('StoragePluginManager')
+                  .get(MonitorConfig.NAME_SERVICE)
+                  .remove(evt.detail)
+                  .then((data) =>  {
+                      this.set('playlists', data)
+                      serviceManager.get('PaperToastNotification').notify('Remove playlist')
+                  });
+          }
+
+          /**
+           * @param evt
+           */
+          changeEnableMonior(evt) {
+
+              for (let cont = 0; this.monitors.length > cont; cont++) {
+                  if (this.monitors[cont].enable && evt.detail.id !==  this.monitors[cont].id) {
+                      this.set(`monitors.${cont}.enable`, false);
+                      this.monitors[cont].enable = false;
+
+                      serviceManager.get('StoragePluginManager')
+                          .get(MonitorConfig.NAME_SERVICE)
+                          .update(this.monitors[cont])
+                          .then((data) => {})
+                          .catch((err) => {
+                                  console.log(err)
+                              }
+                          );
+                  }
+              }
+              evt.detail.enable = true;
+              serviceManager.get('StoragePluginManager')
+                  .get(MonitorConfig.NAME_SERVICE)
+                  .update(evt.detail)
+                  .then((data) => {
+                      serviceManager.get('PaperToastNotification').notify(' Enable ' + evt.detail.name);
+                  })
+                  .catch((err) => {
+                          console.log(err)
+                      }
+                  );
+              PluginMonitorIndex.electronIpc.send('change-monitors-configuration', evt.detail);
+          }
+
+          displayUpdateView(evt) {
+              this.monitorSelected = evt.detail;
+              this.selected = 2;
+          }
       }
 
-      displayUpdateView(evt) {
-          this.monitorSelected = evt.detail;
-          this.selected = 2;
-      }
-    }
-
-    window.customElements.define(ElementMonitorViewList.is, ElementMonitorViewList);
+      window.customElements.define(ElementMonitorViewList.is, ElementMonitorViewList);
 
   </script>
 </dom-module>

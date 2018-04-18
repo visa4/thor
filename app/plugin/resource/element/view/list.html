@@ -17,7 +17,7 @@
     <style>
       /** TODO insert style    */
       :host ::slotted(.header) {
-          margin-bottom: 16px;
+        margin-bottom: 16px;
       }
     </style>
     <slot name="header"></slot>
@@ -31,74 +31,88 @@
   </template>
 
   <script>
-    class ElementResourceViewList extends Polymer.Element {
+      class ElementResourceViewList extends Polymer.Element {
 
-      static get is() { return 'resource-view-list'; }
+          static get is() { return 'resource-view-list'; }
 
-      static get properties() {
-          return {
+          static get properties() {
+              return {
 
-              resources: {
-                  type: Array,
-                  value: []
-              },
+                  resources: {
+                      type: Array,
+                      value: []
+                  },
 
-              resourceSelected: {
-                  type: Object,
-                  notify: true,
-                  value: {}
-              },
+                  resourceSelected: {
+                      type: Object,
+                      notify: true,
+                      value: {}
+                  },
 
-              selected: {
-                  type: Number,
-                  notify: true
-              }
-          };
+                  selected: {
+                      type: Number,
+                      notify: true
+                  }
+              };
+          }
+
+          ready() {
+              super.ready();
+
+              this._loadResource();
+              serviceManager.get('StoragePluginManager')
+                  .get(ResourceConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
+              );
+
+              serviceManager.get('StoragePluginManager')
+                  .get(ResourceConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_UPDATE, this._loadResource.bind(this)
+              );
+          }
+
+          _loadResource() {
+              serviceManager.get('StoragePluginManager')
+                  .get(ResourceConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                      this.set('resources', data)
+                  });
+          }
+
+          /**
+           * @param evt
+           */
+          remove(evt) {
+
+              let index = null;
+              this.resources.find((element, ind) => {
+                  if ( element.id === evt.detail.id) {
+                      index = ind;
+                      return element;
+                  }
+              });
+
+              this.splice('resources', index, 1);
+
+              serviceManager.get('StoragePluginManager')
+                  .get(ResourceConfig.NAME_SERVICE)
+                  .remove(evt.detail)
+                  .then((data) =>  {
+                      serviceManager.get('PaperToastNotification').notify('Remove resource')
+                  });
+          }
+
+          /**
+           * @param evt
+           */
+          displayUpdateView(evt) {
+              this.resourceSelected = evt.detail;
+              this.selected = 2;
+          }
       }
 
-        ready() {
-            super.ready();
-            serviceManager.get('StoragePluginManager')
-                .get(ResourceConfig.NAME_SERVICE)
-                .getAll()
-                .then((data) =>  {
-                    this.set('resources', data)
-                });
-        }
-
-        /**
-         * @param evt
-         */
-        remove(evt) {
-
-            let index = null;
-            this.resources.find((element, ind) => {
-                if ( element.id === evt.detail.id) {
-                    index = ind;
-                    return element;
-                }
-            });
-
-            this.splice('resources', index, 1);
-
-            serviceManager.get('StoragePluginManager')
-                .get(ResourceConfig.NAME_SERVICE)
-                .remove(evt.detail)
-                .then((data) =>  {
-                    serviceManager.get('PaperToastNotification').notify('Remove resource')
-                });
-        }
-
-        /**
-         * @param evt
-         */
-        displayUpdateView(evt) {
-            this.resourceSelected = evt.detail;
-            this.selected = 2;
-        }
-    }
-
-    window.customElements.define(ElementResourceViewList.is, ElementResourceViewList);
+      window.customElements.define(ElementResourceViewList.is, ElementResourceViewList);
 
   </script>
 </dom-module>Resource

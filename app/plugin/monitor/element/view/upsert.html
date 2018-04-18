@@ -93,7 +93,7 @@
           </template>
         </template>
         <div class="flex flex-horizontal-end">
-          <paper-button on-tap="upsertConfiguration" class="margin-top-16">Save</paper-button>
+          <paper-button on-tap="upsertConfiguration" class="margin-top-16">{{labelAction}}</paper-button>
         </div>
       </div>
       <div class="flex-basis-30">
@@ -175,8 +175,27 @@
                   selected: {
                       type: Number,
                       notify: true
+                  },
+
+                  labelAction: {
+                      type: String,
+                      value: 'Save'
                   }
               };
+          }
+
+          ready() {
+              super.ready();
+              serviceManager.get('StoragePluginManager')
+                  .get(MonitorConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
+              );
+          }
+
+          _clearData() {
+              this.$.name.value = null;
+              this.monitor.monitors = [];
+              this.set('monitors', []);
           }
 
           addMonitor() {
@@ -201,6 +220,10 @@
                   }
               } else {
                   this.push('monitors', monitor);
+              }
+
+              for (let i = 0; i < dataArray.length; i++) {
+                  dataArray[i].value = null;
               }
           }
 
@@ -245,6 +268,7 @@
               this.identifier = newValue.name;
               this.set('monitors', newValue.getMonitors());
               this.set('allMonitors', newValue.getMonitors({nested:true}));
+              this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
           }
       }
 

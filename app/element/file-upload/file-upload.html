@@ -97,7 +97,6 @@
           }
 
           _fileChange(evt) {
-              console.log('change', evt.currentTarget.files);
               if (!evt.currentTarget.files) {
                   return;
               }
@@ -141,7 +140,7 @@
 
                   let source =  ElementFileUpload.fs.createReadStream(form.get('upload').path);
                   let nameSplit =  ElementFileUpload.path.basename(form.get('upload').path).split('.');
-                  let nameFileDest = (!this.multi && this.renameSingleFile) ? this.renameSingleFile + '.' + nameSplit[1] : nameSplit[0] + '.' + nameSplit[1];
+                  let nameFileDest = (!this.multi && this.renameSingleFile) ? this.renameSingleFile + '.' +  nameSplit[nameSplit.length -1] : nameSplit[0] + '.' + nameSplit[nameSplit.length -1];
 
                   let destination = ElementFileUpload.fs.createWriteStream(tmpDir + nameFileDest);
                   source.pipe(destination);
@@ -189,6 +188,10 @@
                       );
                       break;
               }
+          }
+
+          clearName() {
+              this._setNameInput(null);
           }
       }
 
