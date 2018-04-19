@@ -95,6 +95,7 @@
 
                     let divResource = this._createResourceDiv();
                     switch ( this.timeslot.resources[cont].type) {
+                        case 'image/jpeg':
                         case 'image/png':
 
                             let divImage = this._creteImage(this.timeslot.resources[cont]);
@@ -119,6 +120,9 @@
                                     }
                                 );
                             break;
+                        default:
+                            // TODO log error
+                            console.error('Resource type not found', this.timeslot.resource[cont]);
                     }
                 }
             }

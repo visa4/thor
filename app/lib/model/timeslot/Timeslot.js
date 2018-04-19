@@ -3,9 +3,26 @@ class Timeslot {
 
     constructor() {
 
-        this.name       = null;
+        /**
+         * @type {null|string}
+         */
+        this.name = null;
 
-        this.timeslots  = [];
+        /**
+         * @type {Array}
+         */
+        this.bind = [];
+
+        /**
+         *
+         * @type {null|Object}
+         */
+        this.virtualMonitorReference = null;
+
+        /**
+         * @type {Array}
+         */
+        this.resources = [];
 
         /**
          * options.loop    = true|false

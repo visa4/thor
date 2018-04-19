@@ -111,10 +111,11 @@
 
             start(evt, msg) {
 
-                if (msg.timeslot.monitor.id != this.identifier) {
+                if (msg.timeslot.virtualMonitorReference.monitorId != this.identifier) {
                     return;
                 }
 
+                console.log(msg.timeslot);
                 let timeslot = document.createElement('player-timeslot');
                 timeslot.height = this.height;
                 timeslot.width  = this.width;

@@ -30,211 +30,220 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
 <link rel="import" href="../../css/global-styles.html">
 
 <dom-module id="application-layout">
-  <template>
-    <style include="global-style"></style>
-    <style>
-      :host {
-        display: block;
-      }
+    <template>
+        <style include="global-style"></style>
+        <style>
+            :host {
+                display: block;
+            }
 
-      app-header-layout {
-        left: 64px;
-        margin-right: 64px;
-      }
+            app-header-layout {
+                left: 64px;
+                margin-right: 64px;
+            }
 
-      app-header {
-        color: var(--title-color);
-        background-color: var(--dark-primary-color);
-      }
+            app-header {
+                color: var(--title-color);
+                background-color: var(--dark-primary-color);
+            }
 
-      app-header paper-icon-button {
-        --paper-icon-button-ink-color: var(--title-color);
-      }
+            app-header paper-icon-button {
+                --paper-icon-button-ink-color: var(--title-color);
+            }
 
-      app-drawer iron-selector div  {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        width: 100%;
-        height: 64px;
-      }
+            app-drawer iron-selector div {
+                display: flex;
+                align-items: center;
+                cursor: pointer;
+                width: 100%;
+                height: 64px;
+            }
 
-      app-drawer {
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 64px;
+            app-drawer {
+                top: 0;
+                right: 0;
+                bottom: 0;
+                left: 64px;
 
-        --app-drawer-content-container: {
-          visibility: visible;
-          padding: 0 0;
-        }
-      }
+                --app-drawer-content-container: {
+                    visibility: visible;
+                    padding: 0 0;
+                }
+            }
 
-      .menu-text {
-        padding-right: 8px;
-        justify-content: flex-end;
-      }
+            .menu-text {
+                padding-right: 8px;
+                justify-content: flex-end;
+            }
 
-      .menu-icon {
-        height: 64px;
-        width: 99px;
-        display: flex;
-       justify-content: center;
-      }
+            .menu-icon {
+                height: 64px;
+                width: 99px;
+                display: flex;
+                justify-content: center;
+            }
 
-    </style>
-    <app-header-layout>
-      <app-header slot="header" fixed condenses effects="waterfall">
-        <app-toolbar>
-          <paper-icon-button icon="app:menu" on-click="toggle"></paper-icon-button>
-          <div main-title>Thor</div>
-          <element-internet internet="vai toni"></element-internet>
-        </app-toolbar>
-      </app-header>
-      <div>
-        <iron-pages id="views" selected="[[page]]" attr-for-selected="name" fallback-selection="view404" role="main">
-          <plugin-loader items="{{menuItems}}"></plugin-loader>
-          <app-view404 name="view404"></app-view404>
-        </iron-pages>
-      </div>
-    </app-header-layout>
-    <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
-      <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
-        <template is="dom-repeat" items="{{menuItems}}" as="item">
-          <div menu-item value="{{item.element}}" on-click="handleRoute">
-            <div class="menu-text">{{item.label}}</div>
-            <div class="menu-icon">
-              <paper-icon-button icon="{{item.icon}}" title="{{item.label}}" style="{{item.style}}"></paper-icon-button>
+        </style>
+        <app-header-layout>
+            <app-header slot="header" fixed condenses effects="waterfall">
+                <app-toolbar>
+                    <paper-icon-button icon="app:menu" on-click="toggle"></paper-icon-button>
+                    <div main-title>{{nameApplication}}</div>
+                    <element-internet internet="vai toni"></element-internet>
+                </app-toolbar>
+            </app-header>
+            <div>
+                <iron-pages id="views" selected="[[page]]" attr-for-selected="name" fallback-selection="view404"
+                            role="main">
+                    <plugin-loader items="{{menuItems}}"></plugin-loader>
+                    <app-view404 name="view404"></app-view404>
+                </iron-pages>
             </div>
-          </div>
-        </template>
-      </iron-selector>
-    </app-drawer>
-  </template>
+        </app-header-layout>
+        <app-drawer id="drawer" slot="drawer" swipe-open="[[narrow]]">
+            <iron-selector selected="[[page]]" attr-for-selected="name" class="drawer-list" role="navigation">
+                <template is="dom-repeat" items="{{menuItems}}" as="item">
+                    <div menu-item value="{{item.element}}" on-click="handleRoute">
+                        <div class="menu-text">{{item.label}}</div>
+                        <div class="menu-icon">
+                            <paper-icon-button icon="{{item.icon}}" title="{{item.label}}"
+                                               style="{{item.style}}"></paper-icon-button>
+                        </div>
+                    </div>
+                </template>
+            </iron-selector>
+        </app-drawer>
+    </template>
 
-  <script>
-    class ApplicationLayout extends Polymer.Element {
+    <script>
+        class ApplicationLayout extends Polymer.Element {
 
-      static get is() { return 'application-layout'; }
+            static get is() {
+                return 'application-layout';
+            }
 
-      static get properties() {
-        return {
-          menuItems : {
-              type: Array,
-              value: [
-                  {
-                      'icon' : 'app:widget',
-                      'element' : 'dashboard-index',
-                      'label' : 'Dashboard',
-                      'plugin' : true,
-                      'style' : 'color: green;',
-                      name: 'dashboard'
-                  },
-                  {
-                      'icon' : 'app:monitor',
-                      'element' : 'monitor-index',
-                      'label' : 'Monitor',
-                      'plugin' : true,
-                      'style' : 'color: green;',
-                      "config": "config.js",
-                      name: 'monitor'
-                  },
-                  {
-                      'icon' : 'app:resource',
-                      'element' : 'resource-index',
-                      'label' : 'Resource',
-                      'plugin' : true,
-                      'style' : 'color: green;',
-                      "config": "config.js",
-                      name: 'resource'
-                  },
-                  {
-                      'icon' : 'app:timeslot',
-                      'element' : 'timeslot-index',
-                      'label' : 'Timeslot',
-                      'plugin' : true,
-                      'style' : 'color: green;',
-                      "config": "config.js",
-                      "autoload": [
-                          "src/TimeslotService.js",
-                      ],
-                      name: 'timeslot'
-                  },
-                  {
-                      'icon' : 'app:playlist',
-                      'element' : 'playlist-index',
-                      'label' : 'Playlist',
-                      'plugin' : true,
-                      'style' : 'color: green;',
-                      "config": "config.js",
-                      name: 'playlist'
-                  }
-              ],
-          },
+            static get properties() {
+                return {
+                    menuItems: {
+                        type: Array,
+                        value: [
+                            {
+                                'icon': 'app:widget',
+                                'element': 'dashboard-index',
+                                'label': 'Dashboard',
+                                'plugin': true,
+                                'style': 'color: green;',
+                                name: 'dashboard'
+                            },
+                            {
+                                'icon': 'app:monitor',
+                                'element': 'monitor-index',
+                                'label': 'Monitor',
+                                'plugin': true,
+                                'style': 'color: green;',
+                                "config": "config.js",
+                                name: 'monitor'
+                            },
+                            {
+                                'icon': 'app:resource',
+                                'element': 'resource-index',
+                                'label': 'Resource',
+                                'plugin': true,
+                                'style': 'color: green;',
+                                "config": "config.js",
+                                name: 'resource'
+                            },
+                            {
+                                'icon': 'app:timeslot',
+                                'element': 'timeslot-index',
+                                'label': 'Timeslot',
+                                'plugin': true,
+                                'style': 'color: green;',
+                                "config": "config.js",
+                                "autoload": [
+                                    "src/TimeslotService.js",
+                                ],
+                                name: 'timeslot'
+                            },
+                            {
+                                'icon': 'app:playlist',
+                                'element': 'playlist-index',
+                                'label': 'Playlist',
+                                'plugin': true,
+                                'style': 'color: green;',
+                                "config": "config.js",
+                                name: 'playlist'
+                            }
+                        ],
+                    },
 
-          page: {
-            type: String,
-            reflectToAttribute: true,
-            observer: '_pageChanged',
-            value: 'monitor-index'
-          },
+                    page: {
+                        type: String,
+                        reflectToAttribute: true,
+                        observer: '_pageChanged',
+                        value: 'timeslot-index'
+                    },
 
-          routeData: Object
-        };
-      }
+                    nameApplication: {
+                        type: String,
+                        value: 'Dsign'
+                    },
 
-      static get observers() {
-        return [
-          '_routePageChanged(page)',
-        ];
-      }
+                    routeData: Object
+                };
+            }
 
-      handleRoute(event) {
-        // TODO exception if is not se value
+            static get observers() {
+                return [
+                    '_routePageChanged(page)',
+                ];
+            }
 
-        this.page = this._findRoute(event.target);
-      }
+            handleRoute(event) {
+                // TODO exception if is not se value
 
-      toggle() {
-          this.$.drawer.toggle();
-      }
+                this.page = this._findRoute(event.target);
+            }
 
-      _findRoute(elem) {
-          if (elem.getAttribute('menu-item') === null && elem.parentElement) {
-            return this._findRoute(elem.parentElement);
-          }
+            toggle() {
+                this.$.drawer.toggle();
+            }
 
-          return elem.value;
-      }
+            _findRoute(elem) {
+                if (elem.getAttribute('menu-item') === null && elem.parentElement) {
+                    return this._findRoute(elem.parentElement);
+                }
 
-      _routePageChanged(page) {
-        // If no page was found in the route data, page will be an empty string.
-        // Deault to 'view1' in that case.
-        this.page = page || 'dashboard-index';
+                return elem.value;
+            }
 
-        // Close a non-persistent drawer when the page & route are changed.
-        if (!this.$.drawer.persistent) {
-          this.$.drawer.close();
+            _routePageChanged(page) {
+                // If no page was found in the route data, page will be an empty string.
+                // Deault to 'view1' in that case.
+                this.page = page || 'dashboard-index';
+
+                // Close a non-persistent drawer when the page & route are changed.
+                if (!this.$.drawer.persistent) {
+                    this.$.drawer.close();
+                }
+            }
+
+            _pageChanged(page) {
+                // Load page import on demand. Show 404 page if fails
+                let path = page.split("-");
+                let resolvedPageUrl = this.resolveUrl(`../../plugin/${path[0]}/${path[1]}.html`);
+                Polymer.importHref(
+                    resolvedPageUrl,
+                    null,
+                    this._showPage404.bind(this),
+                    true);
+            }
+
+            _showPage404() {
+                this.page = 'view-404';
+            }
         }
-      }
 
-      _pageChanged(page) {
-        // Load page import on demand. Show 404 page if fails
-        let path = page.split("-");
-        let resolvedPageUrl = this.resolveUrl(`../../plugin/${path[0]}/${path[1]}.html`);
-        Polymer.importHref(
-            resolvedPageUrl,
-            null,
-            this._showPage404.bind(this),
-            true);
-      }
-
-      _showPage404() {
-        this.page = 'view-404';
-      }
-    }
-
-    window.customElements.define(ApplicationLayout.is, ApplicationLayout);
-  </script>
+        window.customElements.define(ApplicationLayout.is, ApplicationLayout);
+    </script>
 </dom-module>

@@ -40,21 +40,21 @@ class TimeslotConfig extends PluginConfig {
         let timeslotHydrator = new PropertyHydrator(
             new Timeslot(),
             {
-                'monitor' : new HydratorStrategy(new PropertyHydrator(new Monitor())),
-                'resources' : new HydratorStrategy(this.serviceManager.get('HydratorPluginManager').get('resourceHydrator'))
+                'resources' : new HydratorStrategy(this.serviceManager.get('HydratorPluginManager').get('resourceHydrator')),
+                'virtualMonitorReference' : new HydratorStrategy(new PropertyHydrator(new VirtualMonitorReference()))
             }
         );
 
         timeslotHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('duration')
-            .enableHydrateProperty('monitor')
+            .enableHydrateProperty('virtualMonitorReference')
             .enableHydrateProperty('resources');
 
         timeslotHydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
             .enableExtractProperty('duration')
-            .enableExtractProperty('monitor')
+            .enableExtractProperty('virtualMonitorReference')
             .enableExtractProperty('resources');
 
         this.serviceManager.get('HydratorPluginManager').set(

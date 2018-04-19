@@ -10,7 +10,7 @@ const HydratorManager = require('./lib/hydrator/pluginManager/HydratorPluginMana
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let config;
+let packageJson;
 let monitorsWrapper = null;
 let hydratorManager = new HydratorManager();
 
@@ -33,8 +33,9 @@ hydratorManager.set('mainMonitorHydrator', mainMonitorHydrator)
     .set('monitorHydrator', monitorHydrator);
 
 function loadConfig () {
-    config = JSON.parse(fs.readFileSync( path.join(__dirname, '/config/global.json'), {'encoding': 'UTF8'}));
+    packageJson = JSON.parse(fs.readFileSync( path.join(__dirname, '/package.json'), {'encoding': 'UTF8'}));
 }
+
 
 function createWindowDashboard () {
 
@@ -63,7 +64,7 @@ function createWindowDashboard () {
     });
 
 
-    if (config && config.debug === true) {
+    if (packageJson && packageJson.appConfig.debug === true) {
         dashboard.webContents.openDevTools({detached: true});
     }
 }
@@ -110,7 +111,7 @@ function createWindowPlayer(mainMonitor) {
         browserWindows.send('player-monitor-config', mainMonitor);
     });
 
-    if (config && config.debug === true) {
+    if (packageJson && packageJson.appConfig.debug === true) {
         browserWindows.webContents.openDevTools({detached: true});
     }
 
@@ -269,12 +270,22 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
 
 ipcMain.on('start-timeslot', (event, message) => {
 
-    let monitor = monitorsWrapper.getMonitor(message.timeslot.monitor.id);
-
-    if (!monitor) {
-        console.warn('monitor not set');
-        return;
+    switch (true) {
+        case message.timeslot.virtualMonitorReference.virtualMonitorId === monitorsWrapper.id:
+            /**
+             * start timeslot in current monitor setting
+             */
+            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
+            if (monitor) {
+                monitor.browserWindows.send('start-timeslot', message);
+            } else {
+                // TODO write lo log
+                console.error('Error not found');
+            }
+            break;
+        default:
+            // TODO broadcast on other application on comunication each other
     }
 
-    monitor.browserWindows.send('start-timeslot', message);
+
 });

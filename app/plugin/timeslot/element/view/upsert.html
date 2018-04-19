@@ -22,6 +22,10 @@
       paper-dropdown-menu {
         width: 100%;
       }
+
+      paper-listbox {
+        min-width: 400px;
+      }
     </style>
     <slot name="header"></slot>
     <div>
@@ -44,162 +48,192 @@
     </div>
     <div>
       <div class="flex flex-horizontal-end" style="margin-top: 20px;">
-        <paper-button on-tap="upsertTimeslot">Add</paper-button>
+        <paper-button on-tap="upsertTimeslot">{{labelAction}}</paper-button>
       </div>
     </div>
   </template>
 
   <script>
-    class ElementTimeslotViewUpsert extends Polymer.Element {
+      class ElementTimeslotViewUpsert extends Polymer.Element {
 
-      static get is() { return 'timeslot-view-upsert'; }
+          static get is() { return 'timeslot-view-upsert'; }
 
-      static get fs() { return require('fs') }
+          static get fs() { return require('fs') }
 
-      static get path() { return require('path') }
+          static get path() { return require('path') }
 
-      static get properties() {
-          return {
+          static get properties() {
+              return {
 
-              timeslot: {
-                  type: Object,
-                  notify: true,
-                  value: {},
-                  observer: '_timeslotChanged'
-              },
+                  timeslot: {
+                      type: Object,
+                      notify: true,
+                      value: {},
+                      observer: '_timeslotChanged'
+                  },
 
-              monitors: {
-                  type: Array,
-                  notify: true,
-                  value: [],
-                  observer: '_monitorsChanged'
-              },
+                  monitors: {
+                      type: Array,
+                      notify: true,
+                      value: [],
+                      observer: '_monitorsChanged'
+                  },
 
-              resources: {
-                  type: Array,
-                  value: []
+                  resources: {
+                      type: Array,
+                      value: []
+                  },
+
+                  labelAction: {
+                      type: String,
+                      value: 'Save'
+                  }
               }
           }
-      }
 
-      connectedCallback () {
-          super.connectedCallback();
-          let virtualMonitors = [];
+          ready() {
+              super.ready();
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
+              );
+          }
 
-          serviceManager.get('StoragePluginManager')
-              .get(MonitorConfig.NAME_SERVICE)
-              .getAll()
-              .then((data) =>  {
-                  virtualMonitors = data;
-              });
+          _clearData() {
+              this.$.name.value = null;
+              this.$.duration.value = null;
 
-          let monitors =  [];
-          for (let cont = 0; virtualMonitors.length > cont; cont++) {
-              for (let index = 0; virtualMonitors[cont].monitors.length > index; index++) {
-                  monitors.push({
-                      monitor : virtualMonitors[cont].monitors[index],
-                      config : virtualMonitors[cont]
+              this.timeslot.resources = []; // TODO REMOVE AND CONTROLL
+          }
+
+          connectedCallback () {
+              super.connectedCallback();
+              let virtualMonitors = [];
+              let monitors =  [];
+
+              serviceManager.get('StoragePluginManager')
+                  .get(MonitorConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                      virtualMonitors = data;
+
+                      for (let cont = 0; virtualMonitors.length > cont; cont++) {
+                          let internaMonitor =  virtualMonitors[cont].getMonitors({nested:true});
+                          for (let index = 0; internaMonitor.length > index; index++) {
+                              monitors.push({
+                                  monitor : internaMonitor[index],
+                                  config : virtualMonitors[cont]
+                              });
+                          }
+                      }
+                      this.monitors = monitors;
                   });
+          }
+
+          _monitorsChanged(newValue, oldValue) {
+
+              if (!newValue || newValue.length === 0) {
+                  return;
               }
+
+              serviceManager.get('StoragePluginManager')
+                  .get(ResourceConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) => {
+                      this.resources = data;
+                  })
+                  .catch((err) => {
+                          console.log(err)
+                      }
+                  );
           }
-          this.monitors = monitors;
-      }
 
-      _monitorsChanged(newValue, oldValue) {
+          _timeslotChanged(newValue, oldValue) {
 
-          if (!newValue || newValue.length === 0) {
-              return;
-          }
 
-          serviceManager.get('StoragePluginManager')
-              .get(ResourceConfig.NAME_SERVICE)
-              .getAll()
-              .then((data) => {
-                  this.resources = data;
-              })
-              .catch((err) => {
-                      console.log(err)
+              if (newValue.name) {
+                  this.$.name.value = newValue.name;
+              }
+
+              if (newValue.duration) {
+                  this.$.duration.value = newValue.duration;
+              }
+
+              for (let cont = 0; this.$.monitors.items.length > cont; cont++) {
+
+                  if (newValue.virtualMonitorReference
+                      && this.$.monitors.items[cont].item.monitor.id === newValue.virtualMonitorReference.monitorId) {
+                      this.$.monitors.selected = cont;
+                      break;
                   }
+              }
+
+
+              if (!newValue.resources || newValue.resources.length === 0) {
+                  return;
+              }
+
+              let multiselect = [];
+              for (let cont = 0; newValue.resources.length > cont; cont++) {
+
+                  let index =  this.$.resources.items.findIndex(
+                      (paperItem) => {
+                          return newValue.resources[cont].id  === paperItem.item.id
+                      }
+                  )
+                  multiselect.push(index);
+              }
+
+              this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
+              this.$.resources.selectedValues = multiselect;
+          }
+
+          upsertTimeslot() {
+
+              // TODO VALIDATION
+              if (!this.$.name || !this.$.duration || !this.$.resource.value || !this.$.monitor.value) {
+                  return;
+              }
+
+              let timeslot = new Timeslot();
+              let method = 'save';
+
+              if (this.timeslot.id) {
+                  method = 'update';
+              } else {
+                  timeslot.id = Utils.uid;
+                  this.timeslot = timeslot;
+              }
+
+              this.timeslot.name = this.$.name.value;
+              this.timeslot.duration = this.$.duration.value;
+
+              // TODO from hydrator
+              let ref = new VirtualMonitorReference();
+              ref.virtualMonitorId = this.$.monitor.selectedItem.item.config.id;
+              ref.monitorId = this.$.monitor.selectedItem.item.monitor.id;
+              ref.name = this.$.monitor.selectedItem.item.monitor.name;
+              this.timeslot.virtualMonitorReference = ref;
+
+              this.timeslot.resources = []; // TODO REMOVE AND CONTROLL
+              this.$.resources.selectedItems.forEach(
+                  (paperItem) => {this.timeslot.resources.push(paperItem.item)}
               );
+
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)[method](this.timeslot)
+                  .then((data) => {
+                      serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' timeslot');
+                  })
+                  .catch((err) => {
+                          console.log(err)
+                      }
+                  );
+
+          }
       }
 
-      _timeslotChanged(newValue, oldValue) {
-
-
-          if (newValue.name) {
-              this.$.name.value = newValue.name;
-          }
-
-          if (newValue.duration) {
-              this.$.duration.value = newValue.duration;
-          }
-
-          for (let cont = 0; this.$.monitors.items.length > cont; cont++) {
-
-            if (newValue.monitor && this.$.monitors.items[cont].item.monitor.id === newValue.monitor.id) {
-                this.$.monitors.selected = cont;
-                break;
-            }
-          }
-
-
-          if (!newValue.resources || newValue.resources.length === 0) {
-              return;
-          }
-
-          let multiselect = [];
-          for (let cont = 0; newValue.resources.length > cont; cont++) {
-
-              let index =  this.$.resources.items.findIndex(
-                  (paperItem) => {
-                      console.log(  newValue.resources[cont].id, paperItem.item.id);
-                      return newValue.resources[cont].id  === paperItem.item.id
-                  }
-              )
-              multiselect.push(index);
-          }
-
-          this.$.resources.selectedValues = multiselect;
-      }
-
-      upsertTimeslot() {
-
-          // TODO VALIDATION
-          if (!this.$.name || !this.$.duration || !this.$.resource.value || !this.$.monitor.value) {
-              return;
-          }
-
-          let timeslot = new Timeslot();
-          let method = 'save';
-
-          if (this.timeslot.id) {
-              method = 'update';
-          } else {
-              timeslot.id = Utils.uid;
-              this.timeslot = timeslot;
-          }
-
-          this.timeslot.name = this.$.name.value;
-          this.timeslot.duration = this.$.duration.value;
-          this.timeslot.monitor = this.$.monitor.selectedItem.item.monitor;
-          this.timeslot.resources = []; // TODO REMOVE AND CONTROLL
-          this.$.resources.selectedItems.forEach(
-              (paperItem) => {this.timeslot.resources.push(paperItem.item)}
-          );
-
-         serviceManager.get('StoragePluginManager')
-              .get(TimeslotConfig.NAME_SERVICE)[method](this.timeslot)
-              .then((data) => {
-                  serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' timeslot');
-              })
-              .catch((err) => {
-                      console.log(err)
-                  }
-              );
-      }
-    }
-
-    window.customElements.define(ElementTimeslotViewUpsert.is, ElementTimeslotViewUpsert);
+      window.customElements.define(ElementTimeslotViewUpsert.is, ElementTimeslotViewUpsert);
 
   </script>
 </dom-module>

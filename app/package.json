@@ -1,8 +1,14 @@
 {
-  "name": "Thor",
+  "name": "Dsign",
   "version": "0.1.0",
   "author": "antonino visalli <antonino.visalli@gmail.com>",
   "description": "Thor",
   "homepage": "www.visa4.it",
-  "main": "main.js"
+  "main": "main.js",
+  "appConfig": {
+    "debug": true,
+    "db": {
+      "name": "Dsign"
+    }
+  }
 }

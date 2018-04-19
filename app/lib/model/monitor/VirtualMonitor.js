@@ -24,6 +24,7 @@ class VirtualMonitor {
      */
     getMonitors(options) {
         let monitors = this.monitors;
+
         if (options && typeof options === 'object' && options.nested) {
            for (let cont = 0; this.monitors.length > cont; cont++) {
                if (typeof this.monitors[cont].getMonitors === "function") {
@@ -82,6 +83,39 @@ class VirtualMonitor {
             }
         )
     }
+
+    /**
+     *
+     * @param id
+     * @return {*}
+     */
+    getMainMonitor(id) {
+        let mainMonitor = null;
+        let find;
+
+        for (let cont = 0; this.monitors.length > cont; cont++) {
+
+            if (this.monitors[cont].id === id) {
+                mainMonitor = this.monitors[cont];
+                break;
+            }
+
+            let subMonitors = this.monitors[cont].getMonitors({nested:true});
+
+            find = subMonitors.find(
+                (element) => {
+                    return element.id === id;
+                }
+            );
+
+            if (find) {
+                mainMonitor = this.monitors[cont];
+                break;
+            }
+        }
+        return mainMonitor;
+    }
+
 }
 
 module.exports = VirtualMonitor;

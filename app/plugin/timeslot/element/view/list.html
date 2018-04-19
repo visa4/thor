@@ -18,103 +18,117 @@
     <style>
       /** TODO insert style    */
       :host ::slotted(.header) {
-          margin-bottom: 16px;
+        margin-bottom: 16px;
       }
     </style>
     <slot name="header"></slot>
     <template is="dom-repeat" items="[[timeslots]]" as="timeslot">
-        <timeslot-wc
-                timeslot="{{timeslot}}"
-                on-run="run"
-                on-update-view="displayUpdateView"
-                on-remove="remove">
-        </timeslot-wc>
+      <timeslot-wc
+              timeslot="{{timeslot}}"
+              on-run="run"
+              on-update-view="displayUpdateView"
+              on-remove="remove">
+      </timeslot-wc>
     </template>
   </template>
 
   <script>
-    class ElementTimeslotViewList extends Polymer.Element {
+      class ElementTimeslotViewList extends Polymer.Element {
 
-      static get is() { return 'timeslot-view-list'; }
+          static get is() { return 'timeslot-view-list'; }
 
-      static get properties() {
-          return {
+          static get properties() {
+              return {
 
-              timeslots: {
-                  type: Array,
-                  value: []
-              },
+                  timeslots: {
+                      type: Array,
+                      value: []
+                  },
 
-              timeslotSelected: {
-                  type: Object,
-                  notify: true,
-                  value: {}
-              },
+                  timeslotSelected: {
+                      type: Object,
+                      notify: true,
+                      value: {}
+                  },
 
-              selected: {
-                  type: Number,
-                  notify: true
-              }
-          };
+                  selected: {
+                      type: Number,
+                      notify: true
+                  }
+              };
+          }
+
+
+
+          ready() {
+              super.ready();
+
+              this._loadResource();
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
+              );
+
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_UPDATE, this._loadResource.bind(this)
+              );
+          }
+
+          _loadResource() {
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                      this.set('timeslots', data)
+                  });
+          }
+
+          /**
+           * @param event
+           */
+          remove(evt) {
+
+              let index = null;
+              let element = this.timeslots.find((element, ind) => {
+                  if ( element.id === evt.detail.id) {
+                      index = ind;
+                      return element;
+                  }
+              });
+
+              this.splice('timeslots', index, 1);
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .remove(evt.detail)
+                  .then((data) =>  {
+                      this.set('playlists', data)
+                      serviceManager.get('PaperToastNotification').notify('Remove timeslot')
+                  });
+          }
+
+
+          /**
+           * @param evt
+           */
+          run(evt) {
+              serviceManager.get('TimeslotService').run(
+                  evt.detail,
+                  evt.detail.options
+              );
+          }
+
+          /**
+           * @param evt
+           */
+          displayUpdateView(evt) {
+              this.timeslotSelected = evt.detail;
+              this.selected = 2;
+          }
+
       }
 
-
-
-        ready() {
-            super.ready();
-            serviceManager.get('StoragePluginManager')
-                .get(TimeslotConfig.NAME_SERVICE)
-                .getAll()
-                .then((data) =>  {
-                    this.set('timeslots', data)
-                });
-        }
-
-        /**
-         * @param event
-         */
-        remove(evt) {
-
-            let index = null;
-            let element = this.timeslots.find((element, ind) => {
-                if ( element.id === evt.detail.id) {
-                    index = ind;
-                    return element;
-                }
-            });
-
-            this.splice('timeslots', index, 1);
-            serviceManager.get('StoragePluginManager')
-                .get(TimeslotConfig.NAME_SERVICE)
-                .remove(evt.detail)
-                .then((data) =>  {
-                    this.set('playlists', data)
-                    serviceManager.get('PaperToastNotification').notify('Remove timeslot')
-                });
-        }
-
-
-        /**
-         * @param evt
-         */
-        run(evt) {
-            serviceManager.get('TimeslotService').run(
-                evt.detail,
-                evt.detail.options
-            );
-        }
-
-        /**
-         * @param evt
-         */
-        displayUpdateView(evt) {
-            this.timeslotSelected = evt.detail;
-            this.selected = 2;
-        }
-
-    }
-
-    window.customElements.define(ElementTimeslotViewList.is, ElementTimeslotViewList);
+      window.customElements.define(ElementTimeslotViewList.is, ElementTimeslotViewList);
 
   </script>
 </dom-module>
