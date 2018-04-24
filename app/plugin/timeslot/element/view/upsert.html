@@ -22,10 +22,6 @@
       paper-dropdown-menu {
         width: 100%;
       }
-
-      paper-listbox {
-        min-width: 400px;
-      }
     </style>
     <slot name="header"></slot>
     <div>
@@ -68,7 +64,7 @@
                   timeslot: {
                       type: Object,
                       notify: true,
-                      value: {},
+                      value: new Timeslot(),
                       observer: '_timeslotChanged'
                   },
 
@@ -102,8 +98,7 @@
           _clearData() {
               this.$.name.value = null;
               this.$.duration.value = null;
-
-              this.timeslot.resources = []; // TODO REMOVE AND CONTROLL
+              this.timeslot = new Timeslot();
           }
 
           connectedCallback () {
@@ -195,14 +190,13 @@
                   return;
               }
 
-              let timeslot = new Timeslot();
+
               let method = 'save';
 
               if (this.timeslot.id) {
                   method = 'update';
               } else {
-                  timeslot.id = Utils.uid;
-                  this.timeslot = timeslot;
+                  this.timeslot.id = Utils.uid;
               }
 
               this.timeslot.name = this.$.name.value;

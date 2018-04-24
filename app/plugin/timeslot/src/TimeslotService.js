@@ -13,7 +13,7 @@ class TimeslotService {
      * @param timeslot
      * @param options
      */
-    run(timeslot, options) {
+    play(timeslot, options) {
 
         options = options !== null && typeof options === 'object' ? options : {};
 

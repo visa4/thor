@@ -1,4 +1,3 @@
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -11,90 +10,127 @@
 <link rel="import" href="../../element/iconset/iconset.html">
 
 <dom-module id="timeslot-wc">
-  <template>
-    <style include="global-layout"></style>
-    <style include="global-style"></style>
-    <style>
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
 
-      .card-content {
-        padding: 0;
-      }
+            .card-content {
+                padding: 0;
+            }
 
-      .data {
-        padding: 8px;
-      }
+            .data {
+                padding: 8px;
+            }
 
-      .flags {
+            .flags {
 
-      }
-      
-      #rightSection {
-        background-image: url("img/timslot.jpg");
-      }
+            }
 
-      .activePaperButton {
-        color: var(--app-primary-color);
-      }
+            #rightSection {
+                background-image: url("img/timslot.jpg");
+            }
 
-    </style>
-    <paper-card class="horizontal">
-      <div class="card-content flex flex-horizontal">
-        <div class="data flex-basis-80 flex flex-vertical">
-          <div>{{timeslot.name}}</div>
-          <div>{{timeslot.duration}} sec</div>
-        </div>
-        <div class="flags flex-basis-20">
-          <paper-icon-button id="loopIcon" item="{{timeslot}}" icon="timeslot:loop" on-tap="_tapLoop"></paper-icon-button>
-        </div>
-      </div>
-      <div class="card-actions">
-        <paper-icon-button icon="timeslot:run" on-click="_run" class="circle-small" title="Run"></paper-icon-button>
-        <paper-icon-button icon="app:edit"  on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
-        <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
-        </paper-icon-button>
-      </div>
-      <div id="rightSection" class="rate-image"></div>
-    </paper-card>
-  </template>
+            .activePaperButton {
+                color: var(--app-primary-color);
+            }
 
-  <script>
-    class ElementTimeslot extends Polymer.Element {
+        </style>
+        <paper-card class="horizontal">
+            <div class="card-content flex flex-horizontal">
+                <div class="data flex-basis-80 flex flex-vertical">
+                    <div>{{timeslot.name}}</div>
+                    <div>{{timeslot.duration}} sec</div>
+                </div>
+                <div class="flags flex-basis-20">
+                    <paper-icon-button
+                            id="loopIcon"
+                            item="{{timeslot}}"
+                            icon="timeslot:loop"
+                            on-tap="_tapLoop">
+                    </paper-icon-button>
+                    <paper-icon-button
+                            id="overlayIcon"
+                            item="{{timeslot}}"
+                            icon="timeslot:overlay"
+                            on-tap="_tapOverlay">
+                    </paper-icon-button>
+                </div>
+            </div>
+            <div class="card-actions">
+                <paper-icon-button
+                        icon="timeslot:play"
+                        on-click="_play"
+                        class="circle-small"
+                        title="Play">
+                </paper-icon-button>
+                <paper-icon-button
+                        icon="app:edit"
+                        on-click="_update"
+                        class="circle-small"
+                        title="Modify">
+                </paper-icon-button>
+                <paper-icon-button
+                        icon="app:trash"
+                        on-click="_remove"
+                        class="circle-small"
+                        title="Delete">
+                </paper-icon-button>
+            </div>
+            <div id="rightSection" class="rate-image"></div>
+        </paper-card>
+    </template>
 
-      static get is() { return 'timeslot-wc'; }
+    <script>
+        class ElementTimeslot extends Polymer.Element {
 
-      static get properties() {
-          return {
+            static get is() {
+                return 'timeslot-wc';
+            }
 
-              timeslot: {
-                  type: Object,
-              }
-          };
-      }
-      
-      _tapLoop(evt) {
-          this.timeslot.options.loop =  !this.timeslot.options.loop;
-          if ( this.timeslot.options.loop) {
-              this.$.loopIcon.classList.add("activePaperButton");
-          } else {
-              this.$.loopIcon.classList.remove("activePaperButton");
-          }
-          this.dispatchEvent(new CustomEvent('update', {detail: this.timeslot}));
-      }
+            static get properties() {
+                return {
 
-      _run(evt) {
-          this.dispatchEvent(new CustomEvent('run', {detail: this.timeslot}));
-      }
+                    timeslot: {
+                        type: Object,
+                    }
+                };
+            }
 
-      _remove(evt) {
-          this.dispatchEvent(new CustomEvent('remove', {detail: this.timeslot}));
-      }
+            _tapLoop(evt) {
+                this.timeslot.options.loop = !this.timeslot.options.loop;
+                if (this.timeslot.options.loop) {
+                    this.$.loopIcon.classList.add("activePaperButton");
+                } else {
+                    this.$.loopIcon.classList.remove("activePaperButton");
+                }
+                this.dispatchEvent(new CustomEvent('update', {detail: this.timeslot}));
+            }
 
-      _update(evt) {
-          this.dispatchEvent(new CustomEvent('update-view', {detail: this.timeslot}));
-      }
-    }
+            _tapOverlay(evt) {
+                this.timeslot.options.context = this.timeslot.options.context === 'standard' ? 'overlay' : 'standard';
+                if (this.timeslot.options.context === 'overlay') {
+                    this.$.overlayIcon.classList.add("activePaperButton");
+                } else {
+                    this.$.overlayIcon.classList.remove("activePaperButton");
+                }
+                this.dispatchEvent(new CustomEvent('update', {detail: this.timeslot}));
+            }
 
-    window.customElements.define(ElementTimeslot.is, ElementTimeslot);
+            _play(evt) {
+                this.dispatchEvent(new CustomEvent('play', {detail: this.timeslot}));
+            }
 
-  </script>
+            _remove(evt) {
+                this.dispatchEvent(new CustomEvent('remove', {detail: this.timeslot}));
+            }
+
+            _update(evt) {
+                this.dispatchEvent(new CustomEvent('update-view', {detail: this.timeslot}));
+            }
+        }
+
+        window.customElements.define(ElementTimeslot.is, ElementTimeslot);
+
+    </script>
 </dom-module>

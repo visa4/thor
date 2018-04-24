@@ -172,6 +172,9 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 'plugin': true,
                                 'style': 'color: green;',
                                 "config": "config.js",
+                                "autoload": [
+                                    "src/PlaylistService.js",
+                                ],
                                 name: 'playlist'
                             }
                         ],
@@ -181,7 +184,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         reflectToAttribute: true,
                         observer: '_pageChanged',
-                        value: 'timeslot-index'
+                        value: 'playlist-index'
                     },
 
                     nameApplication: {

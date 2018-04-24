@@ -74,6 +74,16 @@
                   .then((data) =>  {
                       this.set('timeslots', data)
                   });
+
+              serviceManager.get('StoragePluginManager')
+                  .get(PlaylistConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
+              );
+          }
+
+          _clearData() {
+              this.$.name.value = null;
+              this.playlist = new Playlist();
           }
 
           _playlistChanged(newValue, oldValue) {

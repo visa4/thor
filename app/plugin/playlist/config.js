@@ -32,6 +32,12 @@ class PlaylistConfig extends PluginConfig {
             PlaylistConfig.NAME_SERVICE,
             storage
         );
+
+        let playlistService =  new PlaylistService(
+            this.serviceManager.get('TimeslotService')
+        );
+        playlistService.startSchedule();
+        this.serviceManager.set('PlaylistService', playlistService);
     }
 
     /**

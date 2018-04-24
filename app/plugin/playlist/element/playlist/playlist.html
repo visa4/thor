@@ -1,4 +1,3 @@
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -8,69 +7,108 @@
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/iconset/iconset.html">
+<link rel="import" href="../../element/iconset/iconset.html">
 
 <dom-module id="playlist-wc">
-  <template>
-    <style include="global-layout"></style>
-    <style include="global-style"></style>
-    <style>
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
 
-      .card-content {
-        padding: 0;
-      }
+            .card-content {
+                padding: 0;
+            }
 
-      .data {
-        padding: 8px;
-      }
-      
-      #rightSection {
-        background-image: url("img/playlist.jpg");
-      }
+            .data {
+                padding: 8px;
+            }
 
-      .activePaperButton {
-        color: var(--app-primary-color);
-      }
+            #rightSection {
+                background-image: url("img/playlist.jpg");
+            }
 
-    </style>
-    <paper-card class="horizontal">
-      <div class="card-content flex flex-horizontal">
-        <div class="data flex flex-vertical">
-          <div>{{playlist.name}}</div>
-        </div>
-      </div>
-      <div class="card-actions">
-        <paper-icon-button icon="app:edit"  on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
-        <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
-        </paper-icon-button>
-      </div>
-      <div id="rightSection" class="rate-image"></div>
-    </paper-card>
-  </template>
+            .activePaperButton {
+                color: var(--app-primary-color);
+            }
 
-  <script>
-    class ElementPlaylist extends Polymer.Element {
+        </style>
+        <paper-card class="horizontal">
+            <div class="card-content flex flex-horizontal">
+                <div class="data flex-basis-80 flex flex-vertical">
+                    <div>{{playlist.name}}</div>
+                    <div>{{duration}} sec</div>
+                </div>
+                <div class="flags flex-basis-20">
+                    <paper-icon-button
+                            id="loopIcon"
+                            item="{{timeslot}}"
+                            icon="playlist:loop"
+                            on-tap="_tapLoop">
+                    </paper-icon-button>
+                    <paper-icon-button
+                            id="overlayIcon"
+                            item="{{timeslot}}"
+                            icon="playlist:overlay"
+                            on-tap="_tapOverlay">
+                    </paper-icon-button>
+                </div>
+            </div>
+            <div class="card-actions">
+                <paper-icon-button icon="playlist:play" on-click="_play" class="circle-small"
+                                   title="Play"></paper-icon-button>
+                <paper-icon-button icon="app:edit" on-click="_update" class="circle-small"
+                                   title="Modify"></paper-icon-button>
+                <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
+                </paper-icon-button>
+            </div>
+            <div id="rightSection" class="rate-image"></div>
+        </paper-card>
+    </template>
 
-      static get is() { return 'playlist-wc'; }
+    <script>
+        class ElementPlaylist extends Polymer.Element {
 
-      static get properties() {
-          return {
+            static get is() {
+                return 'playlist-wc';
+            }
 
-              playlist: {
-                  type: Object,
-              }
-          };
-      }
+            static get properties() {
+                return {
 
-      _remove(evt) {
-          this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.playlist}));
-      }
+                    playlist: {
+                        type: Object,
+                        observer: '_playlistChanged'
+                    },
 
-      _update(evt) {
-          this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.playlist}));
-      }
-    }
+                    duration: {
+                        type: Number,
+                        notify: true
+                    }
 
-    window.customElements.define(ElementPlaylist.is, ElementPlaylist);
+                };
+            }
 
-  </script>
+            _playlistChanged(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+                this.duration = newValue.getDuration();
+            }
+
+            _play(evt) {
+                this.dispatchEvent(new CustomEvent('play', {detail: this.playlist}));
+            }
+
+            _remove(evt) {
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.playlist}));
+            }
+
+            _update(evt) {
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.playlist}));
+            }
+        }
+
+        window.customElements.define(ElementPlaylist.is, ElementPlaylist);
+
+    </script>
 </dom-module>

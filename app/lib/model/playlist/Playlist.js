@@ -14,9 +14,33 @@ class Playlist {
      */
     constructor() {
 
-        this.name       = null;
-        this.status     = Playlist.IDLE;
+        /**
+         * @type {String}
+         */
+        this.name = null;
+
+        /**
+         * @type {String}
+         */
+        this.status = Playlist.IDLE;
+
+        /**
+         * @type {number}
+         */
+        this.currentIndex = 0;
+
+        /**
+         * @type {Array}
+         */
         this.timeslots = [];
+
+        /**
+         * options.loop    = true|false
+         * options.context = ['standard', 'overlay']
+         *
+         * @type {{}}
+         */
+        this.options = {};
     }
 
     /**
@@ -26,7 +50,7 @@ class Playlist {
 
         let duration = 0;
         for (let cont = 0; this.timeslots.length > cont; cont++) {
-            duration = duration + this.timeslots[cont].duration;
+            duration = duration + parseInt(this.timeslots[cont].duration);
         }
         return duration;
     }
@@ -64,6 +88,48 @@ class Playlist {
 
     /**
      *
+     * @return {*}
+     */
+    current() {
+        let timeslot = null;
+        if (this.currentIndex < this.timeslots.length) {
+            timeslot = this.timeslots[this.currentIndex];
+        }
+        return timeslot;
+    }
+
+    /**
+     * @return {*}
+     */
+    next() {
+        let timeslot = null;
+        this.currentIndex++;
+        if (this.currentIndex < this.timeslots.length) {
+            timeslot = this.timeslots[this.currentIndex];
+        }
+        return timeslot;
+    }
+
+    /**
+     *
+     */
+    reset() {
+        this.currentIndex = 0;
+    }
+
+    /**
+     * @return {String|null}
+     */
+    getMonitorId() {
+        let monitorId = null;
+        if (this.timeslots.length > 0) {
+            monitorId = this.timeslots[0].virtualMonitorReference.monitorId;
+        }
+        return monitorId
+    }
+
+    /**
+     *
      * @param timeslot
      * @return {boolean}
      * @private
@@ -79,6 +145,19 @@ class Playlist {
                 break
         }
         return check;
+    }
+
+    /**
+     *
+     * @param name
+     * @return {*}
+     */
+    getOption(name) {
+        let option = null;
+        if (this.options && typeof this.options === 'object' && this.options[name]) {
+            option = this.options[name];
+        }
+        return option;
     }
 }
 

@@ -9,6 +9,11 @@ class Timeslot {
         this.name = null;
 
         /**
+         * @type {null|integer}
+         */
+        this.duration = null;
+
+        /**
          * @type {Array}
          */
         this.bind = [];
@@ -33,21 +38,26 @@ class Timeslot {
         this.options    = {};
     }
 
-    remove() {
-
-        
+    /**
+     *
+     */
+    hasResourceType() {
+        this.resources.find((resource) => {
+            return resource.type.indexOf(type) > -1;
+        });
     }
 
-    append(timeslot, index) {
-
-    }
-
-    getMonitorId() {
-
-    }
-
-    getDuration() {
-
+    /**
+     *
+     * @param name
+     * @return {*}
+     */
+    getOption(name) {
+        let option = null;
+        if (this.options && typeof this.options === 'object' && this.options[name]) {
+            option = this.options[name];
+        }
+        return option;
     }
 }
 

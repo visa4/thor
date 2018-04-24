@@ -115,13 +115,13 @@
                     return;
                 }
 
-                console.log(msg.timeslot);
+                console.log('START TIMESLOT', msg.timeslot);
                 let timeslot = document.createElement('player-timeslot');
                 timeslot.height = this.height;
                 timeslot.width  = this.width;
                 timeslot.config(msg.timeslot, msg.options);
 
-                let context = msg.opstions && msg.options.context ? msg.options.context : 'standard';
+                let context = msg.options && msg.options.context ? msg.options.context : 'standard';
 
                 // Clear layer
                 while ( this.$[context].firstChild) {

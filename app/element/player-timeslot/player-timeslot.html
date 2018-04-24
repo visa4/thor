@@ -65,6 +65,14 @@
                         type: Number,
                         notify : true
                     },
+
+                    /**
+                     * For debug
+                     */
+                    _timeInterval: {
+                        type: Number,
+                        value : 0
+                    }
                 }
             }
 
@@ -87,8 +95,9 @@
             connectedCallback() {
                 super.connectedCallback();
 
-                if (this.timeslot.duration && !this.hasTimeslotOptions('loop')) {
+                if (!this.hasTimeslotOptions('loop') || (this._hasResourceType('video') && this.hasTimeslotOptions('loop'))) {
                     setTimeout(this._timeout.bind(this), this.timeslot.duration * 1000);
+                    this._handlarInterval = setInterval(this._intervalDebug.bind(this), 1000);
                 }
 
                 for (let cont = 0; this.timeslot.resources.length > cont; cont++) {
@@ -137,6 +146,15 @@
                 let element = document.createElement('div');
                 element.classList.add("resource");
                 return element;
+            }
+
+            /**
+             * TODO remove when add autoload services in player, this.timeslot will be a Timeslot object
+             */
+            _hasResourceType(type)  {
+                return !!this.timeslot.resources.find((resource) => {
+                    return resource.type.indexOf(type) > -1;
+                });
             }
 
             /**
@@ -200,7 +218,6 @@
                             Polymer.importHref(
                                 entryPoint,
                                 () => {
-                                    console.log('console;');
                                     resolve(document.createElement(resource.wcName)); }
                             );
                         } else {
@@ -210,7 +227,7 @@
                         }
 
                     } else {
-                        console.warn(`Web component entry point not found: ${entryPoint}`)
+                        console.warn(`Web component entry point not found: ${entryPoint}`);
                         reject(`Web component entry point not found: ${entryPoint}`);
 
                     }
@@ -220,10 +237,37 @@
 
             disconnectedCallback() {
                 super.disconnectedCallback();
+                if (this._handlarInterval) {
+                    window.clearInterval(this._handlarInterval);
+                }
             }
-            
+
+            /**
+             * @private
+             */
             _timeout() {
-                this.remove();
+                switch (true) {
+                    case !this.hasTimeslotOptions('loop'):
+                        this.remove();
+                        break;
+                    case this._hasResourceType('video'):
+                        let videos = this.shadowRoot.querySelectorAll('video');
+                        for (let cont = 0; videos.length > cont; cont++) {
+                            videos[cont].currentTime = 0;
+                            setTimeout(this._timeout.bind(this), this.timeslot.duration * 1000);
+                        }
+                        break;
+                }
+            }
+
+            /**
+             * For debug
+             *
+             * @private
+             */
+            _intervalDebug() {
+                this._timeInterval = this._timeInterval == this.timeslot.duration ? 1 : this._timeInterval + 1;
+                console.log('interval', this._timeInterval, this);
             }
         }
 

@@ -25,7 +25,7 @@
     <template is="dom-repeat" items="[[timeslots]]" as="timeslot">
       <timeslot-wc
               timeslot="{{timeslot}}"
-              on-run="run"
+              on-play="play"
               on-update-view="displayUpdateView"
               on-remove="remove">
       </timeslot-wc>
@@ -111,8 +111,8 @@
           /**
            * @param evt
            */
-          run(evt) {
-              serviceManager.get('TimeslotService').run(
+          play(evt) {
+              serviceManager.get('TimeslotService').play(
                   evt.detail,
                   evt.detail.options
               );

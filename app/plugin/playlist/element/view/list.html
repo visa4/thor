@@ -20,97 +20,123 @@
     <slot name="header"></slot>
     <div hidden$="{{!notFound}}" style="padding-top: 20px;">
       <template is="dom-repeat" items="[[playlists]]" as="playlist">
-        <playlist-wc playlist="{{playlist}}" on-wrap-remove="remove" on-wrap-update="displayUpdateView"></playlist-wc>
+        <playlist-wc
+                playlist="{{playlist}}"
+                on-wrap-remove="remove"
+                on-wrap-update="displayUpdateView"
+                on-play="play">
+        </playlist-wc>
       </template>
     </div>
     <div hidden$="{{notFound}}">Non sono presenti monitor virtuali</div>
   </template>
 
   <script>
-    class ElementPlaylistViewList extends Polymer.Element {
+      class ElementPlaylistViewList extends Polymer.Element {
 
-      static get is() { return 'playlist-view-list'; }
+          static get is() { return 'playlist-view-list'; }
 
-      static get properties() {
-          return {
+          static get properties() {
+              return {
 
-              playlists: {
-                  type: Array,
-                  notify: true,
-                  value: [],
-                  observer: '_playlistChanged'
-              },
+                  playlists: {
+                      type: Array,
+                      notify: true,
+                      value: [],
+                      observer: '_playlistChanged'
+                  },
 
-              playlistSelected: {
-                  type: Object,
-                  notify: true,
-                  value: {}
-              },
+                  playlistSelected: {
+                      type: Object,
+                      notify: true,
+                      value: {}
+                  },
 
-              selected: {
-                  type: Number,
-                  notify: true
-              },
+                  selected: {
+                      type: Number,
+                      notify: true
+                  },
 
-              notFound: {
-                  type:Boolean,
-                  notify: true,
-                  value: true,
-              }
-          };
-      }
-
-      ready() {
-          super.ready();
-
-          serviceManager.get('StoragePluginManager')
-              .get(PlaylistConfig.NAME_SERVICE)
-              .getAll()
-              .then((data) =>  {
-                  this.set('playlists', data)
-              });
-
-      }
-
-      _playlistChanged(newValue, oldValue) {
-          if (oldValue === undefined) {
-              return;
+                  notFound: {
+                      type:Boolean,
+                      notify: true,
+                      value: true,
+                  }
+              };
           }
 
-          this.hideMonitorNotFound = newValue && Array.isArray(newValue) && newValue.length > 0;
-      }
+          ready() {
+              super.ready();
 
-      remove(evt) {
+              this._loadResource();
+              serviceManager.get('StoragePluginManager')
+                  .get(PlaylistConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
+              );
 
-          let index = -1;
-          let element = this.playlists.find((element, ind) => {
-              if ( element.id === evt.detail.id) {
-                  index = ind;
-                  return element;
-              }
-          });
-
-          if (index < 0 ) {
-              return;
+              serviceManager.get('StoragePluginManager')
+                  .get(PlaylistConfig.NAME_SERVICE)
+                  .eventManager.on(Storage.STORAGE_POST_UPDATE, this._loadResource.bind(this)
+              );
           }
 
-          this.splice('playlists', index, 1);
-          serviceManager.get('StoragePluginManager')
-              .get(PlaylistConfig.NAME_SERVICE)
-              .remove(evt.detail)
-              .then((data) =>  {
-                  this.set('playlists', data)
-                  serviceManager.get('PaperToastNotification').notify('Remove playlist')
+          _loadResource() {
+              serviceManager.get('StoragePluginManager')
+                  .get(PlaylistConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                      this.set('playlists', data)
+                  });
+          }
+
+          _playlistChanged(newValue, oldValue) {
+              if (oldValue === undefined) {
+                  return;
+              }
+
+              this.hideMonitorNotFound = newValue && Array.isArray(newValue) && newValue.length > 0;
+          }
+
+          remove(evt) {
+
+              let index = -1;
+              let element = this.playlists.find((element, ind) => {
+                  if ( element.id === evt.detail.id) {
+                      index = ind;
+                      return element;
+                  }
               });
+
+              if (index < 0 ) {
+                  return;
+              }
+
+              this.splice('playlists', index, 1);
+              serviceManager.get('StoragePluginManager')
+                  .get(PlaylistConfig.NAME_SERVICE)
+                  .remove(evt.detail)
+                  .then((data) =>  {
+                      this.set('playlists', data)
+                      serviceManager.get('PaperToastNotification').notify('Remove playlist')
+                  });
+          }
+
+          /**
+           * @param evt
+           */
+          play(evt) {
+              serviceManager.get('PlaylistService').play(
+                  evt.detail
+              );
+          }
+
+          displayUpdateView(evt) {
+              this.playlistSelected = evt.detail;
+              this.selected = 2;
+          }
       }
 
-      displayUpdateView(evt) {
-          this.playlistSelected = evt.detail;
-          this.selected = 2;
-      }
-    }
-
-    window.customElements.define(ElementPlaylistViewList.is, ElementPlaylistViewList);
+      window.customElements.define(ElementPlaylistViewList.is, ElementPlaylistViewList);
 
   </script>
 </dom-module>
