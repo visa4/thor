@@ -20,6 +20,10 @@
                 --disabled-text-color:      #BDBDBD;
                 --divider-color:            #BDBDBD;
 
+                --timeslot-running : #39A33D;
+                --timeslot-pause   : #FAD646;
+                --timeslot-idle   : #F00755;
+
                 --title-color: #FFFFFF;
 
                 --drawer-menu-color:           #ffffff;
@@ -36,6 +40,7 @@
                 --min-withd-button: 150px;
                 --app-drawer-width:170px;
 
+
                 --paper-button : {
                     background-color: var(--accent-color);
                     color: var(--title-color);
@@ -48,6 +53,14 @@
                     color: var(--primary-text-color);
                     background-color: var(--light-primary-color);
                 }
+
+            }
+
+            paper-icon-button.timeslot {
+
+                --paper-icon-button-disabled : {
+                    opacity: 0.4;
+                };
             }
 
             paper-listbox {

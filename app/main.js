@@ -286,6 +286,64 @@ ipcMain.on('start-timeslot', (event, message) => {
         default:
             // TODO broadcast on other application on comunication each other
     }
+});
 
+ipcMain.on('stop-timeslot', (event, message) => {
 
+    switch (true) {
+        case message.timeslot.virtualMonitorReference.virtualMonitorId === monitorsWrapper.id:
+            /**
+             * start timeslot in current monitor setting
+             */
+            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
+            if (monitor) {
+                monitor.browserWindows.send('stop-timeslot', message);
+            } else {
+                // TODO write lo log
+                console.error('Error not found');
+            }
+            break;
+        default:
+        // TODO broadcast on other application on comunication each other
+    }
+});
+
+ipcMain.on('pause-timeslot', (event, message) => {
+
+    switch (true) {
+        case message.timeslot.virtualMonitorReference.virtualMonitorId === monitorsWrapper.id:
+            /**
+             * start timeslot in current monitor setting
+             */
+            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
+            if (monitor) {
+                monitor.browserWindows.send('pause-timeslot', message);
+            } else {
+                // TODO write lo log
+                console.error('Error not found');
+            }
+            break;
+        default:
+        // TODO broadcast on other application on comunication each other
+    }
+});
+
+ipcMain.on('resume-timeslot', (event, message) => {
+
+    switch (true) {
+        case message.timeslot.virtualMonitorReference.virtualMonitorId === monitorsWrapper.id:
+            /**
+             * start timeslot in current monitor setting
+             */
+            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
+            if (monitor) {
+                monitor.browserWindows.send('resume-timeslot', message);
+            } else {
+                // TODO write lo log
+                console.error('Error not found');
+            }
+            break;
+        default:
+        // TODO broadcast on other application on comunication each other
+    }
 });

@@ -26,8 +26,12 @@
       <timeslot-wc
               timeslot="{{timeslot}}"
               on-play="play"
-              on-update-view="displayUpdateView"
-              on-remove="remove">
+              on-resume="resume"
+              on-stop="stop"
+              on-pause="pause"
+              on-wrap-update="displayUpdateView"
+              on-wrap-update-timeslot="update"
+              on-wrap-remove="remove">
       </timeslot-wc>
     </template>
   </template>
@@ -102,19 +106,53 @@
                   .get(TimeslotConfig.NAME_SERVICE)
                   .remove(evt.detail)
                   .then((data) =>  {
-                      this.set('playlists', data)
                       serviceManager.get('PaperToastNotification').notify('Remove timeslot')
                   });
           }
 
+
+          update(evt) {
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .update(evt.detail)
+                  .then((data) =>  {
+                      serviceManager.get('PaperToastNotification').notify('Update timeslot ' + data.name)
+                  });
+          }
 
           /**
            * @param evt
            */
           play(evt) {
               serviceManager.get('TimeslotService').play(
-                  evt.detail,
-                  evt.detail.options
+                  evt.detail
+              );
+          }
+
+          /**
+           * @param evt
+           */
+          resume(evt) {
+              serviceManager.get('TimeslotService').resume(
+                  evt.detail
+              );
+          }
+
+          /**
+           * @param evt
+           */
+          stop(evt) {
+              serviceManager.get('TimeslotService').stop(
+                  evt.detail
+              );
+          }
+
+          /**
+           * @param evt
+           */
+          pause(evt) {
+              serviceManager.get('TimeslotService').pause(
+                  evt.detail
               );
           }
 

@@ -1,6 +1,18 @@
 
 class Timeslot {
 
+    /**
+     * Constant
+     */
+    static get RUNNING() { return 'running'; }
+    static get IDLE() { return 'idle'; }
+    static get PAUSE() { return 'pause'; }
+
+    static get CONTEXT_STANDARD() { return 'standard'; }
+    static get CONTEXT_DEFAULT() { return 'default'; }
+    static get CONTEXT_OVERLAY() { return 'overlay'; }
+
+
     constructor() {
 
         /**
@@ -9,9 +21,29 @@ class Timeslot {
         this.name = null;
 
         /**
+         * @type {String}
+         */
+        this.status = Playlist.IDLE;
+
+        /**
+         *
+         */
+        this.context = Timeslot.CONTEXT_STANDARD;
+
+        /**
          * @type {null|integer}
          */
         this.duration = null;
+
+        /**
+         * @type {null|integer}
+         */
+        this.loop = false;
+
+        /**
+         * @type {null|integer}
+         */
+        this.currentTime = 0;
 
         /**
          * @type {Array}
@@ -31,7 +63,6 @@ class Timeslot {
 
         /**
          * options.loop    = true|false
-         * options.context = ['standard', 'overlay']
          *
          * @type {{}}
          */

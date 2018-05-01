@@ -116,7 +116,6 @@
                   .get(PlaylistConfig.NAME_SERVICE)
                   .remove(evt.detail)
                   .then((data) =>  {
-                      this.set('playlists', data)
                       serviceManager.get('PaperToastNotification').notify('Remove playlist')
                   });
           }

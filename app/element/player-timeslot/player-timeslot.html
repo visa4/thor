@@ -66,6 +66,11 @@
                         notify : true
                     },
 
+                    startAt: {
+                        type: Number,
+                        value : 0
+                    },
+
                     /**
                      * For debug
                      */
@@ -76,17 +81,9 @@
                 }
             }
 
-            config(timeslot, options) {
+            config(timeslot) {
                 this.timeslot = timeslot;
                 this.timeslotId = timeslot.id;
-                this.timeslotOptions = options;
-            }
-
-            /**
-             *
-             */
-            hasTimeslotOptions(name) {
-                return !!this.timeslotOptions && typeof this.timeslotOptions === 'object' && this.timeslotOptions[name];
             }
 
             /**
@@ -94,11 +91,7 @@
              */
             connectedCallback() {
                 super.connectedCallback();
-
-                if (!this.hasTimeslotOptions('loop') || (this._hasResourceType('video') && this.hasTimeslotOptions('loop'))) {
-                    setTimeout(this._timeout.bind(this), this.timeslot.duration * 1000);
-                    this._handlarInterval = setInterval(this._intervalDebug.bind(this), 1000);
-                }
+                this._handlarInterval = setInterval(this._intervalDebug.bind(this), 1000);
 
                 for (let cont = 0; this.timeslot.resources.length > cont; cont++) {
 
@@ -185,7 +178,10 @@
                 let element = document.createElement('video');
                 element.src = `${resource.location.path}${resource.location.name}`;
                 element.autoplay = true;
-                element.loop = this.hasTimeslotOptions('loop');
+                element.loop =  this.timeslot.options && this.timeslot.options.loop ? true : false;
+                if (this.startAt > 0) {
+                    element.currentTime = this.startAt;
+                }
 
                 if (!element.loop) {
                     let isRunning = true;
@@ -240,23 +236,34 @@
                 if (this._handlarInterval) {
                     window.clearInterval(this._handlarInterval);
                 }
+
+                let videos = this.shadowRoot.querySelectorAll('video');
+                for (let cont = 0; videos.length > cont; cont++) {
+                    videos[cont].pause();
+                    videos[cont].src = '';
+                    videos[cont].remove();
+                }
+
+                let images = this.shadowRoot.querySelectorAll('.image');
+                for (let cont = 0; images.length > cont; cont++) {
+                    images[cont].style.backgroundImage = '';
+                }
+                // TODO memory leak controll for all resource
             }
 
-            /**
-             * @private
-             */
-            _timeout() {
-                switch (true) {
-                    case !this.hasTimeslotOptions('loop'):
-                        this.remove();
-                        break;
-                    case this._hasResourceType('video'):
-                        let videos = this.shadowRoot.querySelectorAll('video');
-                        for (let cont = 0; videos.length > cont; cont++) {
-                            videos[cont].currentTime = 0;
-                            setTimeout(this._timeout.bind(this), this.timeslot.duration * 1000);
-                        }
-                        break;
+            pause() {
+                console.log('PAUSA');
+                let videos = this.shadowRoot.querySelectorAll('video');
+                for (let cont = 0; videos.length > cont; cont++) {
+                    videos[cont].pause();
+                }
+            }
+
+            resume() {
+                console.log('RESUME');
+                let videos = this.shadowRoot.querySelectorAll('video');
+                for (let cont = 0; videos.length > cont; cont++) {
+                    videos[cont].play();
                 }
             }
 

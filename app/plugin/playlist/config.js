@@ -34,7 +34,8 @@ class PlaylistConfig extends PluginConfig {
         );
 
         let playlistService =  new PlaylistService(
-            this.serviceManager.get('TimeslotService')
+            this.serviceManager.get('TimeslotService'),
+            this.serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE)
         );
         playlistService.startSchedule();
         this.serviceManager.set('PlaylistService', playlistService);

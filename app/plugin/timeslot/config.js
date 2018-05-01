@@ -31,9 +31,12 @@ class TimeslotConfig extends PluginConfig {
             storage
         );
 
-        this.serviceManager.set('TimeslotService', new TimeslotService(
-            this.serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE)
-        ));
+        let timeslotService = new TimeslotService(
+            this.serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE),
+            this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
+        );
+        timeslotService.startSchedule();
+        this.serviceManager.set('TimeslotService', timeslotService);
     }
 
     _loadHydrator() {
@@ -47,13 +50,21 @@ class TimeslotConfig extends PluginConfig {
 
         timeslotHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
+            .enableHydrateProperty('status')
+            .enableHydrateProperty('loop')
+            .enableHydrateProperty('currentTime')
             .enableHydrateProperty('duration')
+            .enableHydrateProperty('context')
             .enableHydrateProperty('virtualMonitorReference')
             .enableHydrateProperty('resources');
 
         timeslotHydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
+            .enableExtractProperty('status')
+            .enableExtractProperty('loop')
+            .enableExtractProperty('currentTime')
             .enableExtractProperty('duration')
+            .enableExtractProperty('context')
             .enableExtractProperty('virtualMonitorReference')
             .enableExtractProperty('resources');
 

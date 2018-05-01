@@ -31,11 +31,22 @@
                 color: var(--app-primary-color);
             }
 
+            .running {
+                color: green;
+                font-style: italic;
+            }
+
+            .idle {
+                color: red;
+                font-style: italic;
+            }
+
         </style>
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-80 flex flex-vertical">
                     <div>{{playlist.name}}</div>
+                    <div class$="{{playlist.status}}">{{playlist.status}}</div>
                     <div>{{duration}} sec</div>
                 </div>
                 <div class="flags flex-basis-20">
@@ -86,6 +97,26 @@
                     }
 
                 };
+            }
+
+            _tapLoop(evt) {
+                this.playlist.options.loop = !this.playlist.options.loop;
+                if (this.playlist.options.loop) {
+                    this.$.loopIcon.classList.add("activePaperButton");
+                } else {
+                    this.$.loopIcon.classList.remove("activePaperButton");
+                }
+                this.dispatchEvent(new CustomEvent('wrap-update-options', {detail: this.timeslot}));
+            }
+
+            _tapOverlay(evt) {
+                this.playlist.options.context = this.playlist.options.context === 'standard' || !this.playlist.options.context ? 'overlay' : 'standard';
+                if (this.playlist.options.context === 'overlay') {
+                    this.$.overlayIcon.classList.add("activePaperButton");
+                } else {
+                    this.$.overlayIcon.classList.remove("activePaperButton");
+                }
+                this.dispatchEvent(new CustomEvent('wrap-update-options', {detail: this.timeslot}));
             }
 
             _playlistChanged(newValue, oldValue) {

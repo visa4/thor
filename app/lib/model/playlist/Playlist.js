@@ -2,15 +2,15 @@
 class Playlist {
 
     /**
-     * @return {string}
-     * @constructor
+     * Constant
      */
     static get RUNNING() { return 'running'; }
     static get IDLE() { return 'idle'; }
     static get PAUSE() { return 'pause'; }
 
     /**
-     *
+     * @return {string}
+     * @constructor
      */
     constructor() {
 

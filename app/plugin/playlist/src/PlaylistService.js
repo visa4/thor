@@ -11,6 +11,8 @@ class PlaylistService {
         this.timeslotService = timeslotService ? timeslotService : null;
         this.eventManager = new EvtManager();
         this.runningPlaylist = {};
+        this.eventManager.on(`play-playlist`, this.changeRunningPlaylist.bind(this));
+        this.eventManager.on(`stop-playlist`, this.changeIdlePlaylist.bind(this));
     }
 
     startSchedule() {
@@ -22,8 +24,8 @@ class PlaylistService {
         let data = {
             'timestamp' : this._getTimestamp()
         };
-        console.log('schedule REG', `timeline-${data.timestamp}`);
-        this.eventManager.fire(`timeline-${data.timestamp}`, data);
+        console.log('PLAYLIST SCHEDULE', `timeline-${data.timestamp}`);
+        this.eventManager.fire(`timeline-${data.timestamp}`, data, true);
     }
 
     /**
@@ -48,14 +50,34 @@ class PlaylistService {
 
         playlist.reset();
         let timeslot = playlist.current();
-        this.timeslotService.play(timeslot);
+        this.timeslotService.play(timeslot, this._getTimeslotOptions(playlist));
+
+        this.eventManager.fire('play-playlist', playlist);
 
         console.log('schedule ATT', `timeline-${this._getTimestamp() + parseInt(timeslot.duration)}`);
         this.eventManager.on(
             `timeline-${this._getTimestamp() + parseInt(timeslot.duration)}`,
             this.processPlaylist.bind({playlistService : this, playlist: playlist})
         )
-     
+    }
+
+    /**
+     *
+     * @param playlist
+     * @private
+     */
+    _getTimeslotOptions(playlist) {
+        let options = {};
+
+        if (playlist && typeof playlist === 'object' && playlist.options && typeof playlist.options === 'object') {
+
+            switch (true) {
+                case typeof playlist.options.context === 'string':
+                    options.context = playlist.options.context;
+            }
+
+        }
+        return options;
     }
 
     /**
@@ -63,13 +85,56 @@ class PlaylistService {
      */
     processPlaylist(evt) {
         let timeslot = this.playlist.next();
-        if (timeslot) {
-            this.playlistService.timeslotService.play(timeslot);
-            this.playlistService.eventManager.on(
-                `timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`,
-                this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
-            )
+
+        switch (true) {
+            case timeslot !== null && typeof timeslot === 'object':
+                console.log('NEXT PLAYLIST',`timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`, timeslot);
+                this.playlistService.timeslotService.play(timeslot);
+                this.playlistService.eventManager.on(
+                    `timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`,
+                    this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
+                );
+                break;
+            case !timeslot && this.playlist.options.loop:
+                this.playlist.reset();
+                timeslot = this.playlist.current();
+                this.playlistService.timeslotService.play(timeslot);
+                console.log('RESTART PLAYLIST', `timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`, timeslot);
+                this.playlistService.eventManager.on(
+                    `timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`,
+                    this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
+                );
+                break;
+            default:
+                this.playlistService.eventManager.fire('stop-playlist', this.playlist);
+                break;
+
         }
+    }
+
+    /**
+     * @param evt
+     */
+    changeRunningPlaylist(evt) {
+        evt.data.status = Playlist.RUNNING;
+        console.log('START PLAYLIST', evt);
+        this.playlistStorage.update(evt.data)
+            .then((data) => {})
+            .catch((err) => { console.log(err) });
+    }
+
+    /**
+     *
+     * @param evt
+     */
+    changeIdlePlaylist(evt) {
+        evt.data.status = Playlist.IDLE;
+        evt.data.reset();
+        delete this.runningPlaylist[evt.data.getMonitorId()];
+        console.log('STOP PLAYLIST', evt);
+        this.playlistStorage.update(evt.data)
+            .then((data) => {})
+            .catch((err) => { console.log(err) });
     }
 }
 

@@ -164,18 +164,6 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                     "src/TimeslotService.js",
                                 ],
                                 name: 'timeslot'
-                            },
-                            {
-                                'icon': 'app:playlist',
-                                'element': 'playlist-index',
-                                'label': 'Playlist',
-                                'plugin': true,
-                                'style': 'color: green;',
-                                "config": "config.js",
-                                "autoload": [
-                                    "src/PlaylistService.js",
-                                ],
-                                name: 'playlist'
                             }
                         ],
                     },
@@ -184,7 +172,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         reflectToAttribute: true,
                         observer: '_pageChanged',
-                        value: 'playlist-index'
+                        value: 'timeslot-index'
                     },
 
                     nameApplication: {

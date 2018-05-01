@@ -106,29 +106,10 @@
 
             constructor() {
                 super();
-                ElementPlayerMonitorManager.ipc.on('start-timeslot', this.start.bind(this));
-            }
-
-            start(evt, msg) {
-
-                if (msg.timeslot.virtualMonitorReference.monitorId != this.identifier) {
-                    return;
-                }
-
-                console.log('START TIMESLOT', msg.timeslot);
-                let timeslot = document.createElement('player-timeslot');
-                timeslot.height = this.height;
-                timeslot.width  = this.width;
-                timeslot.config(msg.timeslot, msg.options);
-
-                let context = msg.options && msg.options.context ? msg.options.context : 'standard';
-
-                // Clear layer
-                while ( this.$[context].firstChild) {
-                    this.$[context].removeChild(this.$[context].firstChild);
-                }
-
-                this.$[context].appendChild(timeslot);
+                ElementPlayerMonitorManager.ipc.on('start-timeslot', this._startTimeslot.bind(this));
+                ElementPlayerMonitorManager.ipc.on('stop-timeslot', this._stoptTimeslot.bind(this));
+                ElementPlayerMonitorManager.ipc.on('pause-timeslot', this._pausetTimeslot.bind(this));
+                ElementPlayerMonitorManager.ipc.on('resume-timeslot', this._resumeTimeslot.bind(this));
             }
 
             updateSize(evt, msg) {
@@ -141,6 +122,120 @@
                 }
             }
 
+            /**
+             * @param layer string
+             */
+            clearLayer(layer) {
+
+                if (!this.$[layer]) {
+                    return;
+                }
+
+                // Clear layer
+                while (this.$[layer].firstChild) {
+                    this.$[layer].removeChild(this.$[layer].firstChild);
+                }
+            }
+
+            /**
+             * @param timeslot ElementPlayerTimeslot
+             */
+            appendTimeslot(layer, wsTimeslot) {
+                this.$[layer].appendChild(wsTimeslot);
+            }
+
+            /**
+             * @param evt
+             * @param msg
+             * @private
+             */
+            _startTimeslot(evt, msg) {
+                // The timeslot is not associate to thi monitor
+                if (msg.timeslot.virtualMonitorReference.monitorId != this.identifier) {
+                    return;
+                }
+
+                console.log('START TIMESLOT', msg.timeslot.id);
+                let timeslot = document.createElement('player-timeslot');
+                timeslot.height = this.height;
+                timeslot.width  = this.width;
+                timeslot.config(msg.timeslot);
+
+                this.clearLayer(msg.timeslot.context);
+                this.appendTimeslot(msg.timeslot.context, timeslot);
+            }
+
+            /**
+             * @param evt
+             * @param msg
+             * @private
+             */
+            _stoptTimeslot(evt, msg) {
+                // The timeslot is not associate to thi monitor
+                if (this.identifier !== msg.timeslot.virtualMonitorReference.monitorId) {
+                    return;
+                }
+
+                let element = this.shadowRoot.querySelector('player-timeslot[timeslot-id="'+msg.timeslot.id + '"]');
+                if (element) {
+                    console.log('STOP TIMESLOT', msg.timeslot);
+                    element.remove();
+                }
+
+            }
+
+            /**
+             * @param evt
+             * @param msg
+             * @private
+             */
+            _pausetTimeslot(evt, msg) {
+                // The timeslot is not associate to thi monitor
+                if (this.identifier !== msg.timeslot.virtualMonitorReference.monitorId) {
+                    return;
+                }
+                console.log('PAUSE TIMESLOT', msg.timeslot);
+                let element = this.shadowRoot.querySelector('player-timeslot[timeslot-id="'+msg.timeslot.id + '"]');
+                if (element) {
+                    element.pause();
+                }
+            }
+
+            /**
+             * @param evt
+             * @param msg
+             * @private
+             */
+            _resumeTimeslot(evt, msg) {
+                // The timeslot is not associate to thi monitor
+                if (this.identifier !== msg.timeslot.virtualMonitorReference.monitorId) {
+                    return;
+                }
+
+                let element = this.shadowRoot.querySelector('player-timeslot[timeslot-id="'+msg.timeslot.id + '"]');
+                console.log('RESUME TIMESLOT', msg.timeslot);
+
+                switch (true) {
+                    case element !== null:
+                        element.resume();
+                        break;
+                    default:
+                        let timeslot = document.createElement('player-timeslot');
+                        timeslot.height = this.height;
+                        timeslot.width  = this.width;
+                        timeslot.config(msg.timeslot);
+                        timeslot.startAt = msg.timeslot.currentTime;
+                        this.clearLayer(msg.timeslot.context);
+                        this.appendTimeslot(msg.timeslot.context, timeslot);
+                        break;
+                }
+            }
+
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
             _changeHeight(newValue, oldValue) {
                 if (!newValue) {
                     return;
@@ -148,6 +243,11 @@
                 this.style.height = newValue + 'px';
             }
 
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
             _changeWidth(newValue, oldValue) {
                 if (!newValue) {
                     return;
@@ -155,6 +255,11 @@
                 this.style.width = newValue + 'px';
             }
 
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
             _changeBackgroundColor(newValue, oldValue) {
                 if (!newValue) {
                     return;
@@ -163,6 +268,11 @@
                 this.style.backgroundColor = newValue === '#ffffff' ? 'transparent' : newValue
             }
 
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
             _changeOffsetX(newValue, oldValue) {
                 if (!newValue || (this.parentElement && this.parentElement.tagName === 'BODY')) {
                     return;
@@ -170,6 +280,11 @@
                 this.style.left = newValue + 'px';
             }
 
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
             _changeOffsetY(newValue, oldValue) {
                 if (!newValue || (this.parentElement && this.parentElement.tagName === 'BODY')) {
                     return;

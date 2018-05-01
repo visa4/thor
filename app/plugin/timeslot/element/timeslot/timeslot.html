@@ -1,4 +1,5 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
@@ -32,14 +33,35 @@
             }
 
             .activePaperButton {
-                color: var(--app-primary-color);
+                color: forestgreen;
             }
+
+            .running {
+                color: var(--timeslot-running);
+                font-style: italic;
+            }
+
+            .idle {
+                color: var(--timeslot-idle);
+                font-style: italic;
+            }
+
+            .pause {
+                color: var(--timeslot-pause);
+                font-style: italic;
+            }
+
 
         </style>
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-80 flex flex-vertical">
                     <div>{{timeslot.name}}</div>
+                    <div class$="{{timeslot.status}}">{{timeslot.status}}
+                        <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
+                            {{timeslot.currentTime}} sec
+                        </template>
+                    </div>
                     <div>{{timeslot.duration}} sec</div>
                 </div>
                 <div class="flags flex-basis-20">
@@ -47,23 +69,51 @@
                             id="loopIcon"
                             item="{{timeslot}}"
                             icon="timeslot:loop"
+                            class$="{{computeContexIcon()}}"
                             on-tap="_tapLoop">
                     </paper-icon-button>
                     <paper-icon-button
                             id="overlayIcon"
                             item="{{timeslot}}"
                             icon="timeslot:overlay"
+                            class$="{{computeContexIcon()}}"
                             on-tap="_tapOverlay">
                     </paper-icon-button>
                 </div>
             </div>
             <div class="card-actions">
-                <paper-icon-button
-                        icon="timeslot:play"
-                        on-click="_play"
-                        class="circle-small"
-                        title="Play">
-                </paper-icon-button>
+                <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
+                    <paper-icon-button
+                            icon="timeslot:stop"
+                            on-click="_stop"
+                            class="circle-small"
+                            title="Stop">
+                    </paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{_isInStatus(timeslot, 'running')}}">
+                    <paper-icon-button
+                            icon="timeslot:pause"
+                            on-click="_pause"
+                            class="circle-small"
+                            title="Pause">
+                    </paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{_isInStatus(timeslot, 'pause')}}">
+                    <paper-icon-button
+                            icon="timeslot:play"
+                            on-click="_resume"
+                            class="circle-small"
+                            title="Resume">
+                    </paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{_isInStatus(timeslot, 'idle')}}">
+                    <paper-icon-button
+                            icon="timeslot:play"
+                            on-click="_play"
+                            class="circle-small"
+                            title="Play">
+                    </paper-icon-button>
+                </template>
                 <paper-icon-button
                         icon="app:edit"
                         on-click="_update"
@@ -93,40 +143,87 @@
 
                     timeslot: {
                         type: Object,
+                        observer: '_timeslotChanged'
                     }
                 };
             }
 
+            computeContexIcon() {
+                return this.timeslot.context === Timeslot.CONTEXT_OVERLAY ? 'activePaperButton timeslot' : 'timeslot';
+            }
+
+            _timeslotChanged(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+
+                if (newValue.status === Timeslot.RUNNING) {
+                    this.$.loopIcon.disabled = true;
+                    this.$.overlayIcon.disabled = true;
+                } else {
+                    this.$.loopIcon.disabled = false;
+                    this.$.overlayIcon.disabled = false;
+                }
+            }
+
+            _isInStatus(timeslot) {
+                if (arguments.length < 2) {
+                    return;
+                }
+
+                let inStatus = false;
+                for (let cont = 1; arguments.length > cont; cont++) {
+                    if (arguments[cont] === timeslot.status) {
+                        inStatus = true;
+                        break;
+                    }
+                }
+
+                return inStatus;
+            }
+
             _tapLoop(evt) {
-                this.timeslot.options.loop = !this.timeslot.options.loop;
-                if (this.timeslot.options.loop) {
+                this.timeslot.loop = !this.timeslot.loop;
+                if (this.timeslot.loop) {
                     this.$.loopIcon.classList.add("activePaperButton");
                 } else {
                     this.$.loopIcon.classList.remove("activePaperButton");
                 }
-                this.dispatchEvent(new CustomEvent('update', {detail: this.timeslot}));
+                this.dispatchEvent(new CustomEvent('wrap-update-timeslot', {detail: this.timeslot}));
             }
 
             _tapOverlay(evt) {
-                this.timeslot.options.context = this.timeslot.options.context === 'standard' ? 'overlay' : 'standard';
-                if (this.timeslot.options.context === 'overlay') {
+                this.timeslot.context = this.timeslot.context === 'standard' || !this.timeslot.context ? 'overlay' : 'standard';
+                if (this.timeslot.context === 'overlay') {
                     this.$.overlayIcon.classList.add("activePaperButton");
                 } else {
                     this.$.overlayIcon.classList.remove("activePaperButton");
                 }
-                this.dispatchEvent(new CustomEvent('update', {detail: this.timeslot}));
+                this.dispatchEvent(new CustomEvent('wrap-update-timeslot', {detail: this.timeslot}));
             }
 
             _play(evt) {
                 this.dispatchEvent(new CustomEvent('play', {detail: this.timeslot}));
             }
 
+            _resume(evt) {
+                this.dispatchEvent(new CustomEvent('resume', {detail: this.timeslot}));
+            }
+
+            _stop(evt) {
+                this.dispatchEvent(new CustomEvent('stop', {detail: this.timeslot}));
+            }
+
+            _pause(evt) {
+                this.dispatchEvent(new CustomEvent('pause', {detail: this.timeslot}));
+            }
+
             _remove(evt) {
-                this.dispatchEvent(new CustomEvent('remove', {detail: this.timeslot}));
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.timeslot}));
             }
 
             _update(evt) {
-                this.dispatchEvent(new CustomEvent('update-view', {detail: this.timeslot}));
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.timeslot}));
             }
         }
 

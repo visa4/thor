@@ -27,7 +27,7 @@ class EvtManager {
      * @param event
      * @param params
      */
-    fire(event, params) {
+    fire(event, params, clearListener) {
 
         if (this.queues[event]) {
             let eventObject = new Evt(event, params);
@@ -36,6 +36,10 @@ class EvtManager {
                 if (eventObject.stopPropagation) {
                     break;
                 }
+            }
+
+            if (clearListener) {
+                delete this.queues[event];
             }
         }
     }
