@@ -3,20 +3,42 @@
  */
 class TimeslotService {
 
-    constructor(monitorStorage, timeslotStorage) {
-        this.monitorStorage = monitorStorage ? monitorStorage : null;
+    /**
+     *
+     * @param {TimeslotSenderService} timeslotService
+     * @param {Storage} timeslotStorage
+     */
+    constructor(timeslotSender, timeslotStorage) {
+
+        /**
+         *
+         * @type {TimeslotSenderService}
+         */
+        this.timeslotSender = timeslotSender ? timeslotSender : null;
+
+        /**
+         * @type {Storage}
+         */
         this.timeslotStorage = timeslotStorage ? timeslotStorage : null;
-        this.ipc = require('electron').ipcRenderer;
+
+        /**
+         * Event manager
+         */
         this.eventManager = new EvtManager();
+
+        /**
+         * List running timeslots
+         * @type {Object}
+         */
         this.runningTimeslots = {};
 
         /**
-         * Listener
+         * Listeners
          */
-        this.eventManager.on(`play-timeslot`, this.changeRunningTimeslot.bind(this));
-        this.eventManager.on(`pause-timeslot`, this.changePauseTimeslot.bind(this));
-        this.eventManager.on(`stop-timeslot`, this.changeIdleTimeslot.bind(this));
-        this.eventManager.on(`resume-timeslot`, this.changeResumeTimeslot.bind(this));
+        this.eventManager.on(TimeslotSenderService.TIMESLOT_PLAY, this.changeRunningTimeslot.bind(this));
+        this.eventManager.on(TimeslotSenderService.TIMESLOT_PAUSE, this.changePauseTimeslot.bind(this));
+        this.eventManager.on(TimeslotSenderService.TIMESLOT_STOP, this.changeIdleTimeslot.bind(this));
+        this.eventManager.on(TimeslotSenderService.TIMESLOT_RESUME, this.changeResumeTimeslot.bind(this));
     }
 
     startSchedule() {
@@ -28,20 +50,32 @@ class TimeslotService {
         let data = {
             'timestamp' : this._getTimestamp()
         };
-  //      console.log('TIMESLOT SCHEDULE', `timeline-${data.timestamp}`);
+
+        // console.log('TIMESLOT SCHEDULE', `timeline-${data.timestamp}`);
         this.eventManager.fire(`timeline-${data.timestamp}`, data, true);
         this._updateRunnintTimslots();
     }
 
     /**
      *
-     * @param timeslot
+     * @param {Timeslot} timeslot
      * @return {boolean}
      */
     isRunning(timeslot) {
-        return !!(this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_STANDARD}`] ||
-            this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_DEFAULT}`] ||
-            this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_OVERLAY}`]);
+
+        let isRunning = false;
+        switch (true) {
+            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_STANDARD}`] !== undefined:
+                isRunning = this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Playlist.CONTEXT_STANDARD}`].id === timeslot.id;
+                break;
+            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_OVERLAY}`] !== undefined:
+                isRunning = this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_OVERLAY}`].id === timeslot.id;
+                break;
+            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_DEFAULT}`] !== undefined:
+                isRunning = this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_DEFAULT}`].id === timeslot.id;
+                break;
+        }
+        return isRunning;
     }
 
     /**
@@ -87,15 +121,8 @@ class TimeslotService {
             this.pause(runningTimeslot);
         }
 
-        this.ipc.send(
-            'start-timeslot',
-            {
-                'timeslot': timeslot
-            }
-        );
-
-        this.eventManager.fire('play-timeslot', timeslot);
-
+        this.timeslotSender.play(timeslot);
+        this.eventManager.fire(TimeslotSenderService.TIMESLOT_PLAY, timeslot);
         this.eventManager.on(
             `timeline-${this._getTimestamp() + parseInt(timeslot.duration)}`,
             this.processTimeslot.bind({timeslotService : this, timeslot: timeslot})
@@ -104,39 +131,24 @@ class TimeslotService {
 
     /**
      * @param timeslot
-     * @param options
      */
     stop(timeslot) {
 
-        this.ipc.send(
-            'stop-timeslot',
-            {
-                'timeslot': timeslot,
-            }
-        );
-
-        this.eventManager.fire('stop-timeslot', timeslot);
+        this.timeslotSender.stop(timeslot);
+        this.eventManager.fire(TimeslotSenderService.TIMESLOT_STOP, timeslot);
     }
 
     /**
      * @param timeslot
-     * @param options
      */
     pause(timeslot) {
 
-        this.ipc.send(
-            'pause-timeslot',
-            {
-                'timeslot': timeslot,
-            }
-        );
-
-        this.eventManager.fire('pause-timeslot', timeslot);
+        this.timeslotSender.pause(timeslot);
+        this.eventManager.fire(TimeslotSenderService.TIMESLOT_PAUSE, timeslot);
     }
 
     /**
      * @param timeslot
-     * @param options
      */
     resume(timeslot) {
 
@@ -145,15 +157,8 @@ class TimeslotService {
             this.pause(runningTimeslot);
         }
 
-        this.ipc.send(
-            'resume-timeslot',
-            {
-                'timeslot': timeslot,
-            }
-        );
-
-        this.eventManager.fire('resume-timeslot', timeslot);
-
+        this.timeslotSender.resume(timeslot);
+        this.eventManager.fire(TimeslotSenderService.TIMESLOT_RESUME, timeslot);
 
         this.eventManager.on(
             `timeline-${this._getTimestamp() + parseInt(timeslot.duration) - timeslot.currentTime}`,

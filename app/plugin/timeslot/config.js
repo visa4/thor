@@ -31,11 +31,16 @@ class TimeslotConfig extends PluginConfig {
             storage
         );
 
+        let timeslotSenderService = new TimeslotSenderService();
+        this.serviceManager.set('TimeslotSenderService', timeslotSenderService);
+
         let timeslotService = new TimeslotService(
-            this.serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE),
+            this.serviceManager.get('TimeslotSenderService'),
             this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
         );
+
         timeslotService.startSchedule();
+
         this.serviceManager.set('TimeslotService', timeslotService);
     }
 

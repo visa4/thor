@@ -1,18 +1,62 @@
+
+try {
+    EvtManager = require('./../../../lib/event/EvtManager');
+    Playlist = require('./../../../lib/model/playlist/Playlist');
+}
+catch(err) {
+
+    EvtManager = require(__dirname + '/lib/event/EvtManager.js');
+    Playlist = require(__dirname + '/lib/model/playlist/Playlist');
+}
 /**
  *
  */
 class PlaylistService {
 
+    static get PLAY()  { return 'play-playlist'; }
+
+    static get STOP()  { return 'stop-playlist'; }
+
+    static get PAUSE()  { return 'pause-playlist'; }
+
+    static get RESUME() { return 'resume-playlist'; }
+
     /**
-     * @param timeslotService
+     *
+     * @param {TimeslotSenderService} timeslotSender
+     * @param {Storage} playlistStorage
      */
-    constructor(timeslotService, playlistStorage) {
+    constructor(timeslotSender, playlistStorage) {
+
+        /**
+         *
+         * @type {TimeslotSenderService}
+         */
+        this.timeslotSender = timeslotSender ? timeslotSender : null;
+
+        /**
+         * @type {Storage}
+         */
         this.playlistStorage = playlistStorage ? playlistStorage : null;
-        this.timeslotService = timeslotService ? timeslotService : null;
+
+        /**
+         * Event manager
+         */
         this.eventManager = new EvtManager();
+
+        /**
+         * List running playlist
+         * @type {Object}
+         */
         this.runningPlaylist = {};
-        this.eventManager.on(`play-playlist`, this.changeRunningPlaylist.bind(this));
-        this.eventManager.on(`stop-playlist`, this.changeIdlePlaylist.bind(this));
+
+        /**
+         * Listeners
+         */
+        this.eventManager.on(PlaylistService.PLAY, this.changeRunningPlaylist.bind(this));
+        this.eventManager.on(PlaylistService.STOP, this.changeIdlePlaylist.bind(this));
+        this.eventManager.on(PlaylistService.PAUSE, this.changePausePlaylist.bind(this));
+        this.eventManager.on(PlaylistService.RESUME, this.changeResumePlaylist.bind(this));
     }
 
     startSchedule() {
@@ -24,8 +68,66 @@ class PlaylistService {
         let data = {
             'timestamp' : this._getTimestamp()
         };
-        console.log('PLAYLIST SCHEDULE', `timeline-${data.timestamp}`);
+        // console.log('PLAYLIST SCHEDULE', `timeline-${data.timestamp}`);
         this.eventManager.fire(`timeline-${data.timestamp}`, data, true);
+        this._updateRunnintPlaylist();
+    }
+
+    /**
+     *
+     * @param {Playlist} playlist
+     * @return {boolean}
+     */
+    isRunning(playlist) {
+
+        let isRunning = false;
+        switch (true) {
+            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_STANDARD}`] !== undefined:
+                isRunning = this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_STANDARD}`].id === playlist.id;
+                break;
+            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_OVERLAY}`] !== undefined:
+                isRunning = this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_OVERLAY}`].id === playlist.id;
+                break;
+            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_DEFAULT}`] !== undefined:
+                isRunning = this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_DEFAULT}`].id === playlist.id;
+                break;
+        }
+        return isRunning;
+    }
+
+    /**
+     * @param {Playlist} playlist
+     */
+    setRunningPlaylist(playlist) {
+        if (!(typeof playlist.getMonitorId === 'function')) {
+            return;
+        }
+        this.runningPlaylist[`${playlist.getMonitorId()}-${playlist.context}`] = playlist;
+    }
+
+    /**
+     *
+     * @param {string} monitorId
+     * @return {string} context
+     */
+    getRunningPlaylist(monitorId, context) {
+        return this.runningPlaylist[`${monitorId}-${context}`];
+    }
+
+    /**
+     * @param {Playlist} playlist
+     */
+    removeRunningPlaylist(playlist) {
+
+        let nameContext = `${playlist.getMonitorId()}-${Playlist.CONTEXT_OVERLAY}`;
+        if (this.runningPlaylist[nameContext] && this.runningPlaylist[nameContext].id === playlist.id) {
+            delete this.runningPlaylist[nameContext];
+        }
+
+        nameContext = `${playlist.getMonitorId()}-${Playlist.CONTEXT_STANDARD}`;
+        if (this.runningPlaylist[nameContext] && this.runningPlaylist[nameContext].id === playlist.id) {
+            delete this.runningPlaylist[nameContext];
+        }
     }
 
     /**
@@ -37,24 +139,21 @@ class PlaylistService {
     }
 
     /**
-     * @param playlist
+     * @param {Playlist} playlist
      */
     play(playlist) {
 
-        if (this.runningPlaylist[playlist.getMonitorId()]) {
-            // TODO stop playlist;
-
+        let runningPlaylist = this.getRunningPlaylist(playlist.getMonitorId(), playlist.context);
+        if (runningPlaylist) {
+            this.pause(runningPlaylist);
         }
 
-        this.runningPlaylist[playlist.getMonitorId()] = playlist;
 
-        playlist.reset();
-        let timeslot = playlist.current();
-        this.timeslotService.play(timeslot, this._getTimeslotOptions(playlist));
+        this.setRunningPlaylist(playlist);
 
-        this.eventManager.fire('play-playlist', playlist);
-
-        console.log('schedule ATT', `timeline-${this._getTimestamp() + parseInt(timeslot.duration)}`);
+        let timeslot = playlist.first();
+        this.timeslotSender.play(timeslot);
+        this.eventManager.fire(PlaylistService.PLAY, playlist);
         this.eventManager.on(
             `timeline-${this._getTimestamp() + parseInt(timeslot.duration)}`,
             this.processPlaylist.bind({playlistService : this, playlist: playlist})
@@ -62,53 +161,82 @@ class PlaylistService {
     }
 
     /**
-     *
-     * @param playlist
-     * @private
+     * @param {Playlist} playlist
      */
-    _getTimeslotOptions(playlist) {
-        let options = {};
+    stop(playlist) {
 
-        if (playlist && typeof playlist === 'object' && playlist.options && typeof playlist.options === 'object') {
+        let timeslot = playlist.current();
+        this.timeslotSender.stop(timeslot);
+        this.eventManager.fire(PlaylistService.STOP, playlist);
+    }
 
-            switch (true) {
-                case typeof playlist.options.context === 'string':
-                    options.context = playlist.options.context;
-            }
+    /**
+     * @param {Playlist} playlist
+     */
+    resume(playlist) {
 
+        let runningPlaylist = this.getRunningPlaylist(playlist.getMonitorId(), playlist.context);
+        if (runningPlaylist) {
+            this.pause(runningPlaylist);
         }
-        return options;
+
+        this.setRunningPlaylist(playlist);
+        let timeslot = playlist.current();
+        this.timeslotSender.resume(timeslot);
+        this.eventManager.fire(PlaylistService.RESUME, playlist);
+
+        this.eventManager.on(
+            `timeline-${this._getTimestamp() + parseInt(timeslot.duration) - timeslot.currentTime}`,
+            this.processPlaylist.bind({playlistService : this, playlist: playlist})
+        )
+    }
+
+    /**
+     * @param {Playlist} playlist
+     */
+    pause(playlist) {
+
+        let timeslot = playlist.current();
+        this.timeslotSender.pause(timeslot);
+        this.eventManager.fire(PlaylistService.PAUSE, playlist);
     }
 
     /**
      * @param evt
      */
     processPlaylist(evt) {
-        let timeslot = this.playlist.next();
+
+        if (!this.playlistService.isRunning(this.playlist)) {
+            console.log('PLAYLIST NOT RUNNING', this.playlist);
+            return;
+        }
+
+        let runningPlaylist =  this.playlistService
+            .getRunningPlaylist(this.playlist.getMonitorId(), this.playlist.context);
+
+        let currentTimeslot = runningPlaylist.current();
+        console.log('PROCESSS', this.playlist, currentTimeslot.currentTime);
+        this.playlistService._debugEventManager();
+        let nextTimeslot = runningPlaylist.next();
 
         switch (true) {
-            case timeslot !== null && typeof timeslot === 'object':
-                console.log('NEXT PLAYLIST',`timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`, timeslot);
-                this.playlistService.timeslotService.play(timeslot);
+            case nextTimeslot !== null && typeof nextTimeslot === 'object':
+                console.log('PLAYLIST NEXT', nextTimeslot, this.playlist);
+                this.playlistService.timeslotSender.play(nextTimeslot);
                 this.playlistService.eventManager.on(
-                    `timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`,
+                    `timeline-${this.playlistService._getTimestamp() + parseInt(nextTimeslot.duration)}`,
                     this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
                 );
                 break;
-            case !timeslot && this.playlist.options.loop:
-                this.playlist.reset();
-                timeslot = this.playlist.current();
-                this.playlistService.timeslotService.play(timeslot);
-                console.log('RESTART PLAYLIST', `timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`, timeslot);
-                this.playlistService.eventManager.on(
-                    `timeline-${this.playlistService._getTimestamp() + parseInt(timeslot.duration)}`,
-                    this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
-                );
+            case nextTimeslot === null && this.playlist.loop:
+                console.log('PLAYLIST LOOP', nextTimeslot, this.playlist);
+                this.playlistService.play(this.playlist);
                 break;
-            default:
-                this.playlistService.eventManager.fire('stop-playlist', this.playlist);
+            case runningPlaylist !== undefined:
+                console.log('PLAYLIST STOP', nextTimeslot, this.playlist);
+                this.playlist.previous();
+                this.playlistService.stop(this.playlist);
                 break;
-
         }
     }
 
@@ -116,6 +244,7 @@ class PlaylistService {
      * @param evt
      */
     changeRunningPlaylist(evt) {
+        evt.data.reset();
         evt.data.status = Playlist.RUNNING;
         console.log('START PLAYLIST', evt);
         this.playlistStorage.update(evt.data)
@@ -130,11 +259,72 @@ class PlaylistService {
     changeIdlePlaylist(evt) {
         evt.data.status = Playlist.IDLE;
         evt.data.reset();
-        delete this.runningPlaylist[evt.data.getMonitorId()];
+        this.removeRunningPlaylist(evt.data);
         console.log('STOP PLAYLIST', evt);
         this.playlistStorage.update(evt.data)
             .then((data) => {})
             .catch((err) => { console.log(err) });
+    }
+
+    /**
+     *
+     * @param evt
+     */
+    changePausePlaylist(evt) {
+        evt.data.status = Playlist.PAUSE;
+        this.removeRunningPlaylist(evt.data);
+        console.log('PAUSE PLAYLIST', evt);
+        this.playlistStorage.update(evt.data)
+            .then((data) => {})
+            .catch((err) => { console.log(err) });
+    }
+
+    /**
+     *
+     * @param evt
+     */
+    changeResumePlaylist(evt) {
+        evt.data.status = Playlist.RUNNING;
+        console.log('RESUME PLAYLIST', evt);
+
+        this.playlistStorage.update(evt.data)
+            .then((data) => {})
+            .catch((err) => { console.log(err) });
+    }
+
+
+    /**
+     * @private
+     */
+    _updateRunnintPlaylist() {
+
+        for (let key in this.runningPlaylist) {
+            /*
+            if (this.runningTimeslots[key].currentTime + 1 >= this.runningTimeslots[key].duration) {
+                continue;
+            }
+            */
+
+            if (this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex]) {
+                this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex].currentTime++;
+            }
+
+
+            this.playlistStorage.update(this.runningPlaylist[key])
+                .then((data) => {
+                })
+                .catch((err) => { console.log(err) });
+
+        }
+    }
+
+    _debugEventManager() {
+        console.group();
+        console.log('Number event', Object.keys(this.eventManager.queues).length);
+        for (let key in this.eventManager.queues) {
+            console.log(key + ' Number off attach', this.eventManager.queues[key]);
+        }
+        console.groupEnd();
     }
 }
 

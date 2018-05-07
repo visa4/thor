@@ -1,3 +1,12 @@
+
+try {
+    EvtExecution = require('./EvtExecution.js');
+}
+catch(err) {
+
+    EvtExecution = require(__dirname + '/lib/event/EvtExecution.js');
+}
+
 /**
  *
  */

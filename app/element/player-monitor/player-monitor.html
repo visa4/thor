@@ -106,7 +106,7 @@
 
             constructor() {
                 super();
-                ElementPlayerMonitorManager.ipc.on('start-timeslot', this._startTimeslot.bind(this));
+                ElementPlayerMonitorManager.ipc.on('play-timeslot', this._startTimeslot.bind(this));
                 ElementPlayerMonitorManager.ipc.on('stop-timeslot', this._stoptTimeslot.bind(this));
                 ElementPlayerMonitorManager.ipc.on('pause-timeslot', this._pausetTimeslot.bind(this));
                 ElementPlayerMonitorManager.ipc.on('resume-timeslot', this._resumeTimeslot.bind(this));

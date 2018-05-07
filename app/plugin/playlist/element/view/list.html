@@ -24,7 +24,11 @@
                 playlist="{{playlist}}"
                 on-wrap-remove="remove"
                 on-wrap-update="displayUpdateView"
-                on-play="play">
+                on-wrap-update-playlist="update"
+                on-play="play"
+                on-stop="stop"
+                on-pause="pause"
+                on-resume="resume">
         </playlist-wc>
       </template>
     </div>
@@ -85,7 +89,7 @@
                   .get(PlaylistConfig.NAME_SERVICE)
                   .getAll()
                   .then((data) =>  {
-                      this.set('playlists', data)
+                      this.set('playlists', data);
                   });
           }
 
@@ -95,6 +99,15 @@
               }
 
               this.hideMonitorNotFound = newValue && Array.isArray(newValue) && newValue.length > 0;
+          }
+
+          update(evt) {
+              serviceManager.get('StoragePluginManager')
+                  .get(PlaylistConfig.NAME_SERVICE)
+                  .update(evt.detail)
+                  .then((data) =>  {
+                      serviceManager.get('PaperToastNotification').notify('Update playlist ' + data.name)
+                  });
           }
 
           remove(evt) {
@@ -125,6 +138,33 @@
            */
           play(evt) {
               serviceManager.get('PlaylistService').play(
+                  evt.detail
+              );
+          }
+
+          /**
+           * @param evt
+           */
+          stop(evt) {
+              serviceManager.get('PlaylistService').stop(
+                  evt.detail
+              );
+          }
+
+          /**
+           * @param evt
+           */
+          pause(evt) {
+              serviceManager.get('PlaylistService').pause(
+                  evt.detail
+              );
+          }
+
+          /**
+           * @param evt
+           */
+          resume(evt) {
+              serviceManager.get('PlaylistService').resume(
                   evt.detail
               );
           }

@@ -4,9 +4,11 @@
   "devDependencies": {
     "bower": "^1.8.4",
     "devtron": "^1.4.0",
-    "electron": "1.8.4",
-    "electron-builder": "~19.20.0",
-    "polymer-cli": "^1.5.4"
+    "electron": "2.0.0",
+    "electron-builder": "~20.11.1",
+    "polymer-cli": "^1.5.4",
+    "chai": "*",
+    "mocha": "*"
   },
   "scripts": {
     "postinstall": "install-app-deps",
@@ -15,7 +17,7 @@
     "dist": "build -l --x64 --ia32"
   },
   "build": {
-    "appId": "com.app.new",
+    "appId": "com.app.dsign",
     "asar": false,
     "linux": {
       "target": "deb",
@@ -23,7 +25,7 @@
     }
   },
   "dependencies": {
-    "adm-zip": "^0.4.7",
+    "adm-zip": "^0.4.9",
     "fluent-ffmpeg": "^2.1.2",
     "image-size": "^0.6.2"
   }

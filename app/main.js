@@ -44,7 +44,7 @@ function createWindowDashboard () {
 
     // App
     dashboard = new BrowserWindow({
-        width: 1000,
+        width: 1100,
         height: 500,
         titleBarStyle: 'hidden',
         x: 0,
@@ -268,7 +268,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
 });
 
 
-ipcMain.on('start-timeslot', (event, message) => {
+ipcMain.on('play-timeslot', (event, message) => {
 
     switch (true) {
         case message.timeslot.virtualMonitorReference.virtualMonitorId === monitorsWrapper.id:
@@ -277,7 +277,7 @@ ipcMain.on('start-timeslot', (event, message) => {
              */
             let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
             if (monitor) {
-                monitor.browserWindows.send('start-timeslot', message);
+                monitor.browserWindows.send('play-timeslot', message);
             } else {
                 // TODO write lo log
                 console.error('Error not found');

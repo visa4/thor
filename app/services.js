@@ -26,3 +26,8 @@ serviceManager.set(
     'PaperToastNotification',
     new PaperToastNotification('notification')
 );
+
+window.onerror = function(message, url, lineNumber) {
+    //save error and send to server for example.
+    return true;
+};

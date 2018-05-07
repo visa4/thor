@@ -237,6 +237,9 @@
               let monitor =  monitorStorage[method](this.monitor)
                   .then((data) => {
                       serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' monitor');
+                      if (data.enable) {
+                          PluginMonitorIndex.electronIpc.send('change-monitors-configuration', data);
+                      }
                   })
                   .catch((err) => {
                           console.log(err)

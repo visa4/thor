@@ -111,6 +111,7 @@
           upsertPlaylist() {
 
               this.playlist.name = this.$.name.value;
+              this.playlist.timeslots = [];
               this.$.timeslots.selectedItems.forEach(
                   (paperItem) => {
                       this.playlist.append(paperItem.item)

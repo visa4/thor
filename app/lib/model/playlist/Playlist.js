@@ -8,6 +8,10 @@ class Playlist {
     static get IDLE() { return 'idle'; }
     static get PAUSE() { return 'pause'; }
 
+    static get CONTEXT_STANDARD() { return 'standard'; }
+    static get CONTEXT_DEFAULT() { return 'default'; }
+    static get CONTEXT_OVERLAY() { return 'overlay'; }
+
     /**
      * @return {string}
      * @constructor
@@ -25,6 +29,16 @@ class Playlist {
         this.status = Playlist.IDLE;
 
         /**
+         * @type {String}
+         */
+        this.context = Playlist.CONTEXT_STANDARD;
+
+        /**
+         * @type {boolean}
+         */
+        this.loop = false;
+
+        /**
          * @type {number}
          */
         this.currentIndex = 0;
@@ -35,12 +49,9 @@ class Playlist {
         this.timeslots = [];
 
         /**
-         * options.loop    = true|false
-         * options.context = ['standard', 'overlay']
-         *
-         * @type {{}}
+         * @type {Array}
          */
-        this.options = {};
+        this.bind = [];
     }
 
     /**
@@ -88,24 +99,52 @@ class Playlist {
 
     /**
      *
-     * @return {*}
+     * @return {null|Timeslot}
      */
     current() {
         let timeslot = null;
         if (this.currentIndex < this.timeslots.length) {
             timeslot = this.timeslots[this.currentIndex];
+            timeslot.context = this.context;
         }
         return timeslot;
     }
 
     /**
-     * @return {*}
+     * @return {null|Timeslot}
+     */
+    first() {
+        let timeslot = null;
+        if (this.timeslots.length > 0) {
+            timeslot = this.timeslots[0];
+            timeslot.context = this.context;
+        }
+        return timeslot;
+    }
+
+    /**
+     * @return {null|Timeslot}
      */
     next() {
         let timeslot = null;
-        this.currentIndex++;
+        if ((this.currentIndex + 1) < this.timeslots.length) {
+            this.currentIndex++;
+            this.timeslots[this.currentIndex-1].currentTime = 0;
+            timeslot = this.timeslots[this.currentIndex];
+            timeslot.context = this.context;
+        }
+        return timeslot;
+    }
+
+    /**
+     * @return {null|Timeslot}
+     */
+    previous() {
+        let timeslot = null;
+        this.currentIndex--;
         if (this.currentIndex < this.timeslots.length) {
             timeslot = this.timeslots[this.currentIndex];
+            timeslot.context = this.context;
         }
         return timeslot;
     }
@@ -115,6 +154,9 @@ class Playlist {
      */
     reset() {
         this.currentIndex = 0;
+        for (let cont = 0; this.timeslots.length > cont; cont++) {
+            this.timeslots[cont].currentTime = 0;
+        }
     }
 
     /**

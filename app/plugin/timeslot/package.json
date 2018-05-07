@@ -6,6 +6,7 @@
   "homepage": "www.visa4.it",
   "config": "config.js",
   "autoload": [
+    "src/TimeslotSenderService.js",
     "src/TimeslotService.js"
   ]
 }

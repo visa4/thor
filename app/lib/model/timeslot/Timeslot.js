@@ -26,7 +26,7 @@ class Timeslot {
         this.status = Playlist.IDLE;
 
         /**
-         *
+         * @type {String}
          */
         this.context = Timeslot.CONTEXT_STANDARD;
 
@@ -36,12 +36,12 @@ class Timeslot {
         this.duration = null;
 
         /**
-         * @type {null|integer}
+         * @type {boolean}
          */
         this.loop = false;
 
         /**
-         * @type {null|integer}
+         * @type {integer}
          */
         this.currentTime = 0;
 

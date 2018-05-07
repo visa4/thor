@@ -24,6 +24,13 @@
                 padding: 8px;
             }
 
+            .nameTimeslot {
+                overflow: hidden;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                background-color: ;
+            }
+
             .flags {
 
             }
@@ -51,12 +58,15 @@
                 font-style: italic;
             }
 
+            paper-card {
+                max-width: 350px;
+            }
 
         </style>
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-80 flex flex-vertical">
-                    <div>{{timeslot.name}}</div>
+                    <div class="nameTimeslot">{{timeslot.name}}</div>
                     <div class$="{{timeslot.status}}">{{timeslot.status}}
                         <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
                             {{timeslot.currentTime}} sec
@@ -69,14 +79,14 @@
                             id="loopIcon"
                             item="{{timeslot}}"
                             icon="timeslot:loop"
-                            class$="{{computeContexIcon()}}"
+                            class$="{{_computeLoopIcon()}}"
                             on-tap="_tapLoop">
                     </paper-icon-button>
                     <paper-icon-button
                             id="overlayIcon"
                             item="{{timeslot}}"
                             icon="timeslot:overlay"
-                            class$="{{computeContexIcon()}}"
+                            class$="{{_computeContexIcon()}}"
                             on-tap="_tapOverlay">
                     </paper-icon-button>
                 </div>
@@ -148,7 +158,11 @@
                 };
             }
 
-            computeContexIcon() {
+            _computeLoopIcon() {
+                return this.timeslot.loop === true ? 'activePaperButton timeslot' : 'timeslot';
+            }
+
+            _computeContexIcon() {
                 return this.timeslot.context === Timeslot.CONTEXT_OVERLAY ? 'activePaperButton timeslot' : 'timeslot';
             }
 
