@@ -25,9 +25,14 @@ class PlaylistService {
      *
      * @param {TimeslotSenderService} timeslotSender
      * @param {Storage} playlistStorage
+     * @param {Timer} timer
      */
-    constructor(timeslotSender, playlistStorage) {
+    constructor(timeslotSender, playlistStorage, timer) {
 
+        /**
+         * @type {Timer}
+         */
+        this.timer = timer;
         /**
          *
          * @type {TimeslotSenderService}
@@ -72,7 +77,6 @@ class PlaylistService {
         this.eventManager.fire(`timeline-${data.timestamp}`, data, true);
         this._updateRunnintPlaylist();
     }
-
     /**
      *
      * @param {Playlist} playlist
@@ -82,14 +86,17 @@ class PlaylistService {
 
         let isRunning = false;
         switch (true) {
-            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_STANDARD}`] !== undefined:
-                isRunning = this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_STANDARD}`].id === playlist.id;
+            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_STANDARD}`] !== undefined &&
+                this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_STANDARD}`].id === playlist.id:
+                isRunning = true;
                 break;
-            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_OVERLAY}`] !== undefined:
-                isRunning = this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_OVERLAY}`].id === playlist.id;
+            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_OVERLAY}`] !== undefined &&
+                this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_OVERLAY}`].id === playlist.id:
+                isRunning = true;
                 break;
-            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_DEFAULT}`] !== undefined:
-                isRunning = this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_DEFAULT}`].id === playlist.id;
+            case this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_DEFAULT}`] !== undefined &&
+                this.runningPlaylist[`${playlist.getMonitorId()}-${Playlist.CONTEXT_DEFAULT}`].id === playlist.id:
+                isRunning = true;
                 break;
         }
         return isRunning;
@@ -150,6 +157,7 @@ class PlaylistService {
 
 
         this.setRunningPlaylist(playlist);
+        playlist.status = Playlist.RUNNING;
 
         let timeslot = playlist.first();
         this.timeslotSender.play(timeslot);
@@ -165,6 +173,8 @@ class PlaylistService {
      */
     stop(playlist) {
 
+        this.removeRunningPlaylist(playlist);
+        playlist.status = Playlist.IDLE;
         let timeslot = playlist.current();
         this.timeslotSender.stop(timeslot);
         this.eventManager.fire(PlaylistService.STOP, playlist);
@@ -181,6 +191,8 @@ class PlaylistService {
         }
 
         this.setRunningPlaylist(playlist);
+        playlist.status = Playlist.RUNNING;
+
         let timeslot = playlist.current();
         this.timeslotSender.resume(timeslot);
         this.eventManager.fire(PlaylistService.RESUME, playlist);
@@ -196,6 +208,8 @@ class PlaylistService {
      */
     pause(playlist) {
 
+        playlist.status = Playlist.PAUSE;
+        this.removeRunningPlaylist(playlist);
         let timeslot = playlist.current();
         this.timeslotSender.pause(timeslot);
         this.eventManager.fire(PlaylistService.PAUSE, playlist);
@@ -206,8 +220,10 @@ class PlaylistService {
      */
     processPlaylist(evt) {
 
+        console.group();
+        console.log('PROCESSS', this.playlist.name, this.playlist);
         if (!this.playlistService.isRunning(this.playlist)) {
-            console.log('PLAYLIST NOT RUNNING', this.playlist);
+            console.log('PLAYLIST NOT RUNNING', this.playlist.name, this.playlist);
             return;
         }
 
@@ -215,29 +231,34 @@ class PlaylistService {
             .getRunningPlaylist(this.playlist.getMonitorId(), this.playlist.context);
 
         let currentTimeslot = runningPlaylist.current();
-        console.log('PROCESSS', this.playlist, currentTimeslot.currentTime);
-        this.playlistService._debugEventManager();
-        let nextTimeslot = runningPlaylist.next();
+       // this.playlistService.eventManager._consoleDebug();
 
         switch (true) {
-            case nextTimeslot !== null && typeof nextTimeslot === 'object':
-                console.log('PLAYLIST NEXT', nextTimeslot, this.playlist);
+            case currentTimeslot.currentTime < (currentTimeslot.duration-1):
+                console.log(currentTimeslot.currentTime, currentTimeslot.duration -1);
+                // Old event on the same playlist
+                console.log('SONO UN VECCHIO EVENTO' ,this.playlist.name );
+                break;
+            case runningPlaylist.hasNext():
+                console.log('PLAYLIST NEXT', this.playlist.name, this.playlist);
+                let nextTimeslot = runningPlaylist.next();
                 this.playlistService.timeslotSender.play(nextTimeslot);
                 this.playlistService.eventManager.on(
                     `timeline-${this.playlistService._getTimestamp() + parseInt(nextTimeslot.duration)}`,
                     this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
                 );
                 break;
-            case nextTimeslot === null && this.playlist.loop:
-                console.log('PLAYLIST LOOP', nextTimeslot, this.playlist);
+            case !runningPlaylist.hasNext() && this.playlist.loop:
+                console.log('PLAYLIST LOOP', this.playlist.name, this.playlist);
                 this.playlistService.play(this.playlist);
                 break;
             case runningPlaylist !== undefined:
-                console.log('PLAYLIST STOP', nextTimeslot, this.playlist);
+                console.log('PLAYLIST STOP', this.playlist.name, this.playlist);
                 this.playlist.previous();
                 this.playlistService.stop(this.playlist);
                 break;
         }
+        console.groupEnd();
     }
 
     /**
@@ -245,7 +266,6 @@ class PlaylistService {
      */
     changeRunningPlaylist(evt) {
         evt.data.reset();
-        evt.data.status = Playlist.RUNNING;
         console.log('START PLAYLIST', evt);
         this.playlistStorage.update(evt.data)
             .then((data) => {})
@@ -257,9 +277,7 @@ class PlaylistService {
      * @param evt
      */
     changeIdlePlaylist(evt) {
-        evt.data.status = Playlist.IDLE;
         evt.data.reset();
-        this.removeRunningPlaylist(evt.data);
         console.log('STOP PLAYLIST', evt);
         this.playlistStorage.update(evt.data)
             .then((data) => {})
@@ -271,8 +289,6 @@ class PlaylistService {
      * @param evt
      */
     changePausePlaylist(evt) {
-        evt.data.status = Playlist.PAUSE;
-        this.removeRunningPlaylist(evt.data);
         console.log('PAUSE PLAYLIST', evt);
         this.playlistStorage.update(evt.data)
             .then((data) => {})
@@ -284,9 +300,7 @@ class PlaylistService {
      * @param evt
      */
     changeResumePlaylist(evt) {
-        evt.data.status = Playlist.RUNNING;
         console.log('RESUME PLAYLIST', evt);
-
         this.playlistStorage.update(evt.data)
             .then((data) => {})
             .catch((err) => { console.log(err) });
@@ -299,32 +313,19 @@ class PlaylistService {
     _updateRunnintPlaylist() {
 
         for (let key in this.runningPlaylist) {
-            /*
-            if (this.runningTimeslots[key].currentTime + 1 >= this.runningTimeslots[key].duration) {
+
+            let timeslot = this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex];
+            if (!timeslot || timeslot.currentTime + 1 >= timeslot.duration) {
                 continue;
             }
-            */
 
-            if (this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex]) {
-                this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex].currentTime++;
-            }
-
-
+            this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex].currentTime++;
             this.playlistStorage.update(this.runningPlaylist[key])
                 .then((data) => {
                 })
                 .catch((err) => { console.log(err) });
 
         }
-    }
-
-    _debugEventManager() {
-        console.group();
-        console.log('Number event', Object.keys(this.eventManager.queues).length);
-        for (let key in this.eventManager.queues) {
-            console.log(key + ' Number off attach', this.eventManager.queues[key]);
-        }
-        console.groupEnd();
     }
 }
 

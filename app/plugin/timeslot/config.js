@@ -17,12 +17,21 @@ class TimeslotConfig extends PluginConfig {
      */
     static get NAME_STORAGE() { return 'timeslot.data'; };
 
+    /**
+     *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_COLLECTION() { return 'timeslot'; };
+
     init() {
 
         this._loadHydrator();
 
+        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
+
         let storage = new Storage(
-            new IndexedDbStorage('Dsign', 'timeslot'),
+            new IndexedDbStorage(indexedDBConfig.name, TimeslotConfig.NAME_COLLECTION),
             this.serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
         );
 
@@ -57,6 +66,7 @@ class TimeslotConfig extends PluginConfig {
             .enableHydrateProperty('name')
             .enableHydrateProperty('status')
             .enableHydrateProperty('loop')
+            .enableHydrateProperty('binds')
             .enableHydrateProperty('currentTime')
             .enableHydrateProperty('duration')
             .enableHydrateProperty('context')
@@ -67,6 +77,7 @@ class TimeslotConfig extends PluginConfig {
             .enableExtractProperty('name')
             .enableExtractProperty('status')
             .enableExtractProperty('loop')
+            .enableExtractProperty('binds')
             .enableExtractProperty('currentTime')
             .enableExtractProperty('duration')
             .enableExtractProperty('context')

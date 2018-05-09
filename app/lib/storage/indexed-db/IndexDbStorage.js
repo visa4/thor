@@ -82,6 +82,17 @@ class IndexedDbStorage {
     }
 
     /**
+     * @param upgrade
+     */
+    upgrade(upgrade) {
+
+        if (upgrade && typeof upgrade.upgrade === 'function') {
+            console.log('UPGRADE', upgrade)
+        }
+    }
+
+
+    /**
      * @param obj
      * @return {Promise}
      */

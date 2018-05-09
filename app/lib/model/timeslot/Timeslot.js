@@ -48,7 +48,7 @@ class Timeslot {
         /**
          * @type {Array}
          */
-        this.bind = [];
+        this.binds = [];
 
         /**
          *

@@ -33,6 +33,9 @@ class ServiceManager {
      */
     get(name) {
         this.__checkNameService(name);
+        if (typeof this.services[name] === 'function') {
+            this.services[name] = this.services[name](this);
+        }
         return this.services[name];
     }
 

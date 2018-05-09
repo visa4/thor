@@ -52,6 +52,15 @@ class EvtManager {
             }
         }
     }
+
+    _consoleDebug() {
+        console.group();
+        console.log('Number event', Object.keys(this.queues).length);
+        for (let key in this.queues) {
+            console.log(key + ' Number off attach', this.queues[key]);
+        }
+        console.groupEnd();
+    }
 }
 
 module.exports = EvtManager;

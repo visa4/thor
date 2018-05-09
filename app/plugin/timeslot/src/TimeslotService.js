@@ -1,3 +1,12 @@
+try {
+    EvtManager = require('./../../../lib/event/EvtManager');
+    TimeslotSenderService = require('./TimeslotSenderService');
+}
+catch(err) {
+
+    EvtManager = require(__dirname + '/lib/event/EvtManager.js');
+}
+
 /**
  *
  */
@@ -5,10 +14,16 @@ class TimeslotService {
 
     /**
      *
-     * @param {TimeslotSenderService} timeslotService
+     * @param {TimeslotSenderService} timeslotSender
      * @param {Storage} timeslotStorage
+     * @param {Timer} timer
      */
-    constructor(timeslotSender, timeslotStorage) {
+    constructor(timeslotSender, timeslotStorage, timer) {
+
+        /**
+         * @type {timer}
+         */
+        this.timer = timer;
 
         /**
          *
@@ -65,14 +80,17 @@ class TimeslotService {
 
         let isRunning = false;
         switch (true) {
-            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_STANDARD}`] !== undefined:
-                isRunning = this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Playlist.CONTEXT_STANDARD}`].id === timeslot.id;
+            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_STANDARD}`] !== undefined &&
+                this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Playlist.CONTEXT_STANDARD}`].id === timeslot.id:
+                isRunning = true;
                 break;
-            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_OVERLAY}`] !== undefined:
-                isRunning = this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_OVERLAY}`].id === timeslot.id;
+            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_OVERLAY}`] !== undefined &&
+                this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_OVERLAY}`].id === timeslot.id:
+                isRunning = true;
                 break;
-            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_DEFAULT}`] !== undefined:
-                isRunning = this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_DEFAULT}`].id === timeslot.id;
+            case this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_DEFAULT}`] !== undefined &&
+                this.runningTimeslots[`${timeslot.virtualMonitorReference.monitorId}-${Timeslot.CONTEXT_DEFAULT}`].id === timeslot.id:
+                isRunning = true;
                 break;
         }
         return isRunning;
@@ -188,6 +206,7 @@ class TimeslotService {
             .getRunningTimeslot(this.timeslot.virtualMonitorReference.monitorId, this.timeslot.context);
 
         console.log('PROCESS TIMESLOT',runningTimeslot);
+        this.timeslotService.eventManager._consoleDebug();
 
         switch (true) {
             case this.timeslot.loop === true:
@@ -207,6 +226,11 @@ class TimeslotService {
      */
     changeRunningTimeslot(evt) {
         console.log('START TIMESLOT',  evt.data);
+        if (evt.data.binds.length > 0) {
+            for (let cont = 0; evt.data.binds.length > cont; cont++) {
+                this.play(evt.data.binds[cont]);
+            }
+        }
 
         this.setRunningTimeslot(evt.data);
         evt.data.status = Timeslot.RUNNING;
@@ -222,6 +246,12 @@ class TimeslotService {
     changeResumeTimeslot(evt) {
         console.log('RESUME TIMESLOT',  evt.data.id);
 
+        if (evt.data.binds.length > 0) {
+            for (let cont = 0; evt.data.binds.length > cont; cont++) {
+                this.resume(evt.data.binds[cont]);
+            }
+        }
+
         evt.data.status = Timeslot.RUNNING;
         this.setRunningTimeslot(evt.data);
         this.timeslotStorage.update(evt.data)
@@ -230,6 +260,13 @@ class TimeslotService {
     }
 
     changePauseTimeslot(evt) {
+        console.log('PAUSE TIMESLOT',  evt.data.id);
+
+        if (evt.data.binds.length > 0) {
+            for (let cont = 0; evt.data.binds.length > cont; cont++) {
+                this.pause(evt.data.binds[cont]);
+            }
+        }
 
         this.removeRunningTimeslot(evt.data);
         evt.data.status = Timeslot.PAUSE;
@@ -244,6 +281,12 @@ class TimeslotService {
      */
     changeIdleTimeslot(evt) {
         console.log('STOP TIMESLOT',  evt.data.id);
+
+        if (evt.data.binds.length > 0) {
+            for (let cont = 0; evt.data.binds.length > cont; cont++) {
+                this.stop(evt.data.binds[cont]);
+            }
+        }
 
         this.removeRunningTimeslot(evt.data);
 

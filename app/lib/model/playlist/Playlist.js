@@ -123,6 +123,13 @@ class Playlist {
     }
 
     /**
+     * @return {Boolean}
+     */
+    hasNext() {
+        return (this.currentIndex + 1) < this.timeslots.length;
+    }
+
+    /**
      * @return {null|Timeslot}
      */
     next() {

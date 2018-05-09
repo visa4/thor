@@ -32,7 +32,7 @@
                     for (let length = 0; plugin.autoload.length > length; length++) {
                         // TODO CONTROLLARE SE ESISTE IL FILE
                         let importClass = require(`${__dirname}/plugin/${plugin.name}/${plugin.autoload[length]}`);
-                        global[(new importClass()).constructor.name] = importClass;
+                        global[importClass.name] = importClass;
                     }
                 }
 

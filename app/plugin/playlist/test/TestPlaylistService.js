@@ -51,13 +51,15 @@ describe('Playlist Service', function() {
             return 'monitor';
         };
 
-        playlist2.context = 'standard';
+        playlist2.context = 'overlay';
         playlist2.id = 2;
 
         playlistService.setRunningPlaylist(playlist);
-        assert.equal(playlistService.isRunning(playlist2), false);
+        assert.equal(playlistService.isRunning(playlist), true, 'First running');
+        assert.equal(playlistService.isRunning(playlist2), false, 'Second not running');
 
         playlistService.setRunningPlaylist(playlist2);
-        assert.equal(playlistService.isRunning(playlist2), true);
+        assert.equal(playlistService.isRunning(playlist), true, 'First already running');
+        assert.equal(playlistService.isRunning(playlist2), true, 'Second running');
     });
 });

@@ -3,18 +3,21 @@
   "description": "Dsign",
   "devDependencies": {
     "bower": "^1.8.4",
+    "chai": "*",
     "devtron": "^1.4.0",
     "electron": "2.0.0",
     "electron-builder": "~20.11.1",
-    "polymer-cli": "^1.5.4",
-    "chai": "*",
-    "mocha": "*"
+    "mocha": "*",
+    "nyc": "^11.7.1",
+    "polymer-cli": "^1.5.4"
   },
   "scripts": {
     "postinstall": "install-app-deps",
     "start": "electron --inspect=5858 ./app --enable-logging",
     "dev": "NODE_ENV='development' npm run start",
-    "dist": "build -l --x64 --ia32"
+    "dist": "build -l --x64 --ia32",
+    "test": "nyc mocha app/**/Test*.js"
+
   },
   "build": {
     "appId": "com.app.dsign",
@@ -26,7 +29,19 @@
   },
   "dependencies": {
     "adm-zip": "^0.4.9",
+    "easytimer.js": "git+ssh://git@github.com/albert-gonzalez/easytimer.js.git",
     "fluent-ffmpeg": "^2.1.2",
-    "image-size": "^0.6.2"
+    "image-size": "^0.6.2",
+    "easytimer": "git+https://git@github.com:albert-gonzalez/easytimer.js.git"
+  },
+  "nyc" : {
+    "reporter": [
+      "html",
+      "text-summary"
+    ],
+    "report-dir": "./test/nyc",
+    "exclude": [
+      "app/**/Test*.js"
+    ]
   }
 }

@@ -42,6 +42,14 @@
         </paper-listbox>
       </paper-dropdown-menu>
     </div>
+    <paper-dropdown-menu id="bind" label="Bind">
+      <paper-listbox id="binds" slot="dropdown-content" multi>
+        <template is="dom-repeat" items="{{binds}}" as="bind">
+          <paper-item item="{{bind}}">{{bind.name}}</paper-item>
+        </template>
+      </paper-listbox>
+    </paper-dropdown-menu>
+    </div>
     <div>
       <div class="flex flex-horizontal-end" style="margin-top: 20px;">
         <paper-button on-tap="upsertTimeslot">{{labelAction}}</paper-button>
@@ -83,6 +91,11 @@
                   labelAction: {
                       type: String,
                       value: 'Save'
+                  },
+
+                  binds: {
+                      type: Array,
+                      value: []
                   }
               }
           }
@@ -93,6 +106,13 @@
                   .get(TimeslotConfig.NAME_SERVICE)
                   .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
               );
+
+              serviceManager.get('StoragePluginManager')
+                  .get(TimeslotConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                     this.binds = data;
+                  });
           }
 
           _clearData() {
@@ -178,9 +198,22 @@
                   )
                   multiselect.push(index);
               }
+              this.$.resources.selectedValues = multiselect;
+
+              multiselect = [];
+              for (let cont = 0; newValue.binds.length > cont; cont++) {
+
+                  let index =  this.$.binds.items.findIndex(
+                      (paperItem) => {
+                          return newValue.binds[cont].id  === paperItem.item.id
+                      }
+                  )
+                  multiselect.push(index);
+              }
+              this.$.binds.selectedValues = multiselect;
+
 
               this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
-              this.$.resources.selectedValues = multiselect;
           }
 
           upsertTimeslot() {
@@ -209,10 +242,18 @@
               ref.name = this.$.monitor.selectedItem.item.monitor.name;
               this.timeslot.virtualMonitorReference = ref;
 
-              this.timeslot.resources = []; // TODO REMOVE AND CONTROLL
+              let resources = [];
               this.$.resources.selectedItems.forEach(
-                  (paperItem) => {this.timeslot.resources.push(paperItem.item)}
+                  (paperItem) => {resources.push(paperItem.item)}
               );
+              this.timeslot.resources = resources;
+
+              let binds = [];
+              this.$.binds.selectedItems.forEach(
+                  (paperItem) => {binds.push(paperItem.item)}
+              );
+              this.timeslot.binds = binds;
+
 
               serviceManager.get('StoragePluginManager')
                   .get(TimeslotConfig.NAME_SERVICE)[method](this.timeslot)
@@ -223,7 +264,6 @@
                           console.log(err)
                       }
                   );
-
           }
       }
 
