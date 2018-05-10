@@ -38,8 +38,15 @@
           </template>
         </paper-listbox>
       </paper-dropdown-menu>
+      <paper-dropdown-menu id="bind" label="Bind playlist">
+        <paper-listbox id="binds" slot="dropdown-content" multi>
+          <template is="dom-repeat" items="{{binds}}" as="bind">
+            <paper-item item="{{bind}}">{{bind.name}}</paper-item>
+          </template>
+        </paper-listbox>
+      </paper-dropdown-menu>
       <div class="flex flex-horizontal-end">
-        <paper-button on-tap="upsertPlaylist">Add</paper-button>
+        <paper-button on-tap="upsertPlaylist">{{labelAction}}</paper-button>
       </div>
     </div>
   </template>
@@ -62,7 +69,17 @@
                   timeslots: {
                       type: Array,
                       notify: true
-                  }
+                  },
+
+                  binds: {
+                      type: Array,
+                      value: []
+                  },
+
+                  labelAction: {
+                      type: String,
+                      value: 'Save'
+                  },
               };
           }
 
@@ -79,6 +96,13 @@
                   .get(PlaylistConfig.NAME_SERVICE)
                   .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
               );
+
+              serviceManager.get('StoragePluginManager')
+                  .get(PlaylistConfig.NAME_SERVICE)
+                  .getAll()
+                  .then((data) =>  {
+                      this.binds = data;
+                  });
           }
 
           _clearData() {
@@ -106,6 +130,22 @@
               }
 
               this.$.timeslots.selectedValues = multiselect;
+
+              multiselect = [];
+              if (Array.isArray(newValue.binds)) {
+                  for (let cont = 0; newValue.binds.length > cont; cont++) {
+
+                      let index =  this.$.binds.items.findIndex(
+                          (paperItem) => {
+                              return newValue.binds[cont] === paperItem.item.id
+                          }
+                      )
+                      multiselect.push(index);
+                  }
+                  this.$.binds.selectedValues = multiselect;
+              }
+
+              this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
           }
 
           upsertPlaylist() {
@@ -118,7 +158,14 @@
                   }
               );
 
+              let binds = [];
+              this.$.binds.selectedItems.forEach(
+                  (paperItem) => {binds.push(paperItem.item.id)}
+              );
+              this.playlist.binds = binds;
+
               let method = this.playlist.id ? 'update' : 'save';
+
               let playlistStorage = serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE);
               playlistStorage[method](this.playlist)
                   .then((data) => {
@@ -128,6 +175,7 @@
                           console.log(err)
                       }
                   );
+
           }
       }
 

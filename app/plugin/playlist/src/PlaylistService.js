@@ -62,19 +62,23 @@ class PlaylistService {
         this.eventManager.on(PlaylistService.STOP, this.changeIdlePlaylist.bind(this));
         this.eventManager.on(PlaylistService.PAUSE, this.changePausePlaylist.bind(this));
         this.eventManager.on(PlaylistService.RESUME, this.changeResumePlaylist.bind(this));
-    }
 
-    startSchedule() {
-        setInterval(this.schedule.bind(this), 1000);
+        if (this.timer) {
+            this.timer.addEventListener('secondsUpdated', (evt)  => {
+                this.schedule();
+            });
+        } else {
+            throw 'Timer not set';
+        }
     }
 
     schedule() {
 
         let data = {
-            'timestamp' : this._getTimestamp()
+            timelineSeconds : this.timer.getTotalTimeValues().seconds
         };
-        // console.log('PLAYLIST SCHEDULE', `timeline-${data.timestamp}`);
-        this.eventManager.fire(`timeline-${data.timestamp}`, data, true);
+
+        this.eventManager.fire(`timeline-${data.timelineSeconds}`, data, true);
         this._updateRunnintPlaylist();
     }
     /**
@@ -138,14 +142,6 @@ class PlaylistService {
     }
 
     /**
-     * @return {number}
-     * @private
-     */
-    _getTimestamp() {
-        return Math.round(new Date() / 1000);
-    }
-
-    /**
      * @param {Playlist} playlist
      */
     play(playlist) {
@@ -157,13 +153,15 @@ class PlaylistService {
 
 
         this.setRunningPlaylist(playlist);
+        this._executeBids(playlist, 'play');
         playlist.status = Playlist.RUNNING;
 
         let timeslot = playlist.first();
+        timeslot.playlistId = playlist.id;
         this.timeslotSender.play(timeslot);
         this.eventManager.fire(PlaylistService.PLAY, playlist);
         this.eventManager.on(
-            `timeline-${this._getTimestamp() + parseInt(timeslot.duration)}`,
+            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration)}`,
             this.processPlaylist.bind({playlistService : this, playlist: playlist})
         )
     }
@@ -174,8 +172,10 @@ class PlaylistService {
     stop(playlist) {
 
         this.removeRunningPlaylist(playlist);
+        this._executeBids(playlist, 'stop');
         playlist.status = Playlist.IDLE;
         let timeslot = playlist.current();
+        timeslot.playlistId = playlist.id;
         this.timeslotSender.stop(timeslot);
         this.eventManager.fire(PlaylistService.STOP, playlist);
     }
@@ -192,13 +192,15 @@ class PlaylistService {
 
         this.setRunningPlaylist(playlist);
         playlist.status = Playlist.RUNNING;
+        this._executeBids(playlist, 'resume');
 
         let timeslot = playlist.current();
+        timeslot.playlistId = playlist.id;
         this.timeslotSender.resume(timeslot);
         this.eventManager.fire(PlaylistService.RESUME, playlist);
 
         this.eventManager.on(
-            `timeline-${this._getTimestamp() + parseInt(timeslot.duration) - timeslot.currentTime}`,
+            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration) - timeslot.currentTime}`,
             this.processPlaylist.bind({playlistService : this, playlist: playlist})
         )
     }
@@ -210,7 +212,9 @@ class PlaylistService {
 
         playlist.status = Playlist.PAUSE;
         this.removeRunningPlaylist(playlist);
+        this._executeBids(playlist, 'pause');
         let timeslot = playlist.current();
+        timeslot.playlistId = playlist.id;
         this.timeslotSender.pause(timeslot);
         this.eventManager.fire(PlaylistService.PAUSE, playlist);
     }
@@ -221,7 +225,7 @@ class PlaylistService {
     processPlaylist(evt) {
 
         console.group();
-        console.log('PROCESSS', this.playlist.name, this.playlist);
+        console.log('PROCESSS', this.playlist.name, this.playlist.current());
         if (!this.playlistService.isRunning(this.playlist)) {
             console.log('PLAYLIST NOT RUNNING', this.playlist.name, this.playlist);
             return;
@@ -235,16 +239,16 @@ class PlaylistService {
 
         switch (true) {
             case currentTimeslot.currentTime < (currentTimeslot.duration-1):
-                console.log(currentTimeslot.currentTime, currentTimeslot.duration -1);
                 // Old event on the same playlist
-                console.log('SONO UN VECCHIO EVENTO' ,this.playlist.name );
+                console.log('PLAYLIST JUMP' ,this.playlist.name, currentTimeslot.currentTime, currentTimeslot.duration -1 );
                 break;
             case runningPlaylist.hasNext():
-                console.log('PLAYLIST NEXT', this.playlist.name, this.playlist);
                 let nextTimeslot = runningPlaylist.next();
+                console.log('PLAYLIST NEXT', this.playlist.name, nextTimeslot);
+                nextTimeslot.playlistId = this.playlist.id;
                 this.playlistService.timeslotSender.play(nextTimeslot);
                 this.playlistService.eventManager.on(
-                    `timeline-${this.playlistService._getTimestamp() + parseInt(nextTimeslot.duration)}`,
+                    `timeline-${this.playlistService.timer.getTotalTimeValues().seconds + parseInt(nextTimeslot.duration)}`,
                     this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
                 );
                 break;
@@ -254,7 +258,6 @@ class PlaylistService {
                 break;
             case runningPlaylist !== undefined:
                 console.log('PLAYLIST STOP', this.playlist.name, this.playlist);
-                this.playlist.previous();
                 this.playlistService.stop(this.playlist);
                 break;
         }
@@ -324,7 +327,28 @@ class PlaylistService {
                 .then((data) => {
                 })
                 .catch((err) => { console.log(err) });
+        }
+    }
 
+    /**
+     * @param {Playlist} playlist
+     * @param {String} method
+     * @private
+     */
+    _executeBids(playlist, method) {
+        if (playlist.binds === undefined || playlist.binds.length === 0) {
+            return;
+        }
+
+        for (let cont = 0; playlist.binds.length > cont; cont++) {
+
+            this.playlistStorage
+                .get(playlist.binds[cont])
+                .then((data) => {
+                    console.log('facciamo qualcosaaaaaaaaaaaaaa', data, this)
+                    this[method](data);
+                })
+                .catch((err) => { console.log(err) });
         }
     }
 }

@@ -1,6 +1,5 @@
 try {
     EvtManager = require('./../../../lib/event/EvtManager');
-    TimeslotSenderService = require('./TimeslotSenderService');
 }
 catch(err) {
 
@@ -12,6 +11,14 @@ catch(err) {
  */
 class TimeslotService {
 
+    static get PLAY()  { return 'play-timeslot'; }
+
+    static get STOP()  { return 'stop-timeslot'; }
+
+    static get PAUSE()  { return 'pause-timeslot'; }
+
+    static get RESUME() { return 'resume-timeslot'; }
+
     /**
      *
      * @param {TimeslotSenderService} timeslotSender
@@ -21,7 +28,7 @@ class TimeslotService {
     constructor(timeslotSender, timeslotStorage, timer) {
 
         /**
-         * @type {timer}
+         * @type {Timer}
          */
         this.timer = timer;
 
@@ -50,24 +57,27 @@ class TimeslotService {
         /**
          * Listeners
          */
-        this.eventManager.on(TimeslotSenderService.TIMESLOT_PLAY, this.changeRunningTimeslot.bind(this));
-        this.eventManager.on(TimeslotSenderService.TIMESLOT_PAUSE, this.changePauseTimeslot.bind(this));
-        this.eventManager.on(TimeslotSenderService.TIMESLOT_STOP, this.changeIdleTimeslot.bind(this));
-        this.eventManager.on(TimeslotSenderService.TIMESLOT_RESUME, this.changeResumeTimeslot.bind(this));
-    }
+        this.eventManager.on(TimeslotService.PLAY, this.changeRunningTimeslot.bind(this));
+        this.eventManager.on(TimeslotService.PAUSE, this.changePauseTimeslot.bind(this));
+        this.eventManager.on(TimeslotService.STOP, this.changeIdleTimeslot.bind(this));
+        this.eventManager.on(TimeslotService.RESUME, this.changeResumeTimeslot.bind(this));
 
-    startSchedule() {
-        setInterval(this.schedule.bind(this), 1000);
+        if (this.timer) {
+            this.timer.addEventListener('secondsUpdated', (evt)  => {
+                this.schedule();
+            });
+        } else {
+            throw 'Timer not set';
+        }
     }
 
     schedule() {
 
         let data = {
-            'timestamp' : this._getTimestamp()
+            timelineSeconds : this.timer.getTotalTimeValues().seconds
         };
 
-        // console.log('TIMESLOT SCHEDULE', `timeline-${data.timestamp}`);
-        this.eventManager.fire(`timeline-${data.timestamp}`, data, true);
+        this.eventManager.fire(`timeline-${data.timelineSeconds}`, data, true);
         this._updateRunnintTimslots();
     }
 
@@ -139,10 +149,12 @@ class TimeslotService {
             this.pause(runningTimeslot);
         }
 
+        timeslot.options.typeService = 'timeslot';
+        this._executeBids(timeslot, 'play');
         this.timeslotSender.play(timeslot);
-        this.eventManager.fire(TimeslotSenderService.TIMESLOT_PLAY, timeslot);
+        this.eventManager.fire(TimeslotService.PLAY, timeslot);
         this.eventManager.on(
-            `timeline-${this._getTimestamp() + parseInt(timeslot.duration)}`,
+            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration)}`,
             this.processTimeslot.bind({timeslotService : this, timeslot: timeslot})
         )
     }
@@ -152,8 +164,11 @@ class TimeslotService {
      */
     stop(timeslot) {
 
+        timeslot.options.typeService = 'timeslot';
+
+        this._executeBids(timeslot, 'stop');
         this.timeslotSender.stop(timeslot);
-        this.eventManager.fire(TimeslotSenderService.TIMESLOT_STOP, timeslot);
+        this.eventManager.fire(TimeslotService.STOP, timeslot);
     }
 
     /**
@@ -161,8 +176,10 @@ class TimeslotService {
      */
     pause(timeslot) {
 
+        timeslot.options.typeService = 'timeslot';
+        this._executeBids(timeslot, 'pause');
         this.timeslotSender.pause(timeslot);
-        this.eventManager.fire(TimeslotSenderService.TIMESLOT_PAUSE, timeslot);
+        this.eventManager.fire(TimeslotService.PAUSE, timeslot);
     }
 
     /**
@@ -175,22 +192,17 @@ class TimeslotService {
             this.pause(runningTimeslot);
         }
 
+        timeslot.options.typeService = 'timeslot';
+        this._executeBids(timeslot, 'resume');
         this.timeslotSender.resume(timeslot);
-        this.eventManager.fire(TimeslotSenderService.TIMESLOT_RESUME, timeslot);
+        this.eventManager.fire(TimeslotService.RESUME, timeslot);
 
         this.eventManager.on(
-            `timeline-${this._getTimestamp() + parseInt(timeslot.duration) - timeslot.currentTime}`,
+            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration) - timeslot.currentTime}`,
             this.processTimeslot.bind({timeslotService : this, timeslot: timeslot})
         )
     }
 
-    /**
-     * @return {number}
-     * @private
-     */
-    _getTimestamp() {
-        return Math.round(new Date() / 1000);
-    }
 
     /**
      *
@@ -209,10 +221,11 @@ class TimeslotService {
         this.timeslotService.eventManager._consoleDebug();
 
         switch (true) {
+            case runningTimeslot && runningTimeslot.currentTime < (parseInt(runningTimeslot.duration)-1):
+                console.log('NON ANCORA',runningTimeslot, runningTimeslot.currentTime, (parseInt(runningTimeslot.duration)-1));
+                break;
             case this.timeslot.loop === true:
                 this.timeslotService.play(this.timeslot);
-                break;
-            case runningTimeslot && runningTimeslot.currentTime < (parseInt(runningTimeslot.duration)-1):
                 break;
             case runningTimeslot !== undefined:
                 this.timeslotService.stop(this.timeslot);
@@ -226,11 +239,6 @@ class TimeslotService {
      */
     changeRunningTimeslot(evt) {
         console.log('START TIMESLOT',  evt.data);
-        if (evt.data.binds.length > 0) {
-            for (let cont = 0; evt.data.binds.length > cont; cont++) {
-                this.play(evt.data.binds[cont]);
-            }
-        }
 
         this.setRunningTimeslot(evt.data);
         evt.data.status = Timeslot.RUNNING;
@@ -246,12 +254,6 @@ class TimeslotService {
     changeResumeTimeslot(evt) {
         console.log('RESUME TIMESLOT',  evt.data.id);
 
-        if (evt.data.binds.length > 0) {
-            for (let cont = 0; evt.data.binds.length > cont; cont++) {
-                this.resume(evt.data.binds[cont]);
-            }
-        }
-
         evt.data.status = Timeslot.RUNNING;
         this.setRunningTimeslot(evt.data);
         this.timeslotStorage.update(evt.data)
@@ -261,12 +263,6 @@ class TimeslotService {
 
     changePauseTimeslot(evt) {
         console.log('PAUSE TIMESLOT',  evt.data.id);
-
-        if (evt.data.binds.length > 0) {
-            for (let cont = 0; evt.data.binds.length > cont; cont++) {
-                this.pause(evt.data.binds[cont]);
-            }
-        }
 
         this.removeRunningTimeslot(evt.data);
         evt.data.status = Timeslot.PAUSE;
@@ -281,13 +277,6 @@ class TimeslotService {
      */
     changeIdleTimeslot(evt) {
         console.log('STOP TIMESLOT',  evt.data.id);
-
-        if (evt.data.binds.length > 0) {
-            for (let cont = 0; evt.data.binds.length > cont; cont++) {
-                this.stop(evt.data.binds[cont]);
-            }
-        }
-
         this.removeRunningTimeslot(evt.data);
 
         evt.data.status = Timeslot.IDLE;
@@ -311,6 +300,22 @@ class TimeslotService {
             this.timeslotStorage.update(this.runningTimeslots[key])
                 .then((data) => {})
                 .catch((err) => { console.log(err) });
+        }
+    }
+
+    /**
+     * @param timeslot
+     * @param method
+     * @private
+     */
+    _executeBids(timeslot, method) {
+
+        if (timeslot.binds.length === 0) {
+            return;
+        }
+
+        for (let cont = 0; timeslot.binds.length > cont; cont++) {
+            this[method](timeslot.binds[cont]);
         }
     }
 }

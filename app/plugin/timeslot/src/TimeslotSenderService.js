@@ -45,7 +45,6 @@ class TimeslotSenderService {
 
     /**
      * @param timeslot
-     * @param options
      */
     stop(timeslot) {
 
@@ -59,7 +58,6 @@ class TimeslotSenderService {
 
     /**
      * @param timeslot
-     * @param options
      */
     pause(timeslot) {
 
@@ -73,7 +71,6 @@ class TimeslotSenderService {
 
     /**
      * @param timeslot
-     * @param options
      */
     resume(timeslot) {
 

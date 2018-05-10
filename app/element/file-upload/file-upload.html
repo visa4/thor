@@ -126,7 +126,6 @@
                */
               file.xmrRequest.addEventListener("progress", function (evt) {
                   let done = evt.loaded, total = evt.total;
-                  console.log(Math.floor((done / total) * 1000) / 10);
               }.bind(this));
 
               file.xmrRequest.addEventListener("load", function (evt) {

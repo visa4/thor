@@ -35,9 +35,10 @@ class PlaylistConfig extends PluginConfig {
 
         let playlistService =  new PlaylistService(
             this.serviceManager.get('TimeslotSenderService'),
-            this.serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE)
+            this.serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE),
+            this.serviceManager.get('Timer')
         );
-        playlistService.startSchedule();
+
         this.serviceManager.set('PlaylistService', playlistService);
     }
 
@@ -61,6 +62,7 @@ class PlaylistConfig extends PluginConfig {
             .enableExtractProperty('loop')
             .enableExtractProperty('currentIndex')
             .enableExtractProperty('status')
+            .enableExtractProperty('binds')
             .enableExtractProperty('timeslots');
 
         hydrator.enableHydrateProperty('id')
@@ -69,6 +71,7 @@ class PlaylistConfig extends PluginConfig {
             .enableHydrateProperty('context')
             .enableHydrateProperty('currentIndex')
             .enableHydrateProperty('loop')
+            .enableHydrateProperty('binds')
             .enableHydrateProperty('timeslots');
 
         this.serviceManager.get('HydratorPluginManager').set(

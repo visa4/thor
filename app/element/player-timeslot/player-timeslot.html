@@ -71,9 +71,9 @@
                         value : 0
                     },
 
-                    isPlaylist: {
-                        type: Boolean,
-                        value : false
+                    playlistId: {
+                        type: String,
+                        reflectToAttribute: true
 
                     },
 
@@ -90,6 +90,7 @@
             config(timeslot) {
                 this.timeslot = timeslot;
                 this.timeslotId = timeslot.id;
+                this.playlistId = timeslot.playlistId;
             }
 
             /**
@@ -247,6 +248,7 @@
                 for (let cont = 0; videos.length > cont; cont++) {
                     videos[cont].pause();
                     videos[cont].src = '';
+                    videos[cont].load();
                     videos[cont].remove();
                 }
 
@@ -258,7 +260,6 @@
             }
 
             pause() {
-                console.log('PAUSA');
                 let videos = this.shadowRoot.querySelectorAll('video');
                 for (let cont = 0; videos.length > cont; cont++) {
                     videos[cont].pause();
@@ -266,7 +267,6 @@
             }
 
             resume() {
-                console.log('RESUME');
                 let videos = this.shadowRoot.querySelectorAll('video');
                 for (let cont = 0; videos.length > cont; cont++) {
                     videos[cont].play();

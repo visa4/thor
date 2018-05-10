@@ -148,8 +148,8 @@ class Playlist {
      */
     previous() {
         let timeslot = null;
-        this.currentIndex--;
-        if (this.currentIndex < this.timeslots.length) {
+        if (this.currentIndex > 0 && (this.currentIndex - 1) < this.timeslots.length) {
+            this.currentIndex--;
             timeslot = this.timeslots[this.currentIndex];
             timeslot.context = this.context;
         }

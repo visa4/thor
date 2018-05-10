@@ -46,9 +46,8 @@ class TimeslotConfig extends PluginConfig {
         let timeslotService = new TimeslotService(
             this.serviceManager.get('TimeslotSenderService'),
             this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
+            this.serviceManager.get('Timer')
         );
-
-        timeslotService.startSchedule();
 
         this.serviceManager.set('TimeslotService', timeslotService);
     }

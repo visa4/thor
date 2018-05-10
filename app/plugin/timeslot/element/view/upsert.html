@@ -42,7 +42,7 @@
         </paper-listbox>
       </paper-dropdown-menu>
     </div>
-    <paper-dropdown-menu id="bind" label="Bind">
+    <paper-dropdown-menu id="bind" label="Bind timeslot">
       <paper-listbox id="binds" slot="dropdown-content" multi>
         <template is="dom-repeat" items="{{binds}}" as="bind">
           <paper-item item="{{bind}}">{{bind.name}}</paper-item>
@@ -253,6 +253,7 @@
                   (paperItem) => {binds.push(paperItem.item)}
               );
               this.timeslot.binds = binds;
+
 
 
               serviceManager.get('StoragePluginManager')

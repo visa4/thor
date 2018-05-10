@@ -155,7 +155,7 @@
                     return;
                 }
 
-                console.log('START TIMESLOT', msg.timeslot.id);
+                console.log('MONITOR START TIMESLOT', msg.timeslot);
                 let timeslot = document.createElement('player-timeslot');
                 timeslot.height = this.height;
                 timeslot.width  = this.width;
@@ -176,9 +176,10 @@
                     return;
                 }
 
-                let element = this.shadowRoot.querySelector('player-timeslot[timeslot-id="'+msg.timeslot.id + '"]');
+                this.getTimeslotElement(msg.timeslot)
+                let element = this.getTimeslotElement(msg.timeslot);
                 if (element) {
-                    console.log('STOP TIMESLOT', msg.timeslot);
+                    console.log('MONITOR STOP TIMESLOT', msg.timeslot);
                     element.remove();
                 }
             }
@@ -193,8 +194,8 @@
                 if (this.identifier !== msg.timeslot.virtualMonitorReference.monitorId) {
                     return;
                 }
-                console.log('PAUSE TIMESLOT', msg.timeslot);
-                let element = this.shadowRoot.querySelector('player-timeslot[timeslot-id="'+msg.timeslot.id + '"]');
+                console.log('MONITOR PAUSE TIMESLOT', msg.timeslot);
+                let element = this.getTimeslotElement(msg.timeslot);
                 if (element) {
                     element.pause();
                 }
@@ -211,11 +212,12 @@
                     return;
                 }
 
-                let element = this.shadowRoot.querySelector('player-timeslot[timeslot-id="'+msg.timeslot.id + '"]');
-                console.log('RESUME TIMESLOT', msg.timeslot);
+                let element = this.getTimeslotElement(msg.timeslot);
+                console.log('MONITOR RESUME TIMESLOT', msg.timeslot);
 
                 switch (true) {
                     case element !== null:
+                        // TODO pass currentTime to resume
                         element.resume();
                         break;
                     default:
@@ -228,6 +230,21 @@
                         this.appendTimeslot(msg.timeslot.context, timeslot);
                         break;
                 }
+            }
+
+            /**
+             * @param timeslot
+             * @private
+             */
+            getTimeslotElement(timeslot) {
+                let query = `player-timeslot[timeslot-id="${timeslot.id}"]`;
+                if (timeslot.playlistId) {
+                    query = query.concat(`[playlist-id="${timeslot.playlistId}"]`);
+                } else {
+                    query = query.concat(`:not([playlist-id=""])`);
+                }
+
+                return this.shadowRoot.querySelector(query);
             }
 
             /**
