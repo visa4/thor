@@ -218,7 +218,7 @@
                 switch (true) {
                     case element !== null:
                         // TODO pass currentTime to resume
-                        element.resume();
+                        element.resume(msg.timeslot.currentTime);
                         break;
                     default:
                         let timeslot = document.createElement('player-timeslot');

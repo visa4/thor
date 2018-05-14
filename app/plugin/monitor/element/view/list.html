@@ -9,6 +9,7 @@
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../../../element/pagination/pagination.html">
 
 
 <dom-module id="monitor-view-list">
@@ -22,10 +23,10 @@
                 monitor="{{monitor}}"
                 on-wrap-update="displayUpdateView"
                 on-wrap-remove="remove"
-                on-wrap-change-enable-monitor="changeEnableMonior"
-        >
+                on-wrap-change-enable-monitor="changeEnableMonior">
         </monitor-wc>
       </template>
+      <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
     </div>
     <div hidden$="{{hideMonitorNotFound}}">Non sono presenti monitor virtuali</div>
   </template>
@@ -58,6 +59,20 @@
                   monitorSelected: {
                       type: Object,
                       notify: true
+                  },
+
+                  page : {
+                      type: Number,
+                      value :1
+                  },
+
+                  itemPerPage : {
+                      type: Number,
+                      value :5
+                  },
+
+                  totalItems : {
+                      type: Number,
                   }
               };
           }
@@ -65,7 +80,6 @@
           ready() {
               super.ready();
 
-              this._loadResource();
               serviceManager.get('StoragePluginManager')
                   .get(MonitorConfig.NAME_SERVICE)
                   .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
@@ -77,12 +91,27 @@
               );
           }
 
+          static get observers() {
+              return [
+                  '_queryMonitors(page, itemPerPage)'
+              ]
+          }
+
+          _queryMonitors(page, itemPerPage) {
+              if (page === undefined || itemPerPage === undefined) {
+                  return;
+              }
+              this._loadResource();
+          }
+
           _loadResource() {
               serviceManager.get('StoragePluginManager')
                   .get(MonitorConfig.NAME_SERVICE)
                   .getAll()
                   .then((data) =>  {
-                      this.set('monitors', data)
+                      this.set('monitors', data);
+                      this.totalItems = data.totalItems;
+                      console.log('GET ALL MONITORS LIST');
                   });
           }
 

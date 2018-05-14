@@ -44,7 +44,7 @@ function createWindowDashboard () {
 
     // App
     dashboard = new BrowserWindow({
-        width: 1100,
+        width: 1170,
         height: 500,
         titleBarStyle: 'hidden',
         x: 0,

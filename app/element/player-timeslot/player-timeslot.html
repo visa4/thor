@@ -266,9 +266,13 @@
                 }
             }
 
-            resume() {
+            resume(currentTime) {
                 let videos = this.shadowRoot.querySelectorAll('video');
                 for (let cont = 0; videos.length > cont; cont++) {
+                    if (currentTime) {
+                        console.log('CURRENT TIME', currentTime);
+                        videos[cont].currentTime = currentTime;
+                    }
                     videos[cont].play();
                 }
             }

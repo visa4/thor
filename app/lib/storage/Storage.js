@@ -38,7 +38,7 @@ class Storage extends HydratorAware {
      * @return {number}
      */
     static get DEFAULT_ITEM_COUNT() {
-        return 10;
+        return 5;
     }
 
     /**

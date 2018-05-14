@@ -10,6 +10,7 @@
 <link rel="import" href="../../../../element/iconset/iconset.html">
 <link rel="import" href="../../element/iconset/iconset.html">
 <link rel="import" href="../timeslot/timeslot.html">
+<link rel="import" href="../../../../element/pagination/pagination.html">
 
 <dom-module id="timeslot-view-list">
   <template>
@@ -34,6 +35,7 @@
               on-wrap-remove="remove">
       </timeslot-wc>
     </template>
+    <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
   </template>
 
   <script>
@@ -58,6 +60,20 @@
                   selected: {
                       type: Number,
                       notify: true
+                  },
+
+                  page : {
+                      type: Number,
+                      value :1
+                  },
+
+                  itemPerPage : {
+                      type: Number,
+                      value :5
+                  },
+
+                  totalItem : {
+                      type: Number,
                   }
               };
           }
@@ -67,7 +83,6 @@
           ready() {
               super.ready();
 
-              this._loadResource();
               serviceManager.get('StoragePluginManager')
                   .get(TimeslotConfig.NAME_SERVICE)
                   .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
@@ -77,14 +92,32 @@
                   .get(TimeslotConfig.NAME_SERVICE)
                   .eventManager.on(Storage.STORAGE_POST_UPDATE, this._loadResource.bind(this)
               );
+
+              this._loadResource();
+          }
+
+          static get observers() {
+              return [
+                  '_queryTimeslots(page, itemPerPage)'
+              ]
+          }
+
+          _queryTimeslots(page, itemPerPage) {
+              if (page === undefined || itemPerPage === undefined) {
+                  return;
+              }
+              this._loadResource();
           }
 
           _loadResource() {
+
               serviceManager.get('StoragePluginManager')
                   .get(TimeslotConfig.NAME_SERVICE)
-                  .getAll()
+                  .getAll(this.page, this.itemPerPage)
                   .then((data) =>  {
-                      this.set('timeslots', data)
+                      this.set('timeslots', data);
+                      this.totalItems = data.totalItems;
+                      console.log('GET ALL TIMESLOT LIST');
                   });
           }
 
@@ -109,7 +142,6 @@
                       serviceManager.get('PaperToastNotification').notify('Remove timeslot')
                   });
           }
-
 
           update(evt) {
               serviceManager.get('StoragePluginManager')
@@ -163,7 +195,6 @@
               this.timeslotSelected = evt.detail;
               this.selected = 2;
           }
-
       }
 
       window.customElements.define(ElementTimeslotViewList.is, ElementTimeslotViewList);

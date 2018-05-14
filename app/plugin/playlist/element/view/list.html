@@ -8,6 +8,7 @@
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../element/playlist/playlist.html">
+<link rel="import" href="../../../../element/pagination/pagination.html">
 
 
 <dom-module id="playlist-view-list">
@@ -31,6 +32,7 @@
                 on-resume="resume">
         </playlist-wc>
       </template>
+      <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
     </div>
     <div hidden$="{{notFound}}">Non sono presenti monitor virtuali</div>
   </template>
@@ -65,14 +67,26 @@
                       type:Boolean,
                       notify: true,
                       value: true,
+                  },
+
+                  page : {
+                      type: Number,
+                      value :1
+                  },
+
+                  itemPerPage : {
+                      type: Number,
+                      value :5
+                  },
+
+                  totalItems : {
+                      type: Number,
                   }
               };
           }
 
           ready() {
               super.ready();
-
-              this._loadResource();
               serviceManager.get('StoragePluginManager')
                   .get(PlaylistConfig.NAME_SERVICE)
                   .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
@@ -84,12 +98,27 @@
               );
           }
 
+          static get observers() {
+              return [
+                  '_queryPlayists(page, itemPerPage)'
+              ]
+          }
+
+          _queryPlayists(page, itemPerPage) {
+              if (page === undefined || itemPerPage === undefined) {
+                  return;
+              }
+              this._loadResource();
+          }
+
           _loadResource() {
               serviceManager.get('StoragePluginManager')
                   .get(PlaylistConfig.NAME_SERVICE)
-                  .getAll()
+                  .getAll(this.page, this.itemPerPage)
                   .then((data) =>  {
                       this.set('playlists', data);
+                      this.totalItems = data.totalItems;
+                      console.log('GET ALL PLAYLIST LIST');
                   });
           }
 

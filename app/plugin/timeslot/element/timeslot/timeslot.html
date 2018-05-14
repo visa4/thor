@@ -18,17 +18,21 @@
 
             .card-content {
                 padding: 0;
+                width: 250px;
             }
 
             .data {
-                padding: 8px;
+                overflow: hidden;
+            }
+
+            .dataWrapper {
+                margin: 6px;
             }
 
             .nameTimeslot {
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
-                background-color: ;
             }
 
             .flags {
@@ -58,21 +62,19 @@
                 font-style: italic;
             }
 
-            paper-card {
-                max-width: 350px;
-            }
-
         </style>
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-80 flex flex-vertical">
-                    <div class="nameTimeslot">{{timeslot.name}}</div>
-                    <div class$="{{timeslot.status}}">{{timeslot.status}}
-                        <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
-                            {{timeslot.currentTime}} sec
-                        </template>
+                    <div class="dataWrapper">
+                        <div class="nameTimeslot">{{timeslot.name}}</div>
+                        <div class$="{{timeslot.status}}">{{timeslot.status}}
+                            <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
+                                {{timeslot.currentTime}} sec
+                            </template>
+                        </div>
+                        <div>{{timeslot.duration}} sec</div>
                     </div>
-                    <div>{{timeslot.duration}} sec</div>
                 </div>
                 <div class="flags flex-basis-20">
                     <paper-icon-button

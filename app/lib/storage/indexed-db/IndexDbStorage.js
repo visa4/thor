@@ -1,3 +1,10 @@
+try {
+    Pagination = require('./../../pagination/Pagination.js');
+}
+catch(err) {
+
+    Pagination = require(__dirname + '/lib/pagination/Pagination.js');
+}
 /**
  *
  */
@@ -241,9 +248,20 @@ class IndexedDbStorage {
 
             try {
 
-                let request = this.getConnection().transaction([this.collectionName], "readonly")
-                    .objectStore(this.collectionName)
-                    .openCursor();
+                let objStorage = this.getConnection()
+                    .transaction([this.collectionName], "readonly")
+                    .objectStore(this.collectionName);
+
+                // TODO filter
+
+                let paginationData = new Pagination([], page, itemCount);
+
+                let countRequest = objStorage.count();
+                countRequest.onsuccess = function() {
+                    paginationData.totalItems = countRequest.result;
+                };
+
+                let request = objStorage.openCursor();
 
                 /**
                  * @param evt
@@ -256,13 +274,13 @@ class IndexedDbStorage {
                 let start = (currentPage -1) * currentItemCount;
                 let firstCicle = true;
                 let countItem = 0;
+
                 /**
                  * @param event
                  */
                 request.onsuccess = (evt) => {
                     let cursor = evt.target.result;
                     if (cursor) {
-
                         switch (true) {
 
                             case firstCicle === true && start > 0:
@@ -270,21 +288,21 @@ class IndexedDbStorage {
                                 firstCicle = false;
                                 break;
                             case countItem < currentItemCount:
-                                data.push(cursor.value);
+                                paginationData.push(cursor.value);
                                 cursor.continue();
                                 countItem++;
                                 break;
                             case countItem === currentItemCount:
-                                resolve(data);
+                                resolve(paginationData);
                                 break;
                             default:
                                 if (firstCicle === true && !!cursor.value) {
-                                    data.push(cursor.value);
+                                    paginationData.push(cursor.value)
                                 }
-                                resolve(data);
+                                resolve(paginationData);
                         }
                     } else {
-                        resolve(data);
+                        resolve(paginationData);
                     }
                 };
             } catch (err) {

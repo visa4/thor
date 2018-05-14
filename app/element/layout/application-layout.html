@@ -93,7 +93,10 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 </app-toolbar>
             </app-header>
             <div>
-                <iron-pages id="views" selected="[[page]]" attr-for-selected="name" fallback-selection="view404"
+                <iron-pages id="views"
+                            selected="[[page]]"
+                            attr-for-selected="name"
+                            fallback-selection="view404"
                             role="main">
                     <plugin-loader items="{{menuItems}}"></plugin-loader>
                     <app-view404 name="view404"></app-view404>
@@ -106,8 +109,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                     <div menu-item value="{{item.element}}" on-click="handleRoute">
                         <div class="menu-text">{{item.label}}</div>
                         <div class="menu-icon">
-                            <paper-icon-button icon="{{item.icon}}" title="{{item.label}}"
-                                               style="{{item.style}}"></paper-icon-button>
+                            <paper-icon-button icon="{{item.icon}}" title="{{item.label}}" style="{{item.style}}"></paper-icon-button>
                         </div>
                     </div>
                 </template>
@@ -185,7 +187,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         reflectToAttribute: true,
                         observer: '_pageChanged',
-                        value: 'playlist-index'
+                        value: 'timeslot-index'
                     },
 
                     nameApplication: {

@@ -67,6 +67,11 @@ class PlaylistService {
             this.timer.addEventListener('secondsUpdated', (evt)  => {
                 this.schedule();
             });
+/*
+            this.timer.addEventListener('secondTenthsUpdated', (evt)  => {
+               console.log(evt.detail.timer.getTotalTimeValues().secondTenths, 'second tenthe')
+            });
+            */
         } else {
             throw 'Timer not set';
         }
@@ -345,7 +350,6 @@ class PlaylistService {
             this.playlistStorage
                 .get(playlist.binds[cont])
                 .then((data) => {
-                    console.log('facciamo qualcosaaaaaaaaaaaaaa', data, this)
                     this[method](data);
                 })
                 .catch((err) => { console.log(err) });

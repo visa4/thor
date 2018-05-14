@@ -9,6 +9,7 @@
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../../../element/pagination/pagination.html">
 
 <dom-module id="resource-view-list">
   <template>
@@ -28,6 +29,7 @@
               on-remove="remove">
       </resource-wc>
     </template>
+    <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
   </template>
 
   <script>
@@ -52,14 +54,26 @@
                   selected: {
                       type: Number,
                       notify: true
+                  },
+
+                  page : {
+                      type: Number,
+                      value :1
+                  },
+
+                  itemPerPage : {
+                      type: Number,
+                      value :5
+                  },
+
+                  totalItem : {
+                      type: Number,
                   }
               };
           }
 
           ready() {
               super.ready();
-
-              this._loadResource();
               serviceManager.get('StoragePluginManager')
                   .get(ResourceConfig.NAME_SERVICE)
                   .eventManager.on(Storage.STORAGE_POST_SAVE, this._loadResource.bind(this)
@@ -71,12 +85,28 @@
               );
           }
 
+          static get observers() {
+              return [
+                  '_queryResources(page, itemPerPage)'
+              ]
+          }
+
+          _queryResources(page, itemPerPage) {
+              if (page === undefined || itemPerPage === undefined) {
+                  return;
+              }
+              this._loadResource();
+          }
+
           _loadResource() {
+
               serviceManager.get('StoragePluginManager')
                   .get(ResourceConfig.NAME_SERVICE)
-                  .getAll()
+                  .getAll(this.page, this.itemPerPage)
                   .then((data) =>  {
-                      this.set('resources', data)
+                      this.set('resources', data);
+                      this.totalItems = data.totalItems;
+                      console.log('GET ALL RESOURCE LIST');
                   });
           }
 

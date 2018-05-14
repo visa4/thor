@@ -18,11 +18,17 @@
 
             .card-content {
                 padding: 0;
+                width: 250px;
             }
 
             .data {
-                padding: 8px;
+                overflow: hidden;
             }
+
+            .dataWrapper {
+                margin: 6px;
+            }
+
 
             #rightSection {
                 background-image: url("img/playlist.jpg");
@@ -51,14 +57,16 @@
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-80 flex flex-vertical">
-                    <div>{{playlist.name}}</div>
-                    <div class$="{{playlist.status}}">
-                        <div>{{playlist.status}}</div>
-                        <template is="dom-if" if="{{_isInStatus(playlist, 'running', 'pause')}}">
-                            <div>{{currentTimeslotName}} {{currentTimeslotTime}} sec</div>
-                        </template>
+                    <div class="dataWrapper">
+                        <div>{{playlist.name}}</div>
+                        <div class$="{{playlist.status}}">
+                            <div>{{playlist.status}}</div>
+                            <template is="dom-if" if="{{_isInStatus(playlist, 'running', 'pause')}}">
+                                <div>{{currentTimeslotName}} {{currentTimeslotTime}} sec</div>
+                            </template>
+                        </div>
+                        <div>{{duration}} sec</div>
                     </div>
-                    <div>{{duration}} sec</div>
                 </div>
                 <div class="flags flex-basis-20">
                     <paper-icon-button
