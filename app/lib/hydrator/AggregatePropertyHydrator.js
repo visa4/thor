@@ -1,11 +1,9 @@
 
 try {
     AbstractHydrator = require('./AbstractHydrator');
-    Utils = require('./../Utils');
 }
 catch(err) {
     AbstractHydrator = require(__dirname + '/lib/hydrator/AbstractHydrator');
-    Utils = require(__dirname + '/lib/Utils');
 }
 
 /**

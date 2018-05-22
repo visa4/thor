@@ -7,6 +7,9 @@
   "config": "config.js",
   "autoload": [
     "src/TimeslotSenderService.js",
-    "src/TimeslotService.js"
+    "src/TimeslotService.js",
+    "src/TimeslotDataInjectorService.js",
+    "src/model/Timeslot.js",
+    "src/model/TimeslotDataReference.js"
   ]
 }

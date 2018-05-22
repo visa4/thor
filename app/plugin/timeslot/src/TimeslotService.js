@@ -63,7 +63,9 @@ class TimeslotService {
         this.eventManager.on(TimeslotService.RESUME, this.changeResumeTimeslot.bind(this));
 
         if (this.timer) {
-            this.timer.addEventListener('secondsUpdated', (evt)  => {
+
+            this.timer.addEventListener('secondTenthsUpdated', (evt)  => {
+           // this.timer.addEventListener('secondsUpdated', (evt)  => {
                 this.schedule();
             });
         } else {
@@ -73,11 +75,18 @@ class TimeslotService {
 
     schedule() {
 
+        /*
         let data = {
-            timelineSeconds : this.timer.getTotalTimeValues().seconds
+            timelineSecondsTenths : this.timer.getTotalTimeValues().secondTenths
         };
 
-        this.eventManager.fire(`timeline-${data.timelineSeconds}`, data, true);
+        this.eventManager.fire(`timeline-${data.timelineSecondsTenths}`, data, true);
+        */
+        let data = {
+            timelineSecondsTenths : this.timer.getTotalTimeValues().secondTenths
+        };
+
+        this.eventManager.fire(`timeline-${data.timelineSecondsTenths}`, data, true);
         this._updateRunnintTimslots();
     }
 
@@ -153,8 +162,9 @@ class TimeslotService {
         this._executeBids(timeslot, 'play');
         this.timeslotSender.play(timeslot);
         this.eventManager.fire(TimeslotService.PLAY, timeslot);
+        console.log('RES', `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime)  * 10}`);
         this.eventManager.on(
-            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration)}`,
+            `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) * 10)}`,
             this.processTimeslot.bind({timeslotService : this, timeslot: timeslot})
         )
     }
@@ -196,9 +206,9 @@ class TimeslotService {
         this._executeBids(timeslot, 'resume');
         this.timeslotSender.resume(timeslot);
         this.eventManager.fire(TimeslotService.RESUME, timeslot);
-
+        console.log('RES', `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime)  * 10}`);
         this.eventManager.on(
-            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration) - timeslot.currentTime}`,
+            `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime)  * 10}`,
             this.processTimeslot.bind({timeslotService : this, timeslot: timeslot})
         )
     }
@@ -217,7 +227,7 @@ class TimeslotService {
         let runningTimeslot =  this.timeslotService
             .getRunningTimeslot(this.timeslot.virtualMonitorReference.monitorId, this.timeslot.context);
 
-        console.log('PROCESS TIMESLOT',runningTimeslot);
+        console.log('PROCESS TIMESLOT',runningTimeslot, runningTimeslot.currentTime, runningTimeslot.duration);
         this.timeslotService.eventManager._consoleDebug();
 
         switch (true) {
@@ -292,11 +302,12 @@ class TimeslotService {
     _updateRunnintTimslots() {
 
         for (let key in this.runningTimeslots) {
-            if (this.runningTimeslots[key].currentTime + 1 >= this.runningTimeslots[key].duration) {
+            if (this.runningTimeslots[key].currentTime >= this.runningTimeslots[key].duration) {
                 continue;
             }
 
-            this.runningTimeslots[key].currentTime++;
+            this.runningTimeslots[key].currentTime = parseFloat(Number(this.runningTimeslots[key].currentTime + 0.1).toFixed(2));
+          //  this.runningTimeslots[key].currentTime++;
             this.timeslotStorage.update(this.runningTimeslots[key])
                 .then((data) => {})
                 .catch((err) => { console.log(err) });

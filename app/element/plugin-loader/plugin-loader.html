@@ -18,12 +18,11 @@
 
                 this.items.forEach(function (plugin) {
 
-                    let elem =  document.createElement(plugin.element);
-                    elem.name = plugin.element;
-                    this.parentElement.appendChild(elem);
                     this.autoloadConfig(plugin);
 
                 }.bind(this));
+
+                this.dispatchEvent(new CustomEvent('load-plugin', {detail: {kicked: true}}));
             }
 
             autoloadConfig(plugin) {

@@ -209,9 +209,7 @@
             }
 
             _tapLoop(evt) {
-                console.log( this.playlist.loop);
                 this.playlist.loop = !this.playlist.loop;
-                console.log( this.playlist.loop);
                 if (this.playlist.loop) {
                     this.$.loopIcon.classList.add("activePaperButton");
                 } else {

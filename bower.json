@@ -30,7 +30,9 @@
     "iron-selector": "PolymerElements/iron-selector#^2.0.0",
 
     "webcomponentsjs": "webcomponents/webcomponentsjs#^1.0.0",
-    "web-animations-js": "^2.3.1"
+    "web-animations-js": "^2.3.1",
+    "paper-grid": "git@github.com:vpusher/the-grid.git#1.4.0",
+    "paper-autocomplete": "git@github.com:ellipticaljs/paper-autocomplete.git#3.1.0"
   },
   "devDependencies": {
     "web-component-tester": "Polymer/web-component-tester#^6.0.0",

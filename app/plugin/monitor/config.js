@@ -17,12 +17,22 @@ class MonitorConfig extends PluginConfig {
      */
     static get NAME_STORAGE() { return 'virtual-monitor.data'; };
 
+    /**
+     *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_COLLECTION() { return 'virtualMonitor'; };
+
+
     init() {
 
         this._loadHydrator();
 
+        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
+
         let storage = new Storage(
-            new IndexedDbStorage('Dsign', 'virtualMonitor'),
+            new IndexedDbStorage(indexedDBConfig.name, MonitorConfig.NAME_COLLECTION),
             this.serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator')
         );
 

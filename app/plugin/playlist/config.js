@@ -19,12 +19,22 @@ class PlaylistConfig extends PluginConfig {
 
     /**
      *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_COLLECTION() { return 'playlist'; };
+
+
+    /**
+     *
      */
     init() {
         this._loadHydrator();
 
+        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
+
         let storage = new Storage(
-            new IndexedDbStorage('Dsign', 'playlist'),
+            new IndexedDbStorage(indexedDBConfig.name, PlaylistConfig.NAME_COLLECTION),
             this.serviceManager.get('HydratorPluginManager').get('playlistHydrator')
         );
 

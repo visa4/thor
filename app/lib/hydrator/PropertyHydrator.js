@@ -2,11 +2,9 @@
 let AbstractHydrator = null;
 try {
     AbstractHydrator = require('./AbstractHydrator');
-    Utils = require('./../Utils');
 }
 catch(err) {
     AbstractHydrator = require(__dirname + '/lib/hydrator/AbstractHydrator');
-    Utils = require(__dirname + '/lib/Utils');
 }
 
 /**
@@ -67,11 +65,6 @@ class PropertyHydrator extends AbstractHydrator {
             obj[property] = this._hydrateProperty(property, data[property]);
         }
 
-        // TODO create strategy
-        if (!obj.id) {
-            obj.id = Utils.uid;obj
-        }
-
         return obj;
     }
 
@@ -118,11 +111,6 @@ class PropertyHydrator extends AbstractHydrator {
             data[property] = (this.strategies[property]) ?
                 this.strategies[property].extractStrategy(obj[property]) :
                 obj[property];
-        }
-
-        // TODO create strategy
-        if (!data.id) {
-            data.id = Utils.uid;
         }
 
         return data;

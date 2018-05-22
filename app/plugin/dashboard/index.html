@@ -1,23 +1,66 @@
 
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/paper-grid/the-grid.html">
+<link rel="import" href="../../bower_components/paper-grid/demo/grid-styles.html">
+
 
 <dom-module id="dashboard-index">
   <template>
+    <style include="grid-styles"></style>
     <style>
-      :host {
 
+      .container {
+        padding: 6px;
+      }
+
+      #grid5 tile {
+        background-color: tomato;
+      }
+
+      #grid5 [placeholder] {
+        background-color: lightgray;
       }
     </style>
-    <div>dashboard</div>
+    <div class="container">
+
+      <the-grid id="grid5" draggable resizable animated col-count="10" row-count="10">
+        <tile col="0" row="0" height="5" width="1">
+        </tile>
+        <tile col="3" row="3" height="1" width="1">
+          <div>
+            <div>test</div>
+            <div>test</div>
+            <div>test</div>
+            <div>test</div>
+            <div>test</div>
+            <div>test</div>
+
+          </div>
+
+          <span resize="bottom-right">┘</span>
+        </tile>
+        <tile col="5" row="1" height="2" width="2">
+          <span resize="left">│</span>
+          <span resize="right">│</span>
+          <span resize="top">─</span>
+          <span resize="bottom">─</span>
+          <span resize="top-right">┐</span>
+          <span resize="top-left">┌</span>
+          <span resize="bottom-right">┘</span>
+          <span resize="bottom-left">└</span>
+        </tile>
+        <div placeholder></div>
+      </the-grid>
+    </div>
   </template>
 
   <script>
-    class DashboardIndex extends Polymer.Element {
+      class DashboardIndex extends Polymer.Element {
 
-      static get is() { return 'dashboard-index'; }
-    }
+          static get is() { return 'dashboard-index'; }
+      }
 
-    window.customElements.define(DashboardIndex.is, DashboardIndex);
+      window.customElements.define(DashboardIndex.is, DashboardIndex);
 
   </script>
 </dom-module>

@@ -40,16 +40,9 @@ class TimeslotConfig extends PluginConfig {
             storage
         );
 
-        let timeslotSenderService = new TimeslotSenderService();
-        this.serviceManager.set('TimeslotSenderService', timeslotSenderService);
-
-        let timeslotService = new TimeslotService(
-            this.serviceManager.get('TimeslotSenderService'),
-            this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
-            this.serviceManager.get('Timer')
-        );
-
-        this.serviceManager.set('TimeslotService', timeslotService);
+        this._loadTimeslotServerService();
+        this._loadTimeslotService();
+        this._loadDataServiceInjectorService();
     }
 
     _loadHydrator() {
@@ -57,7 +50,8 @@ class TimeslotConfig extends PluginConfig {
             new Timeslot(),
             {
                 'resources' : new HydratorStrategy(this.serviceManager.get('HydratorPluginManager').get('resourceHydrator')),
-                'virtualMonitorReference' : new HydratorStrategy(new PropertyHydrator(new VirtualMonitorReference()))
+                'virtualMonitorReference' : new HydratorStrategy(new PropertyHydrator(new VirtualMonitorReference())),
+                'dataReferences' : new HydratorStrategy(new PropertyHydrator(new TimeslotDataReference())),
             }
         );
 
@@ -70,7 +64,8 @@ class TimeslotConfig extends PluginConfig {
             .enableHydrateProperty('duration')
             .enableHydrateProperty('context')
             .enableHydrateProperty('virtualMonitorReference')
-            .enableHydrateProperty('resources');
+            .enableHydrateProperty('resources')
+            .enableHydrateProperty('dataReferences');
 
         timeslotHydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
@@ -81,12 +76,43 @@ class TimeslotConfig extends PluginConfig {
             .enableExtractProperty('duration')
             .enableExtractProperty('context')
             .enableExtractProperty('virtualMonitorReference')
-            .enableExtractProperty('resources');
+            .enableExtractProperty('resources')
+            .enableExtractProperty('dataReferences');
 
         this.serviceManager.get('HydratorPluginManager').set(
             'timeslotHydrator',
             timeslotHydrator
         );
+    }
+
+    _loadDataServiceInjectorService() {
+        let timeslotDataInjectorService = new TimeslotDataInjectorService();
+        this.serviceManager.set('TimeslotDataInjectorService', timeslotDataInjectorService);
+
+        this.serviceManager.get('TimeslotDataInjectorService').timeslotDataServicePluginManager.set('Test1',new Test1())
+        this.serviceManager.get('TimeslotDataInjectorService').timeslotDataServicePluginManager.set('Test2',new Test2())
+    }
+
+    /**
+     * @private
+     */
+    _loadTimeslotServerService() {
+        let timeslotSenderService = new TimeslotSenderService();
+        this.serviceManager.set('TimeslotSenderService', timeslotSenderService);
+    }
+
+    /**
+     * @private
+     */
+    _loadTimeslotService() {
+
+        let timeslotService = new TimeslotService(
+            this.serviceManager.get('TimeslotSenderService'),
+            this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
+            this.serviceManager.get('Timer')
+        );
+
+        this.serviceManager.set('TimeslotService', timeslotService);
     }
 }
 

@@ -27,30 +27,9 @@ serviceManager.set(
     storagePluginManager.constructor.name,
     storagePluginManager
 ).set(
-    'PaperToastNotification',
-    new PaperToastNotification('notification')
-).set(
     'Config',
     function (sm) {
         const fs = require('fs');
         return  JSON.parse(fs.readFileSync(__dirname + '/config/application.json'));
     }
-).set(
-    'Timer',
-    function (sm) {
-        const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
-
-        let timer =  new Timer();
-        timer.start({precision: 'secondTenths'});
-        return timer;
-
-    }
 );
-
-/*
-window.onerror = function(message, url, lineNumber) {
-    //save error and send to server for example.
-    console.log(message, url, lineNumber);
-    return true;
-};
-*/

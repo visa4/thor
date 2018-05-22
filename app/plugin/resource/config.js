@@ -19,12 +19,21 @@ class ResourceConfig extends PluginConfig {
 
     /**
      *
+     * @return {string}
+     * @constructor
+     */
+    static get NAME_COLLECTION() { return 'resource'; };
+
+    /**
+     *
      */
     init() {
         this._loadHydrator();
 
+        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
+
         let storage = new Storage(
-            new IndexedDbStorage('Dsign', 'resource'),
+            new IndexedDbStorage(indexedDBConfig.name, ResourceConfig.NAME_COLLECTION),
             this.serviceManager.get('HydratorPluginManager').get('resourceHydrator')
         );
 

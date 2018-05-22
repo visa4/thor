@@ -2,11 +2,13 @@
 try {
     HydratorAware = require('./../HydratorAware');
     EvtManager = require('./../EvtManager');
+    Utils = require('./../Utils');
 }
 catch(err) {
 
     HydratorAware = require(__dirname + '/lib/hydrator/HydratorAware.js');
     EvtManager = require(__dirname + '/lib/event/EvtManager.js');
+    Utils = require(__dirname + '/lib/Utils.js');
 }
 /**
  *
@@ -57,6 +59,7 @@ class Storage extends HydratorAware {
      */
     save(obj) {
 
+        data.id = Utils.uid;
         let data = this.hydrator ? this.hydrator.extract(obj) : obj;
 
         let promise = new Promise((resolve, reject) => {

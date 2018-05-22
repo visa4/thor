@@ -40,6 +40,17 @@ class ServiceManager {
     }
 
     /**
+     * @return {Array}
+     */
+    getAll() {
+        let services = [];
+        for (let key in this.services) {
+            services.push(this.get(key));
+        }
+        return services;
+    }
+
+    /**
      * @param name
      * @private
      */

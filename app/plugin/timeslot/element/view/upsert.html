@@ -13,6 +13,7 @@
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../data-injector-input/data-injector-input.html">
 
 <dom-module id="timeslot-view-upsert">
   <template>
@@ -50,11 +51,13 @@
       </paper-listbox>
     </paper-dropdown-menu>
     </div>
+    <data-injector-input id="dataRefernces"></data-injector-input>
     <div>
       <div class="flex flex-horizontal-end" style="margin-top: 20px;">
         <paper-button on-tap="upsertTimeslot">{{labelAction}}</paper-button>
       </div>
     </div>
+
   </template>
 
   <script>
@@ -109,7 +112,7 @@
 
               serviceManager.get('StoragePluginManager')
                   .get(TimeslotConfig.NAME_SERVICE)
-                  .getAll()
+                  .getAll(1, 100)
                   .then((data) =>  {
                      this.binds = data;
                   });
@@ -153,7 +156,7 @@
 
               serviceManager.get('StoragePluginManager')
                   .get(ResourceConfig.NAME_SERVICE)
-                  .getAll()
+                  .getAll(1, 100)
                   .then((data) => {
                       this.resources = data;
                   })
@@ -207,10 +210,32 @@
                       (paperItem) => {
                           return newValue.binds[cont].id  === paperItem.item.id
                       }
-                  )
+                  );
                   multiselect.push(index);
               }
               this.$.binds.selectedValues = multiselect;
+
+              if (Array.isArray(this.timeslot.dataReferences) && this.timeslot.dataReferences.length > 0) {
+                  let dataReferences = this.timeslot.dataReferences[0];
+
+                  let index = this.$.dataRefernces.$.serviceInput.source.findIndex(
+                      (element) => {
+                          return element.serviceName == dataReferences.name;
+                      }
+                  );
+
+                  if (index > -1) {
+                      this.$.dataRefernces.service = this.$.dataRefernces.$.serviceInput.source[index];
+                      this.$.dataRefernces.$.serviceInput.text =  this.$.dataRefernces.service.serviceLabel;
+                      this.$.dataRefernces.hideDataInput = false;
+
+                      this.$.dataRefernces.data = this.$.dataRefernces.service.getTimeslotData(dataReferences.data);
+                      console.log('jjjjjjjjjj',  this.$.dataRefernces.data);
+                      this.$.dataRefernces.$.dataInput.text = this.$.dataRefernces.data.name;
+                  }
+              }
+
+
 
 
               this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
@@ -254,6 +279,13 @@
               );
               this.timeslot.binds = binds;
 
+              this.timeslot.dataReferences = [];
+              if (this.$.dataRefernces.data && this.$.dataRefernces.service) {
+                  let timeslotData = new TimeslotDataReference();
+                  timeslotData.name = this.$.dataRefernces.service.serviceName;
+                  timeslotData.data  = this.$.dataRefernces.service.extractTimeslot(this.$.dataRefernces.data);
+                  this.timeslot.dataReferences.push(timeslotData);
+              }
 
 
               serviceManager.get('StoragePluginManager')

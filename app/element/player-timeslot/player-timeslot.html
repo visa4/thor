@@ -212,7 +212,7 @@
              */
             _createWebComponent(resource) {
                 let fs = require('fs');
-                let promise = new Promise((resolve, reject) => {
+                let promise = new Promise( function(resolve, reject) {
                     let entryPoint = `${resource.location.path}${resource.location.name}`;
                     if (fs.existsSync(entryPoint)) {
 
@@ -220,13 +220,10 @@
 
                             Polymer.importHref(
                                 entryPoint,
-                                () => {
-                                    resolve(document.createElement(resource.wcName)); }
+                                () => { resolve(this._initWebComponent(resource.wcName)); }
                             );
                         } else {
-                            resolve(
-                                document.createElement(resource.wcName)
-                            );
+                            resolve(this._initWebComponent(resource.wcName));
                         }
 
                     } else {
@@ -234,8 +231,18 @@
                         reject(`Web component entry point not found: ${entryPoint}`);
 
                     }
-                });
+                }.bind(this));
                 return promise;
+            }
+
+            /**
+             * @return element
+             */
+            _initWebComponent(name) {
+                let element = document.createElement(name);
+                element.height = this.height;
+                element.width = this.width;
+                return element;
             }
 
             disconnectedCallback() {

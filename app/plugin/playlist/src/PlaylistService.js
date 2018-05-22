@@ -64,14 +64,10 @@ class PlaylistService {
         this.eventManager.on(PlaylistService.RESUME, this.changeResumePlaylist.bind(this));
 
         if (this.timer) {
-            this.timer.addEventListener('secondsUpdated', (evt)  => {
+            this.timer.addEventListener('secondTenthsUpdated', (evt)  => {
+           // this.timer.addEventListener('secondsUpdated', (evt)  => {
                 this.schedule();
             });
-/*
-            this.timer.addEventListener('secondTenthsUpdated', (evt)  => {
-               console.log(evt.detail.timer.getTotalTimeValues().secondTenths, 'second tenthe')
-            });
-            */
         } else {
             throw 'Timer not set';
         }
@@ -79,11 +75,18 @@ class PlaylistService {
 
     schedule() {
 
+        /**
         let data = {
             timelineSeconds : this.timer.getTotalTimeValues().seconds
         };
 
         this.eventManager.fire(`timeline-${data.timelineSeconds}`, data, true);
+**/
+        let data = {
+            timelineSecondsTenths : this.timer.getTotalTimeValues().secondTenths
+        };
+
+        this.eventManager.fire(`timeline-${data.timelineSecondsTenths}`, data, true);
         this._updateRunnintPlaylist();
     }
     /**
@@ -166,7 +169,7 @@ class PlaylistService {
         this.timeslotSender.play(timeslot);
         this.eventManager.fire(PlaylistService.PLAY, playlist);
         this.eventManager.on(
-            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration)}`,
+            `timeline-${this.timer.getTotalTimeValues().secondTenths + parseInt(timeslot.duration) * 10}`,
             this.processPlaylist.bind({playlistService : this, playlist: playlist})
         )
     }
@@ -205,7 +208,7 @@ class PlaylistService {
         this.eventManager.fire(PlaylistService.RESUME, playlist);
 
         this.eventManager.on(
-            `timeline-${this.timer.getTotalTimeValues().seconds + parseInt(timeslot.duration) - timeslot.currentTime}`,
+            `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime) * 10}`,
             this.processPlaylist.bind({playlistService : this, playlist: playlist})
         )
     }
@@ -253,7 +256,7 @@ class PlaylistService {
                 nextTimeslot.playlistId = this.playlist.id;
                 this.playlistService.timeslotSender.play(nextTimeslot);
                 this.playlistService.eventManager.on(
-                    `timeline-${this.playlistService.timer.getTotalTimeValues().seconds + parseInt(nextTimeslot.duration)}`,
+                    `timeline-${this.playlistService.timer.getTotalTimeValues().secondTenths + parseInt(nextTimeslot.duration) * 10}`,
                     this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})
                 );
                 break;
@@ -323,11 +326,12 @@ class PlaylistService {
         for (let key in this.runningPlaylist) {
 
             let timeslot = this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex];
-            if (!timeslot || timeslot.currentTime + 1 >= timeslot.duration) {
+            if (!timeslot || timeslot.currentTime >= timeslot.duration) {
                 continue;
             }
 
-            this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex].currentTime++;
+            this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex].currentTime = parseFloat(Number(this.runningPlaylist[key].timeslots[this.runningPlaylist[key].currentIndex].currentTime + 0.1).toFixed(2));
+            //  this.runningTimeslots[key].currentTime = parseFloat(Number(this.runningTimeslots[key].currentTime + 0.1).toFixed(2));
             this.playlistStorage.update(this.runningPlaylist[key])
                 .then((data) => {
                 })

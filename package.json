@@ -1,5 +1,5 @@
 {
-  "name": "Dsign",
+  "name": "dsign",
   "description": "Dsign",
   "devDependencies": {
     "bower": "^1.8.4",
@@ -17,7 +17,6 @@
     "dev": "NODE_ENV='development' npm run start",
     "dist": "build -l --x64 --ia32",
     "test": "nyc mocha app/**/Test*.js"
-
   },
   "build": {
     "appId": "com.app.dsign",
@@ -29,12 +28,12 @@
   },
   "dependencies": {
     "adm-zip": "^0.4.9",
+    "app-module-path": "^2.2.0",
     "easytimer.js": "git+ssh://git@github.com/albert-gonzalez/easytimer.js.git",
     "fluent-ffmpeg": "^2.1.2",
-    "image-size": "^0.6.2",
-    "easytimer": "git+https://git@github.com:albert-gonzalez/easytimer.js.git"
+    "image-size": "^0.6.2"
   },
-  "nyc" : {
+  "nyc": {
     "reporter": [
       "html",
       "text-summary"

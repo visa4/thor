@@ -98,7 +98,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                             attr-for-selected="name"
                             fallback-selection="view404"
                             role="main">
-                    <plugin-loader items="{{menuItems}}"></plugin-loader>
+                    <plugin-loader items="{{menuItems}}" on-load-plugin="_loadPlugin"></plugin-loader>
                     <app-view404 name="view404"></app-view404>
                 </iron-pages>
             </div>
@@ -165,6 +165,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 "autoload": [
                                     "src/TimeslotSenderService.js",
                                     "src/TimeslotService.js",
+                                    "src/TimeslotDataInjectorService.js",
+                                    "src/model/Timeslot.js",
+                                    "src/model/TimeslotDataReference.js",
+                                    "src/Test1.js",
+                                    "src/Test2.js"
                                 ],
                                 name: 'timeslot'
                             },
@@ -203,6 +208,17 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 return [
                     '_routePageChanged(page)',
                 ];
+            }
+
+            _loadPlugin(evt) {
+
+                this.menuItems.forEach(function (plugin) {
+
+                    let elem =  document.createElement(plugin.element);
+                    elem.name = plugin.element;
+                    this.$.views.appendChild(elem);
+
+                }.bind(this));
             }
 
             handleRoute(event) {

@@ -209,6 +209,7 @@
 
               let hydrator = new PropertyHydrator(new Monitor());
               let monitor = hydrator.hydrate(data);
+              monitor.id = Utils.uid;
 
 
               if (this.$.subMonitor.selectedItem) {
@@ -229,10 +230,12 @@
 
           upsertConfiguration() {
 
+
               this.monitor.name =  this.identifier;
               this.monitor.monitors =  this.monitors;
 
               let method = this.monitor.id ? 'update' : 'save';
+
               let monitorStorage = serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE);
               let monitor =  monitorStorage[method](this.monitor)
                   .then((data) => {
