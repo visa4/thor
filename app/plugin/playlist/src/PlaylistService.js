@@ -1,12 +1,10 @@
 
 try {
     EvtManager = require('./../../../lib/event/EvtManager');
-    Playlist = require('./../../../lib/model/playlist/Playlist');
 }
 catch(err) {
 
     EvtManager = require(__dirname + '/lib/event/EvtManager.js');
-    Playlist = require(__dirname + '/lib/model/playlist/Playlist');
 }
 /**
  *

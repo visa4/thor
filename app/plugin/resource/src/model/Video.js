@@ -1,9 +1,3 @@
-try {
-    let GenericFile = require('./GenericFile');
-}
-catch(err) {
-    GenericFile = require(__dirname + '/lib/model/file/GenericFile');
-}
 
 class Video extends GenericFile {
 

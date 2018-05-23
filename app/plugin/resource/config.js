@@ -29,7 +29,10 @@ class ResourceConfig extends PluginConfig {
      */
     init() {
         this._loadHydrator();
+        this._loadStorage();
+    }
 
+    _loadStorage() {
         let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
 
         let storage = new Storage(

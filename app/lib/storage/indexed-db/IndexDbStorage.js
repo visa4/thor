@@ -10,6 +10,10 @@ catch(err) {
  */
 class IndexedDbStorage {
 
+    static get READWRITE() { return 'readwrite' };
+
+    static get READONLY() { return 'readonly' };
+
     /**
      * @param indexedDB
      */
@@ -69,11 +73,12 @@ class IndexedDbStorage {
          */
         request.onsuccess = (evt) => {
             this.setConnection(evt.target.result);
+
             if (!this.getConnection().objectStoreNames.contains(this.collectionName)) {
 
                 this.getConnection().close();
                 let request = indexedDB.open(dbName, this._getUpgradedVersion());
-                console.log('updrade');
+
                 request.onupgradeneeded = (evt) => {
                     this.setConnection(evt.target.result);
                     this.getConnection().createObjectStore(this.collectionName, { keyPath: "id" });
@@ -87,17 +92,6 @@ class IndexedDbStorage {
             }
         }
     }
-
-    /**
-     * @param upgrade
-     */
-    upgrade(upgrade) {
-
-        if (upgrade && typeof upgrade.upgrade === 'function') {
-            console.log('UPGRADE', upgrade)
-        }
-    }
-
 
     /**
      * @param obj
@@ -327,7 +321,6 @@ class IndexedDbStorage {
          * @param evt
          */
         request.onupgradeneeded = (evt) => {
-            console.log('remove storage');
             this.setConnection(evt.target.result);
             if (this.getConnection().objectStoreNames.contains(this.collectionName)) {
                 this.getConnection() .deleteObjectStore(this.collectionName);
@@ -350,6 +343,62 @@ class IndexedDbStorage {
      */
     _dbError(evt) {
         console.error('Error',evt);
+    }
+
+    /**
+     * @param index
+     * @return {Promise}
+     */
+    createIndex(index) {
+
+        let promise = new Promise((resolve, reject) => {
+
+
+            let newVersion = this._getUpgradedVersion();
+            this.getConnection().close();
+
+            let request = indexedDB.open(this.dbName, newVersion);
+
+            request.onupgradeneeded = (evt) => {
+
+                this.setConnection(request.result);
+                if (!this.getConnection().objectStoreNames.contains(this.collectionName)) {
+                    // TODO error
+                    return;
+                }
+
+                let store = evt.target.transaction.objectStore(this.collectionName);
+
+
+                if (!store.indexNames.contains(index.indexName)) {
+                    store.createIndex(index.indexName, index.keyPath, index.parameters);
+                    console.log('Create index', index.indexName);
+                }
+            };
+
+            request.onsuccess = (evt) => {
+                console.log('success', evt);
+                this.setConnection(evt.target.result);
+                resolve(evt);
+            };
+
+            request.onabort = (evt) => {
+                console.log('abort', evt);
+                reject(evt);
+            };
+
+            request.onerror = (evt) => {
+                console.log('error', evt);
+                reject(evt);
+            };
+
+            request.onblocked = (evt) => {
+                console.log('onblocked', evt);
+                reject(evt);
+            };
+        });
+
+        return promise;
     }
 }
 

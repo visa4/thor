@@ -27,19 +27,7 @@ class TimeslotConfig extends PluginConfig {
     init() {
 
         this._loadHydrator();
-
-        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
-
-        let storage = new Storage(
-            new IndexedDbStorage(indexedDBConfig.name, TimeslotConfig.NAME_COLLECTION),
-            this.serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
-        );
-
-        this.serviceManager.get('StoragePluginManager').set(
-            TimeslotConfig.NAME_SERVICE,
-            storage
-        );
-
+        this._loadStorage();
         this._loadTimeslotServerService();
         this._loadTimeslotService();
         this._loadDataServiceInjectorService();
@@ -113,6 +101,35 @@ class TimeslotConfig extends PluginConfig {
         );
 
         this.serviceManager.set('TimeslotService', timeslotService);
+    }
+
+    /**
+     * @private
+     */
+    _loadStorage() {
+
+        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
+
+        let indexDbAdapter =  new IndexedDbStorage(indexedDBConfig.name, TimeslotConfig.NAME_COLLECTION);
+
+        // TODO PORCATA DA SISTEMARE
+        setTimeout(
+            function () {
+                //indexDbAdapter.createIndex({indexName: 'name', keyPath : 'name', parameters : {unique: false}});
+                //indexDbAdapter.createIndex({indexName: 'status', keyPath : 'status', parameters : {unique: false}});
+            }.bind(this),
+            2000
+        );
+
+        let storage = new Storage(
+            indexDbAdapter,
+            this.serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
+        );
+
+        this.serviceManager.get('StoragePluginManager').set(
+            TimeslotConfig.NAME_SERVICE,
+            storage
+        );
     }
 }
 

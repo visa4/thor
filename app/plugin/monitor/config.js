@@ -28,18 +28,7 @@ class MonitorConfig extends PluginConfig {
     init() {
 
         this._loadHydrator();
-
-        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
-
-        let storage = new Storage(
-            new IndexedDbStorage(indexedDBConfig.name, MonitorConfig.NAME_COLLECTION),
-            this.serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator')
-        );
-
-        this.serviceManager.get('StoragePluginManager').set(
-            MonitorConfig.NAME_SERVICE,
-            storage
-        );
+        this._loadStorage();
     }
 
     _loadHydrator() {
@@ -68,6 +57,20 @@ class MonitorConfig extends PluginConfig {
         this.serviceManager.get('HydratorPluginManager').set(
             'virtualMonitorHydrator',
              virtualMonitorHydrator
+        );
+    }
+
+    _loadStorage() {
+        let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
+
+        let storage = new Storage(
+            new IndexedDbStorage(indexedDBConfig.name, MonitorConfig.NAME_COLLECTION),
+            this.serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator')
+        );
+
+        this.serviceManager.get('StoragePluginManager').set(
+            MonitorConfig.NAME_SERVICE,
+            storage
         );
     }
 }

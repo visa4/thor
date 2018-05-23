@@ -144,6 +144,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 'plugin': true,
                                 'style': 'color: green;',
                                 "config": "config.js",
+                                "autoload": [
+                                    "src/model/Monitor.js",
+                                    "src/model/VirtualMonitor.js",
+                                    "src/model/VirtualMonitorReference.js"
+                                ],
                                 name: 'monitor'
                             },
                             {
@@ -153,6 +158,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 'plugin': true,
                                 'style': 'color: green;',
                                 "config": "config.js",
+                                "autoload": [
+                                    "src/model/GenericFile.js",
+                                    "src/model/Image.js",
+                                    "src/model/Video.js"
+                                ],
                                 name: 'resource'
                             },
                             {
@@ -182,6 +192,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                                 "config": "config.js",
                                 "autoload": [
                                     "src/PlaylistService.js",
+                                    "src/model/Playlist.js"
                                 ],
                                 name: 'playlist'
                             }

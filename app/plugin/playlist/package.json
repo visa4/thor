@@ -6,6 +6,7 @@
   "homepage": "www.visa4.it",
   "config": "config.js",
   "autoload": [
-    "src/PlaylistService.js"
+    "src/PlaylistService.js",
+    "src/model/Playlist.js"
   ]
 }

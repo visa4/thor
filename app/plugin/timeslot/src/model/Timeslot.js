@@ -23,7 +23,7 @@ class Timeslot {
         /**
          * @type {String}
          */
-        this.status = Playlist.IDLE;
+        this.status = Timeslot.IDLE;
 
         /**
          * @type {String}

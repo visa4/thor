@@ -23,7 +23,7 @@ class PluginConfig {
      *
      */
     init() {
-
+        throw 'Must be override';
     }
 }
 
