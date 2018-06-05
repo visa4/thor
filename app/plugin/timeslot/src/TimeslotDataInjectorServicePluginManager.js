@@ -5,7 +5,7 @@ catch(err) {
     ServiceManager = require(__dirname + '/lib/service-manager/ServiceManager');
 }
 
-class TimeslotDataServicePluginManager extends ServiceManager {
+class TimeslotDataInjectorServicePluginManager extends ServiceManager {
 
     /**
      * @returns TimeslotDataServicePluginManager
@@ -46,4 +46,4 @@ class TimeslotDataServicePluginManager extends ServiceManager {
     }
 }
 
-module.exports = TimeslotDataServicePluginManager;
+module.exports = TimeslotDataInjectorServicePluginManager;

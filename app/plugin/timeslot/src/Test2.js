@@ -23,7 +23,7 @@ class Test2 {
 
         for (var i = 0; i < 200; i += 1) {
             var mockObj = {};
-            mockObj['id'] = this.createMockString();
+            mockObj['id'] = i;
             mockObj['name'] = this.createMockString();
             mockObj['surname'] = this.createMockString();
 
@@ -52,12 +52,10 @@ class Test2 {
     }
 
     getTimeslotData(data) {
-        console.log('DATAAAAAAAAAAA',data)
-        return {
-            id :'123',
-            name:'test2',
-            surname: 'test2'
-        }
+        return this.mockData.find((element) => {
+                return data.id === element.id;
+            }
+        )
     }
 
     /**

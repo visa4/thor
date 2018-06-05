@@ -28,10 +28,27 @@ class PlaylistConfig extends PluginConfig {
     /**
      *
      */
-    init() {
-        this._loadHydrator();
-        this._loadStorage();
-        this._loadPlaylistService();
+    init(service = []) {
+        if (service.length === 0) {
+            this._loadHydrator();
+            this._loadStorage();
+            this._loadPlaylistService();
+        } else {
+            for (let cont = 0; service.length > cont; cont++) {
+                switch (true) {
+                    case service[cont] === 'Hydrator':
+                        this._loadHydrator();
+                        break;
+                    case service[cont] === 'Storage':
+                        this._loadStorage();
+                        break;
+                    case service[cont] === 'PlaylistService':
+                        this._loadPlaylistService();
+                        break;
+                }
+            }
+        }
+
     }
 
     /**
@@ -79,19 +96,16 @@ class PlaylistConfig extends PluginConfig {
 
         let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
 
-        let indexDbAdapter = new IndexedDbStorage(indexedDBConfig.name, PlaylistConfig.NAME_COLLECTION);
-
-        // TODO PORCATA DA SISTEMARE
-        setTimeout(
-            function () {
-                //indexDbAdapter.createIndex({indexName: 'name', keyPath : 'name', parameters : {unique: false}});
-                //indexDbAdapter.createIndex({indexName: 'status', keyPath : 'status', parameters : {unique: false}});
-            }.bind(this),
-            1000
+        let storageAapter = new DexieStorage(
+            indexedDBConfig.name + '_test',
+            PlaylistConfig.NAME_COLLECTION,
+            ['name', 'status'],
+            1
         );
 
+
         let storage = new Storage(
-            indexDbAdapter,
+            storageAapter,
             this.serviceManager.get('HydratorPluginManager').get('playlistHydrator')
         );
 

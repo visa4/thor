@@ -24,15 +24,44 @@ class TimeslotConfig extends PluginConfig {
      */
     static get NAME_COLLECTION() { return 'timeslot'; };
 
-    init() {
+    /**
+     * @param service
+     */
+    init(service = []) {
 
-        this._loadHydrator();
-        this._loadStorage();
-        this._loadTimeslotServerService();
-        this._loadTimeslotService();
-        this._loadDataServiceInjectorService();
+        if (service.length === 0) {
+            this._loadHydrator();
+            this._loadStorage();
+            this._loadTimeslotServerService();
+            this._loadTimeslotService();
+            this._loadDataServiceInjectorService();
+        } else {
+            for (let cont = 0; service.length > cont; cont++) {
+                switch (true) {
+                    case service[cont] === 'Hydrator':
+                        this._loadHydrator();
+                        break;
+                    case service[cont] === 'Storage':
+                        this._loadStorage();
+                        break;
+                    case service[cont] === 'TimeslotSenderService':
+                        this._loadTimeslotServerService();
+                        break;
+                    case service[cont] === 'TimeslotService':
+                        this._loadTimeslotService();
+                        break;
+                    case service[cont] === 'TimeslotDataInjectorService':
+                        this._loadDataServiceInjectorService();
+                        break;
+                }
+            }
+        }
+
     }
 
+    /**
+     * @private
+     */
     _loadHydrator() {
         let timeslotHydrator = new PropertyHydrator(
             new Timeslot(),
@@ -74,11 +103,11 @@ class TimeslotConfig extends PluginConfig {
     }
 
     _loadDataServiceInjectorService() {
-        let timeslotDataInjectorService = new TimeslotDataInjectorService();
-        this.serviceManager.set('TimeslotDataInjectorService', timeslotDataInjectorService);
+        let timeslotDataInjectorServicePluginManager = new TimeslotDataInjectorServicePluginManager();
+        this.serviceManager.set('TimeslotDataInjectorService', timeslotDataInjectorServicePluginManager);
 
-        this.serviceManager.get('TimeslotDataInjectorService').timeslotDataServicePluginManager.set('Test1',new Test1())
-        this.serviceManager.get('TimeslotDataInjectorService').timeslotDataServicePluginManager.set('Test2',new Test2())
+        this.serviceManager.get('TimeslotDataInjectorService').set('Test1',new Test1());
+        this.serviceManager.get('TimeslotDataInjectorService').set('Test2',new Test2());
     }
 
     /**

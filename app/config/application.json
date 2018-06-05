@@ -1,5 +1,70 @@
 {
   "indexedDB": {
-    "name" : "Dsign"
-  }
+    "name": "Dsign"
+  },
+  "modules": [
+    {
+      "icon": "app:monitor",
+      "nameWc": "monitor-index",
+      "label": "Monitor",
+      "customeStyle": {
+        "color": " green"
+      },
+      "configFile": "config.js",
+      "autoloads": [
+        "src/model/Monitor.js",
+        "src/model/VirtualMonitor.js",
+        "src/model/VirtualMonitorReference.js"
+      ],
+      "name": "monitor"
+    },
+    {
+      "icon": "app:resource",
+      "nameWc": "resource-index",
+      "label": "Resource",
+      "customeStyle": {
+        "color": "green"
+      },
+      "configFile": "config.js",
+      "autoloads": [
+        "src/model/GenericFile.js",
+        "src/model/Image.js",
+        "src/model/Video.js"
+      ],
+      "name": "resource"
+    },
+    {
+      "icon": "app:timeslot",
+      "nameWc": "timeslot-index",
+      "label": "Timeslot",
+      "customeStyle": {
+        "color": "green"
+      },
+      "configFile": "config.js",
+      "autoloads": [
+        "src/TimeslotSenderService.js",
+        "src/TimeslotService.js",
+        "src/TimeslotDataInjectorServicePluginManager.js",
+        "src/model/Timeslot.js",
+        "src/model/TimeslotDataReference.js",
+        "src/Test1.js",
+        "src/Test2.js"
+      ],
+      "name": "timeslot"
+    },
+    {
+      "icon": "app:playlist",
+      "nameWc": "playlist-index",
+      "label": "Playlist",
+      "customeStyle": {
+        "color": "green"
+      },
+      "configFile": "config.js",
+      "autoloads": [
+        "src/PlaylistService.js",
+        "src/model/Playlist.js"
+      ],
+      "name": "playlist"
+    }
+  ]
 }

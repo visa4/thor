@@ -45,7 +45,26 @@ serviceManager.set(
         return timer;
 
     }
+).set(
+    'Application',
+    function (sm) {
+        const fs = require('fs');
+        /*
+        fs.readFile(
+            __dirname + '/config/application.json',
+            function(err, data) {
+
+            }
+        );
+        */
+        return new Application(
+            JSON.parse(fs.readFileSync(__dirname + '/config/application.json'))
+        );
+    }
 );
+
+
+serviceManager.get('Application');
 
 /*
 window.onerror = function(message, url, lineNumber) {

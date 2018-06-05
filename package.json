@@ -31,7 +31,8 @@
     "app-module-path": "^2.2.0",
     "easytimer.js": "git+ssh://git@github.com/albert-gonzalez/easytimer.js.git",
     "fluent-ffmpeg": "^2.1.2",
-    "image-size": "^0.6.2"
+    "image-size": "^0.6.2",
+    "dexie": "^2.0.4"
   },
   "nyc": {
     "reporter": [

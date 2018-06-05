@@ -32,4 +32,22 @@ serviceManager.set(
         const fs = require('fs');
         return  JSON.parse(fs.readFileSync(__dirname + '/config/application.json'));
     }
+).set(
+    'Application',
+    function (sm) {
+        const fs = require('fs');
+        /*
+        fs.readFile(
+            __dirname + '/config/application.json',
+            function(err, data) {
+
+            }
+        );
+        */
+        return new Application(
+            JSON.parse(fs.readFileSync(__dirname + '/config/application.json'))
+        );
+    }
 );
+
+serviceManager.get('Application');;

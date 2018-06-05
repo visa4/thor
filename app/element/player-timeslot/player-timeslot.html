@@ -77,6 +77,12 @@
 
                     },
 
+                    data: {
+                        type: Object,
+                        notify: true,
+                        value: {}
+                    },
+
                     /**
                      * For debug
                      */
@@ -99,6 +105,10 @@
             connectedCallback() {
                 super.connectedCallback();
                 //this._handlarInterval = setInterval(this._intervalDebug.bind(this), 1000);
+
+                if (this.timeslot.dataReferences && this.timeslot.dataReferences.length > 0) {
+                    this.data = this._extractDataTimeslot(this.timeslot.dataReferences);
+                }
 
                 for (let cont = 0; this.timeslot.resources.length > cont; cont++) {
 
@@ -242,6 +252,7 @@
                 let element = document.createElement(name);
                 element.height = this.height;
                 element.width = this.width;
+                element.data = this.data;
                 return element;
             }
 
@@ -282,6 +293,24 @@
                     }
                     videos[cont].play();
                 }
+            }
+
+            /**
+             * @param {Array} dataReference
+             * @return {Object}
+             * @private
+             */
+            _extractDataTimeslot(dataReference) {
+
+                let data = {};
+
+                for (let cont = 0; dataReference.length > cont;  cont++) {
+                    let service = serviceManager.get('TimeslotDataInjectorService').get(dataReference[0].name);
+                    let tmpData = service.getTimeslotData(dataReference[cont].data);
+                    data = Object.assign(data, tmpData);
+                }
+
+                return data;
             }
 
             /**

@@ -107,7 +107,7 @@
                 super.ready();
                 this._setServices(serviceManager
                     .get('TimeslotDataInjectorService')
-                    .timeslotDataServicePluginManager.getAll());
+                    .getAll());
                 this.$.serviceInput.source = this.services;
 
                 this.$.serviceInput.queryFn = this._queryFn.bind(this.$.serviceInput);

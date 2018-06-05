@@ -63,6 +63,15 @@ class MonitorConfig extends PluginConfig {
     _loadStorage() {
         let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
 
+        /*
+        let storageAdapter = new DexieStorage(
+            indexedDBConfig.name,
+            MonitorConfig.NAME_COLLECTION,
+            ['name', 'status'],
+            420
+        );
+        */
+
         let storage = new Storage(
             new IndexedDbStorage(indexedDBConfig.name, MonitorConfig.NAME_COLLECTION),
             this.serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator')
