@@ -34,20 +34,10 @@ serviceManager.set(
     }
 ).set(
     'Application',
-    function (sm) {
+    (function(sm){
         const fs = require('fs');
-        /*
-        fs.readFile(
-            __dirname + '/config/application.json',
-            function(err, data) {
-
-            }
-        );
-        */
         return new Application(
             JSON.parse(fs.readFileSync(__dirname + '/config/application.json'))
         );
-    }
+    })()
 );
-
-serviceManager.get('Application');;

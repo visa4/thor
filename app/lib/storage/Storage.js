@@ -15,7 +15,6 @@ catch(err) {
  */
 class Storage extends HydratorAware {
 
-
     static get STORAGE_PRE_SAVE() { return 'pre-save'};
 
     static get STORAGE_POST_SAVE() { return 'post-save'};

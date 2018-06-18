@@ -8,21 +8,21 @@ class MonitorConfig extends PluginConfig {
      * @return {string}
      * @constructor
      */
-    static get NAME_SERVICE() { return 'virtual-monitor.service'; };
+    static get NAME_SERVICE() { return 'monitor.service'; };
 
     /**
      *
      * @return {string}
      * @constructor
      */
-    static get NAME_STORAGE() { return 'virtual-monitor.data'; };
+    static get NAME_STORAGE() { return 'monitor.data'; };
 
     /**
      *
      * @return {string}
      * @constructor
      */
-    static get NAME_COLLECTION() { return 'virtualMonitor'; };
+    static get NAME_COLLECTION() { return 'monitor'; };
 
 
     init() {
@@ -63,23 +63,42 @@ class MonitorConfig extends PluginConfig {
     _loadStorage() {
         let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
 
-        /*
-        let storageAdapter = new DexieStorage(
-            indexedDBConfig.name,
-            MonitorConfig.NAME_COLLECTION,
-            ['name', 'status'],
-            420
-        );
-        */
+        serviceManager.eventManager.on(
+            ServiceManager.LOAD_SERVICE,
+            function(evt) {
+                if (evt.data.name === 'DexieManager') {
+                    serviceManager.get('DexieManager').pushSchema(
+                        {
+                            "name": MonitorConfig.NAME_COLLECTION,
+                            "index": [
+                                "++id", "name"
+                            ]
+                        }
+                    );
 
-        let storage = new Storage(
-            new IndexedDbStorage(indexedDBConfig.name, MonitorConfig.NAME_COLLECTION),
-            this.serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator')
-        );
+                    /**
+                     *
+                     */
+                    serviceManager.get('DexieManager').onReady(
+                        function (evt) {
 
-        this.serviceManager.get('StoragePluginManager').set(
-            MonitorConfig.NAME_SERVICE,
-            storage
+                            let storage = new Storage(
+                                new DexieCollection(
+                                    serviceManager.get('DexieManager'),
+                                    MonitorConfig.NAME_COLLECTION
+                                ),
+                                serviceManager.get('HydratorPluginManager').get('virtualMonitorHydrator')
+                            );
+
+
+                            serviceManager.get('StoragePluginManager').set(
+                                MonitorConfig.NAME_SERVICE,
+                                storage
+                            );
+                        }.bind(this)
+                    );
+                }
+            }
         );
     }
 }

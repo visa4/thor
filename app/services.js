@@ -16,10 +16,24 @@ const hydratorPluginManager = new HydratorPluginManager();
  */
 const storagePluginManager = new StoragePluginManager();
 
+serviceManager.eventManager.on(
+    ServiceManager.LOAD_SERVICE,
+    function(evt) {
+        if (evt.data.name === 'Application') {
+
+            serviceManager.set(
+                'DexieManager',
+                new DexieManager(serviceManager.get('Application').config.indexedDB.name)
+            );
+
+            serviceManager.get('DexieManager').init();
+        }
+    }
+);
+
 /**
  * @type {Object}
  */
-
 serviceManager.set(
     hydratorPluginManager.constructor.name,
     hydratorPluginManager
@@ -47,29 +61,10 @@ serviceManager.set(
     }
 ).set(
     'Application',
-    function (sm) {
+    (function(sm){
         const fs = require('fs');
-        /*
-        fs.readFile(
-            __dirname + '/config/application.json',
-            function(err, data) {
-
-            }
-        );
-        */
         return new Application(
             JSON.parse(fs.readFileSync(__dirname + '/config/application.json'))
         );
-    }
-);
-
-
-serviceManager.get('Application');
-
-/*
-window.onerror = function(message, url, lineNumber) {
-    //save error and send to server for example.
-    console.log(message, url, lineNumber);
-    return true;
-};
-*/
+    })()
+)

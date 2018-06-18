@@ -1,11 +1,21 @@
+try {
+    EvtManager = require('./../EvtManager');
+}
+catch(err) {
+
+    EvtManager = require(__dirname + '/../../lib/event/EvtManager.js');
+}
 
 class ServiceManager {
+
+    static get LOAD_SERVICE() { return 'load-service'};
 
     /**
      *
      */
     constructor () {
         this.services = {};
+        this.eventManager = new EvtManager();
     }
 
     /**
@@ -16,6 +26,7 @@ class ServiceManager {
     set(name, service) {
         this.__checkNameService(name);
         this.services[name] = service;
+        this.eventManager.fire(ServiceManager.LOAD_SERVICE, {name: name});
         return this;
     }
 

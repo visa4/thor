@@ -40,8 +40,6 @@ class Application {
             for (let cont = 0; config.modules.length > cont; cont++) {
                 this.modules.push(this.laodModule(config.modules[cont]))
             }
-            this.eventManager.fire(Application.BOOTSTRAP_MODULE, this);
-            this.bootstrapModule = true;
             delete config.modules;
         }
 

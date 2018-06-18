@@ -35,29 +35,56 @@ class ResourceConfig extends PluginConfig {
     _loadStorage() {
         let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
 
-        let storage = new Storage(
-            new IndexedDbStorage(indexedDBConfig.name, ResourceConfig.NAME_COLLECTION),
-            this.serviceManager.get('HydratorPluginManager').get('resourceHydrator')
-        );
+        serviceManager.eventManager.on(
+            ServiceManager.LOAD_SERVICE,
+            function(evt) {
+                if (evt.data.name === 'DexieManager') {
+                    serviceManager.get('DexieManager').pushSchema(
+                        {
+                            "name": ResourceConfig.NAME_COLLECTION,
+                            "index": [
+                                "++id", "type", "size", "name"
+                            ]
+                        }
+                    );
 
-        storage.eventManager.on(
-            Storage.STORAGE_POST_SAVE,
-            this.onSave.bind(storage)
-        );
+                    /**
+                     *
+                     */
+                    serviceManager.get('DexieManager').onReady(
+                        function (evt) {
 
-        storage.eventManager.on(
-            Storage.STORAGE_POST_UPDATE,
-            this.onUpdate.bind(storage)
-        );
+                            let storage = new Storage(
+                                new DexieCollection(
+                                    serviceManager.get('DexieManager'),
+                                    ResourceConfig.NAME_COLLECTION
+                                ),
+                                serviceManager.get('HydratorPluginManager').get('resourceHydrator')
+                            );
 
-        storage.eventManager.on(
-            Storage.STORAGE_POST_REMOVE,
-            this.onRemove.bind(storage)
-        );
+                            storage.eventManager.on(
+                                Storage.STORAGE_POST_SAVE,
+                                this.onSave.bind(storage)
+                            );
 
-        this.serviceManager.get('StoragePluginManager').set(
-            ResourceConfig.NAME_SERVICE,
-            storage
+                            storage.eventManager.on(
+                                Storage.STORAGE_POST_UPDATE,
+                                this.onUpdate.bind(storage)
+                            );
+
+                            storage.eventManager.on(
+                                Storage.STORAGE_POST_REMOVE,
+                                this.onRemove.bind(storage)
+                            );
+
+                            serviceManager.get('StoragePluginManager').set(
+                                ResourceConfig.NAME_SERVICE,
+                                storage
+                            );
+                        }.bind(this)
+                    );
+                }
+            }.bind(this)
         );
     }
 

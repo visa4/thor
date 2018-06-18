@@ -123,13 +123,21 @@ class TimeslotConfig extends PluginConfig {
      */
     _loadTimeslotService() {
 
-        let timeslotService = new TimeslotService(
-            this.serviceManager.get('TimeslotSenderService'),
-            this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
-            this.serviceManager.get('Timer')
-        );
+        serviceManager.get('StoragePluginManager').eventManager.on(
+            ServiceManager.LOAD_SERVICE,
+            function(evt) {
+                if (evt.data.name ===  TimeslotConfig.NAME_SERVICE) {
 
-        this.serviceManager.set('TimeslotService', timeslotService);
+                    let timeslotService = new TimeslotService(
+                        this.serviceManager.get('TimeslotSenderService'),
+                        this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
+                        this.serviceManager.get('Timer')
+                    );
+
+                    this.serviceManager.set('TimeslotService', timeslotService);
+                }
+            }.bind(this)
+        );
     }
 
     /**
@@ -139,25 +147,42 @@ class TimeslotConfig extends PluginConfig {
 
         let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
 
-        let indexDbAdapter =  new IndexedDbStorage(indexedDBConfig.name, TimeslotConfig.NAME_COLLECTION);
+        serviceManager.eventManager.on(
+            ServiceManager.LOAD_SERVICE,
+            function(evt) {
+                if (evt.data.name === 'DexieManager') {
+                    serviceManager.get('DexieManager').pushSchema(
+                        {
+                            "name": TimeslotConfig.NAME_COLLECTION,
+                            "index": [
+                                "++id", "name", "status"
+                            ]
+                        }
+                    );
 
-        // TODO PORCATA DA SISTEMARE
-        setTimeout(
-            function () {
-                //indexDbAdapter.createIndex({indexName: 'name', keyPath : 'name', parameters : {unique: false}});
-                //indexDbAdapter.createIndex({indexName: 'status', keyPath : 'status', parameters : {unique: false}});
-            }.bind(this),
-            2000
-        );
+                    /**
+                     *
+                     */
+                    serviceManager.get('DexieManager').onReady(
+                        function (evt) {
 
-        let storage = new Storage(
-            indexDbAdapter,
-            this.serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
-        );
+                            let storage = new Storage(
+                                new DexieCollection(
+                                    serviceManager.get('DexieManager'),
+                                    TimeslotConfig.NAME_COLLECTION
+                                ),
+                                serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
+                            );
 
-        this.serviceManager.get('StoragePluginManager').set(
-            TimeslotConfig.NAME_SERVICE,
-            storage
+
+                            serviceManager.get('StoragePluginManager').set(
+                                TimeslotConfig.NAME_SERVICE,
+                                storage
+                            );
+                        }.bind(this)
+                    );
+                }
+            }
         );
     }
 }

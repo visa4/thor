@@ -17,7 +17,7 @@
     <style include="global-layout"></style>
     <style include="global-style"></style>
     <slot name="header"></slot>
-    <div hidden$="{{!hideMonitorNotFound}}" style="padding-top: 20px;">
+    <div hidden$="{{!hasResources}}" style="padding-top: 20px;">
       <template is="dom-repeat" items="[[monitors]]" as="monitor">
         <monitor-wc
                 monitor="{{monitor}}"
@@ -28,7 +28,7 @@
       </template>
       <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
     </div>
-    <div hidden$="{{hideMonitorNotFound}}">Non sono presenti monitor virtuali</div>
+    <div hidden$="{{hasResources}}">Non sono presenti monitor virtuali</div>
   </template>
 
   <script>
@@ -42,18 +42,12 @@
                   monitors: {
                       type: Array,
                       notify: true,
-                      value: [],
-                      observer: '_monitorChanged'
+                      value: []
                   },
 
                   selected: {
                       type: Number,
                       notify: true
-                  },
-
-                  hideMonitorNotFound: {
-                      type: Boolean,
-                      value: false
                   },
 
                   monitorSelected: {
@@ -110,21 +104,9 @@
                   .getAll()
                   .then((data) =>  {
                       this.set('monitors', data);
+                      this.hasResources = data.length > 0;
                       this.totalItems = data.totalItems;
                   });
-          }
-
-          _monitorChanged(newValue, oldValue) {
-              if (oldValue === undefined) {
-                  return;
-              }
-
-              let monitors = this.get('monitors');
-              if (monitors && Array.isArray(monitors) && monitors.length > 0) {
-                  this.hideMonitorNotFound = true;
-              } else {
-                  this.hideMonitorNotFound = false;
-              }
           }
 
           /**
@@ -141,6 +123,8 @@
               });
 
               this.splice('monitors', index, 1);
+              this.hasResources = this.monitors.length > 0;
+
               serviceManager.get('StoragePluginManager')
                   .get(MonitorConfig.NAME_SERVICE)
                   .remove(evt.detail)

@@ -96,22 +96,43 @@ class PlaylistConfig extends PluginConfig {
 
         let indexedDBConfig =  this.serviceManager.get('Config')['indexedDB'];
 
-        let storageAapter = new DexieStorage(
-            indexedDBConfig.name + '_test',
-            PlaylistConfig.NAME_COLLECTION,
-            ['name', 'status'],
-            1
-        );
+        serviceManager.eventManager.on(
+            ServiceManager.LOAD_SERVICE,
+            function(evt) {
+                if (evt.data.name === 'DexieManager') {
+                    serviceManager.get('DexieManager').pushSchema(
+                        {
+                            "name": PlaylistConfig.NAME_COLLECTION,
+                            "index": [
+                                "++id", "name", "status"
+                            ]
+                        }
+                    );
 
 
-        let storage = new Storage(
-            storageAapter,
-            this.serviceManager.get('HydratorPluginManager').get('playlistHydrator')
-        );
+                    /**
+                     *
+                     */
+                    serviceManager.get('DexieManager').onReady(
+                        function (evt) {
 
-        this.serviceManager.get('StoragePluginManager').set(
-            PlaylistConfig.NAME_SERVICE,
-            storage
+                            let storage = new Storage(
+                                new DexieCollection(
+                                    serviceManager.get('DexieManager'),
+                                    PlaylistConfig.NAME_COLLECTION
+                                ),
+                                serviceManager.get('HydratorPluginManager').get('playlistHydrator')
+                            );
+
+
+                            serviceManager.get('StoragePluginManager').set(
+                                PlaylistConfig.NAME_SERVICE,
+                                storage
+                            );
+                        }.bind(this)
+                    );
+                }
+            }
         );
     }
 
@@ -119,12 +140,20 @@ class PlaylistConfig extends PluginConfig {
      * @private
      */
     _loadPlaylistService() {
-        let playlistService =  new PlaylistService(
-            this.serviceManager.get('TimeslotSenderService'),
-            this.serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE),
-            this.serviceManager.get('Timer')
-        );
-        this.serviceManager.set('PlaylistService', playlistService);
+        this.serviceManager.get('StoragePluginManager').eventManager.on(
+            ServiceManager.LOAD_SERVICE,
+            function (evt) {
+                if (evt.data.name === PlaylistConfig.NAME_SERVICE) {
+                    let playlistService =  new PlaylistService(
+                        serviceManager.get('TimeslotSenderService'),
+                        serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE),
+                        serviceManager.get('Timer')
+                    );
+                    serviceManager.set('PlaylistService', playlistService);
+                }
+
+            }
+        )
     }
 }
 
