@@ -1,3 +1,10 @@
+try {
+    Pagination = require('./../../../pagination/Pagination');
+}
+catch (err) {
+
+    Pagination = require(__dirname + '/lib/pagination/Pagination');
+}
 
 class DexieCollection {
 
@@ -54,8 +61,52 @@ class DexieCollection {
      * @param search
      * @return {Dexie.Promise<Array<T>> | Dexie.Promise<any>}
      */
-    getAll(page = 0, itemCount = 10, search) {
-        return this.dexieManager.db[this.nameCollection].toCollection().toArray();
+    getAll(page = 1, itemCount = 10, search) {
+
+        let promise = new Promise((resolve, reject) => {
+
+            let computePage = page > 0 ? page - 1 : page;
+            let collection = new Pagination([], page, itemCount);
+
+            // TODO SEARCH
+
+            this.dexieManager
+                .db[this.nameCollection]
+                .toCollection()
+                .count()
+                .then(
+                    function (data) {
+
+                        let totalItem = data;
+                        this.dexieManager
+                            .db[this.nameCollection]
+                            .toCollection()
+                            .offset(computePage * itemCount)
+                            .limit(itemCount)
+                            .toArray().then(
+                                function (data) {
+
+                                    let collection = new Pagination(data, page, itemCount, totalItem);
+                                    resolve(collection);
+                                }
+                            ).catch(error => { reject(error) } );
+
+                    }.bind(this)
+                ).catch(error => { reject(error) } );
+        });
+
+        return promise;
+    }
+
+    /**
+     * @param search
+     * @return {Dexie.Promise<number> | Dexie.Promise<any>}
+     */
+    count(search) {
+        return this.dexieManager
+            .db[this.nameCollection]
+            .toCollection()
+            .count();
     }
 }
 

@@ -1,17 +1,36 @@
-
+/**
+ *
+ */
 class Pagination extends Array {
 
 
-    constructor(items, page, itemPerPage, totalItem) {
+    /**
+     * @param items
+     * @param page
+     * @param itemPerPage
+     * @param totalItem
+     */
+    constructor(items = [], page, itemPerPage, totalItem) {
 
         super();
-        if (Array.isArray(items)) {
-            this.concat(items);
-        }
 
+        this.appendArray(items);
         this.page = page;
         this.itemPerPage = itemPerPage;
         this.totalItems = totalItem;
+    }
+
+    /**
+     * @param list
+     */
+    appendArray(list) {
+        if (Array.isArray(list)) {
+            list.forEach(
+                element => {
+                    this.push(element);
+                }
+            );
+        }
     }
 }
 

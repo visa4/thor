@@ -1,31 +1,43 @@
-
 try {
     HydratorAware = require('./../HydratorAware');
     EvtManager = require('./../EvtManager');
     Utils = require('./../Utils');
 }
-catch(err) {
+catch (err) {
 
     HydratorAware = require(__dirname + '/lib/hydrator/HydratorAware.js');
     EvtManager = require(__dirname + '/lib/event/EvtManager.js');
     Utils = require(__dirname + '/lib/Utils.js');
 }
+
 /**
  *
  */
 class Storage extends HydratorAware {
 
-    static get STORAGE_PRE_SAVE() { return 'pre-save'};
+    static get STORAGE_PRE_SAVE() {
+        return 'pre-save'
+    };
 
-    static get STORAGE_POST_SAVE() { return 'post-save'};
+    static get STORAGE_POST_SAVE() {
+        return 'post-save'
+    };
 
-    static get STORAGE_PRE_UPDATE() { return 'pre-update'};
+    static get STORAGE_PRE_UPDATE() {
+        return 'pre-update'
+    };
 
-    static get STORAGE_POST_UPDATE() { return 'post-update'};
+    static get STORAGE_POST_UPDATE() {
+        return 'post-update'
+    };
 
-    static get STORAGE_PRE_REMOVE() { return 'pre-remove'};
+    static get STORAGE_PRE_REMOVE() {
+        return 'pre-remove'
+    };
 
-    static get STORAGE_POST_REMOVE() { return 'post-remove'};
+    static get STORAGE_POST_REMOVE() {
+        return 'post-remove'
+    };
 
 
     /**
@@ -45,7 +57,7 @@ class Storage extends HydratorAware {
     /**
      * @param adapter
      */
-    constructor (adapter, hydrator) {
+    constructor(adapter, hydrator) {
         super(hydrator);
         this.adapter = adapter;
         this.eventManager = new EvtManager();
@@ -58,8 +70,8 @@ class Storage extends HydratorAware {
      */
     save(obj) {
 
+        obj.id = Utils.uid;
         let data = this.hydrator ? this.hydrator.extract(obj) : obj;
-        data.id = Utils.uid;
 
         let promise = new Promise((resolve, reject) => {
 
@@ -74,9 +86,9 @@ class Storage extends HydratorAware {
                         resolve(obj);
                     }
                 ).catch(
-                    (err) => {
-                        console.error(err);
-                        reject(null);
+                (err) => {
+                    console.error(err);
+                    reject(null);
                 })
         });
 

@@ -298,7 +298,6 @@ class ResourceConfig extends PluginConfig {
         fs.lstat(filePath, (err, stats) => {
 
             if(err) {
-                console.log(err);
                 fs.readdir(pathName, (error, files) => {
                     if (error) throw error;
 
