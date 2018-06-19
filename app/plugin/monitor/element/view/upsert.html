@@ -1,4 +1,3 @@
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -9,6 +8,8 @@
 <link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../iconset/iconset.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
@@ -16,269 +17,363 @@
 
 
 <dom-module id="monitor-view-upsert">
-  <template>
-    <style include="global-layout"></style>
-    <style include="global-style"></style>
-    <style>
-      /* TODO add local css*/
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
+            /* TODO add local css*/
 
-      .margin-top-20 {
-        margin-top: 20px;
-      }
+            .margin-top-20 {
+                margin-top: 20px;
+            }
 
-      .container-add-action {
-        padding: 10px;
-      }
+            .margin-bottom-16 {
+                margin-bottom: 16px;
+            }
 
-      .margin-bottom-16  {
-        margin-bottom: 16px;
-      }
+            .margin-top-16 {
+                margin-top: 16px;
+            }
 
-      .margin-top-16 {
-        margin-top: 16px;
-      }
+            .paper-monitor,
+            .paper-sub-monitor {
+                padding: 6px;
+                margin-top: 10px;
+                display: flex;
+            }
 
-      .paper-monitor,
-      .paper-sub-monitor{
-        padding: 6px;
-        margin-top: 10px;
-        display: flex;
-      }
+            .paper-sub-monitor {
+                margin-left: 30px;
+            }
 
-      .paper-sub-monitor {
-        margin-left: 30px ;
-      }
+            .paper-monitor paper-input {
+                padding-left: 6px;
+            }
 
-      .paper-monitor paper-input {
-        padding-left: 6px;
-      }
+            paper-icon-button {
 
-      paper-icon-button {
+                color: var(--accent-color);
+            }
 
-        color: var(--accent-color);
-      }
+            #cardMonitor {
+                padding: 8px;
+            }
 
-    </style>
+        </style>
 
-    <slot name="header"></slot>
-    <div class="flex flex-horizontal">
-      <div class="flex-basis-70" style="padding-right:16px;">
-        <paper-input id="name" name="name" label="Name" value="{{identifier}}" class="margin-bottom-16" require></paper-input>
-        <template is="dom-repeat" items="{{monitors}}" as="monitor">
-          <paper-card class="paper-monitor">
-            <paper-input name="name" label="Name" value="{{monitor.name}}" style="flex-basis: 50%;"></paper-input>
-            <paper-input name="height" label="Height" type="number" value="{{monitor.height}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="width" label="Width" type="number" value="{{monitor.width}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="offsetX" label="Offeset X" type="number" value="{{monitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="offsetY" label="Offeset Y" type="number" value="{{monitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
-            <paper-input name="backgroundColor" label="Background color" type="color" value="{{monitor.backgroundColor}}" style="flex-basis: 10%;"></paper-input>
-            <div class="flex flex-center" style="flex-basis: 10%;">
-              <paper-icon-button icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
-              </paper-icon-button>
+        <slot name="header"></slot>
+        <div class="flex flex-horizontal">
+            <div class="flex-basis-70" style="padding-right:16px;">
+                <iron-form id="formMonitor">
+                    <form method="post" action="">
+                        <paper-input id="name" name="name" label="Name" value="{{identifier}}" class="margin-bottom-16"
+                                     required></paper-input>
+                        <template is="dom-repeat" items="{{monitors}}" as="monitor">
+                            <paper-card class="paper-monitor">
+                                <paper-input name="name" label="Name" value="{{monitor.name}}" required style="flex-basis: 50%;"></paper-input>
+                                <paper-input name="height" label="Height" type="number" value="{{monitor.height}}" required style="flex-basis: 10%;"></paper-input>
+                                <paper-input name="width" label="Width" type="number" value="{{monitor.width}}" required style="flex-basis: 10%;"></paper-input>
+                                <paper-input name="offsetX" label="Offeset X" type="number" value="{{monitor.offsetX}}" required style="flex-basis: 10%;"></paper-input>
+                                <paper-input name="offsetY" label="Offeset Y" type="number" value="{{monitor.offsetY}}" required style="flex-basis: 10%;"></paper-input>
+                                <paper-input name="backgroundColor" label="Background color" type="color" value="{{monitor.backgroundColor}}" required style="flex-basis: 10%;"></paper-input>
+                                <div class="flex flex-center" style="flex-basis: 10%;">
+                                    <paper-icon-button item="{{monitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
+                                    </paper-icon-button>
+                                </div>
+                            </paper-card>
+                            <template submonitor-repeat is="dom-repeat" items="{{monitor.monitors}}" as="submonitor">
+                                <paper-card class="paper-sub-monitor">
+                                    <paper-input name="name" label="Name" value="{{submonitor.name}}" required style="flex-basis: 50%;"></paper-input>
+                                    <paper-input name="height" label="Height" type="number" value="{{submonitor.height}}" required style="flex-basis: 10%;"></paper-input>
+                                    <paper-input name="width" label="Width" type="number" value="{{submonitor.width}}" required style="flex-basis: 10%;"></paper-input>
+                                    <paper-input name="offsetX" label="Offeset X" type="number" value="{{submonitor.offsetX}}" required style="flex-basis: 10%;"></paper-input>
+                                    <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" required style="flex-basis: 10%;"></paper-input>
+                                    <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" required style="flex-basis: 10%;"></paper-input>
+                                    <div class="flex flex-center" style="flex-basis: 10%;">
+                                        <paper-icon-button item="{{submonitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
+                                        </paper-icon-button>
+                                    </div>
+                                </paper-card>
+                            </template>
+                        </template>
+                        <div class="flex flex-horizontal-end">
+                            <paper-button on-tap="submitMonitorButton" class="margin-top-16">{{labelAction}}</paper-button>
+                        </div>
+                    </form>
+                </iron-form>
             </div>
-          </paper-card>
-          <template submonitor-repeat is="dom-repeat" items="{{monitor.monitors}}" as="submonitor">
-            <paper-card class="paper-sub-monitor">
-              <paper-input name="name" label="Name" value="{{submonitor.name}}" style="flex-basis: 50%;"></paper-input>
-              <paper-input name="height" label="Height" type="number" value="{{submonitor.height}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="width" label="Width" type="number" value="{{submonitor.width}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="offsetX" label="Offeset X" type="number" value="{{submonitor.offsetX}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" style="flex-basis: 10%;"></paper-input>
-              <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" style="flex-basis: 10%;"></paper-input>
-              <div class="flex flex-center" style="flex-basis: 10%;">
-                <paper-icon-button item="{{submonitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
-                </paper-icon-button>
-              </div>
-            </paper-card>
-          </template>
-        </template>
-        <div class="flex flex-horizontal-end">
-          <paper-button on-tap="upsertConfiguration" class="margin-top-16">{{labelAction}}</paper-button>
+            <div class="flex-basis-30">
+                <paper-card id="cardMonitor" heading="Monitor" alt="Monitor">
+                    <iron-form id="formSubMonitor">
+                        <form method="post" action="">
+                            <div class="card-content">
+                                <paper-input name="name" label="Name" required></paper-input>
+                                <paper-input name="height" type="number" label="Height" required></paper-input>
+                                <paper-input name="width" type="number" label="Width" required></paper-input>
+                                <paper-input name="offsetX" type="number" label="Offeset X" required></paper-input>
+                                <paper-input name="offsetY" type="number" label="Offeset Y" required></paper-input>
+                                <div hidden$="[[!hasMonitor]]">
+                                    <paper-autocomplete
+                                            id="monitor"
+                                            label="Monitor"
+                                            text-property="name"
+                                            value-property="name"
+                                            remote-source
+                                            _selected-option="{{data}}"
+                                            on-autocomplete-change="_dataValueChanged"
+                                            on-autocomplete-reset-blur="_resetData">
+                                        <template slot="autocomplete-custom-template">
+                                            <style>
+                                                :host {
+                                                    display: block;
+                                                }
+
+                                                paper-item.account-item {
+                                                    padding: 8px 16px;
+                                                }
+
+                                                .service-name {
+                                                    color: #333;
+                                                }
+
+                                                .service-description {
+                                                    margin-top: 4px;
+                                                    color: #999;
+                                                }
+                                            </style>
+                                            <paper-item class="account-item" on-tap="_onSelect" role="option"
+                                                        aria-selected="false">
+                                                <div>
+                                                    <div class="service-name">[[item.name]]</div>
+                                                    <div class="service-description">Width [[item.width]]px Height
+                                                        [[item.height]]px
+                                                    </div>
+                                                </div>
+                                                <paper-ripple></paper-ripple>
+                                            </paper-item>
+                                        </template>
+                                    </paper-autocomplete>
+                                </div>
+
+                            </div>
+                            <div class="flex flex-horizontal-center">
+                                <paper-button on-tap="submitSubMonitorButton">Add</paper-button>
+                            </div>
+                        </form>
+                    </iron-form>
+                </paper-card>
+            </div>
         </div>
-      </div>
-      <div class="flex-basis-30">
-        <paper-card id="cardMonitor" heading="Monitor" alt="Monitor">
-          <div class="card-content">
-            <paper-input name="name" label="Name"></paper-input>
-            <paper-input name="height" type="number" label="Height"></paper-input>
-            <paper-input name="width" type="number" label="Width"></paper-input>
-            <paper-input name="offsetX" type="number" label="Offeset X"></paper-input>
-            <paper-input name="offsetY" type="number" label="Offeset Y"></paper-input>
-            <paper-dropdown-menu id="monitor" label="Monitor">
-              <paper-listbox id="subMonitor" slot="dropdown-content">
-                <template is="dom-repeat" items="{{allMonitors}}" as="monitor">
-                  <paper-item item="{{monitor}}">{{monitor.name}}</paper-item>
-                </template>
-              </paper-listbox>
-            </paper-dropdown-menu>
-          </div>
-          <div class="flex flex-horizontal-center container-add-action">
-            <paper-button on-tap="addMonitor">Add</paper-button>
-          </div>
-        </paper-card>
-      </div>
-    </div>
-  </template>
+    </template>
 
-  <script>
-      class ElementMonitorViewUpsert extends Polymer.Element {
+    <script>
+        class ElementMonitorViewUpsert extends Polymer.Element {
 
-          static get is() { return 'monitor-view-upsert'; }
+            static get is() {
+                return 'monitor-view-upsert';
+            }
 
-          static get properties() {
-              return {
+            static get properties() {
+                return {
 
-                  monitors : {
-                      type: Array,
-                      value: [],
-                      notify: true
-                  },
+                    monitors: {
+                        type: Array,
+                        value: [],
+                        notify: true
+                    },
 
-                  allMonitors : {
-                      type: Array,
-                      value: [],
-                      notify: true
-                  },
+                    allMonitors: {
+                        type: Array,
+                        value: [],
+                        notify: true
+                    },
 
-                  identifier: {
-                      type: String,
-                  },
+                    identifier: {
+                        type: String,
+                    },
 
-                  height: {
-                      type: Number,
-                  },
+                    height: {
+                        type: Number,
+                    },
 
-                  width: {
-                      type: Number,
-                  },
+                    width: {
+                        type: Number,
+                    },
 
-                  top: {
-                      type: Number,
-                  },
+                    top: {
+                        type: Number,
+                    },
 
-                  left: {
-                      type: Number,
-                  },
+                    left: {
+                        type: Number,
+                    },
 
-                  zoom: {
-                      type: Number,
-                      value: 5
-                  },
+                    zoom: {
+                        type: Number,
+                        value: 5
+                    },
 
-                  monitor: {
-                      type: Object,
-                      notify: true,
-                      value: new VirtualMonitor(),
-                      observer: '_monitorChanged'
-                  },
+                    monitor: {
+                        type: Object,
+                        notify: true,
+                        value: new VirtualMonitor(),
+                        observer: '_monitorChanged'
+                    },
 
-                  selected: {
-                      type: Number,
-                      notify: true
-                  },
+                    hasMonitor: {
+                        type: Boolean,
+                        notify: true,
+                        value :false
+                    },
 
-                  labelAction: {
-                      type: String,
-                      value: 'Save'
-                  }
-              };
-          }
+                    selected: {
+                        type: Number,
+                        notify: true
+                    },
 
-          ready() {
-              super.ready();
-              serviceManager.get('StoragePluginManager')
-                  .get(MonitorConfig.NAME_SERVICE)
-                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
-              );
-          }
+                    labelAction: {
+                        type: String,
+                        value: 'Save'
+                    }
+                };
+            }
 
-          _clearData() {
-              this.$.name.value = null;
-              this.monitor.monitors = [];
-              this.set('monitors', []);
-          }
+            ready() {
+                super.ready();
+                this.$.formSubMonitor.addEventListener('iron-form-presubmit', this.submitSubMonitor.bind(this));
+                this.$.formMonitor.addEventListener('iron-form-presubmit', this.submitMonitor.bind(this));
+            }
 
-          addMonitor() {
+            /**
+             * @param evt
+             */
+            submitMonitorButton(evt) {
+                this.$.formMonitor.submit();
+            }
 
-              let dataArray = this.$.cardMonitor.querySelectorAll('paper-input');
-              let data = {};
-              for (let i = 0; i < dataArray.length; i++) {
-                  data[dataArray[i].name] = dataArray[i].value;
-              }
+            /**
+             * @param evt
+             */
+            submitMonitor(evt) {
+                evt.preventDefault();
 
+                this.monitor.name = this.identifier;
+                this.monitor.monitors = this.monitors;
 
-              let hydrator = new PropertyHydrator(new Monitor());
-              let monitor = hydrator.hydrate(data);
-              monitor.id = Utils.uid;
+                let method = this.monitor.id ? 'update' : 'save';
 
+                let monitorStorage = serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE);
+                let monitor = monitorStorage[method](this.monitor)
+                    .then((data) => {
+                        serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' monitor');
+                        if (data.enable) {
+                            PluginMonitorIndex.electronIpc.send('change-monitors-configuration', data);
+                        }
+                    })
+                    .catch((err) => {
+                            console.log(err)
+                        }
+                    );
 
-              if (this.$.subMonitor.selectedItem) {
-                  this.$.subMonitor.selectedItem.item.pushMonitor(monitor);
-                  this.notifyPath('monitor.monitors');
-                  let render = this.root.querySelectorAll('dom-repeat[submonitor-repeat]');
-                  for (let cont = 0; render.length > cont; cont++) {
-                      render[cont].render();
-                  }
-              } else {
-                  this.push('monitors', monitor);
-              }
+                if (monitor.enable) {
+                    PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
+                }
+            }
 
-              for (let i = 0; i < dataArray.length; i++) {
-                  dataArray[i].value = null;
-              }
-          }
+            /**
+             * @param evt
+             */
+            submitSubMonitorButton(evt) {
+                this.$.formSubMonitor.submit();
+            }
 
-          upsertConfiguration() {
+            /**
+             * @param evt
+             */
+            submitSubMonitor(evt) {
+                evt.preventDefault();
 
+                let data = this.$.formSubMonitor.serializeForm();
+                data.id = Utils.uid;
 
-              this.monitor.name =  this.identifier;
-              this.monitor.monitors =  this.monitors;
+                let monitor = serviceManager.get('HydratorPluginManager')
+                    .get('monitorHydrator')
+                    .hydrate(data);
 
-              let method = this.monitor.id ? 'update' : 'save';
+                if (this.$.monitor._selectedOption) {
+                    this.$.monitor._selectedOption.pushMonitor(monitor);
+                    this.notifyPath('monitor.monitors');
+                    let render = this.root.querySelectorAll('dom-repeat[submonitor-repeat]');
+                    for (let cont = 0; render.length > cont; cont++) {
+                        render[cont].render();
+                    }
+                } else {
+                    this.push('monitors', monitor);
+                }
+                this.hasMonitor = true;
+                this.$.formSubMonitor.reset();
+                this.$.monitor.clear();
+            }
 
-              let monitorStorage = serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE);
-              let monitor =  monitorStorage[method](this.monitor)
-                  .then((data) => {
-                      serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' monitor');
-                      if (data.enable) {
-                          PluginMonitorIndex.electronIpc.send('change-monitors-configuration', data);
-                      }
-                  })
-                  .catch((err) => {
-                          console.log(err)
-                      }
-                  );
+            /**
+             * @param evt
+             */
+            deleteMonitor(evt) {
+                this.monitor.removeMonitor(evt.target.item)
+                this.set('monitors', []);
+                this.set('monitors', this.monitor.getMonitors());
+                this._refreshMonitors();
+            }
 
-              if (monitor.enable) {
-                  PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
-              }
-          }
+            /**
+             *
+             */
+            _refreshMonitors() {
+                let templates = this.root.querySelectorAll('dom-repeat');
 
-          _refreshMonitors() {
-              let templates = this.root.querySelectorAll('dom-repeat');
+                for (let cont = 0; templates.length > cont; cont++) {
+                    templates[cont].render();
+                }
+            }
 
-              for (let cont  = 0; templates.length > cont; cont++) {
-                  templates[cont].render();
-              }
-          }
+            /**
+             * @param evt
+             */
+            _dataValueChanged(evt) {
 
-          deleteMonitor(evt) {
-              this.monitor.removeMonitor(evt.target.item)
-              this.set('monitors', []);
-              this.set('monitors', this.monitor.getMonitors());
-              this._refreshMonitors();
-          }
+                let monitors = this.monitor.getMonitors({nested:true});
+                let filter = monitors.filter(
+                    element => {
+                        return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
+                    }
+                );
 
-          _monitorChanged(newValue, oldValue) {
+                evt.detail.target.suggestions(
+                    filter
+                );
+            }
 
-              this.identifier = newValue.name;
-              this.set('monitors', newValue.getMonitors());
-              this.set('allMonitors', newValue.getMonitors({nested:true}));
-              this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
-          }
-      }
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
+            _monitorChanged(newValue, oldValue) {
 
-      window.customElements.define(ElementMonitorViewUpsert.is, ElementMonitorViewUpsert);
+                if (!newValue) {
+                    this.hasMonitor = false;
+                    return;
+                }
 
-  </script>
+                this.hasMonitor = newValue.getMonitors().length == 0 ? false : true;
+                this.identifier = newValue.name;
+                this.set('monitors', newValue.getMonitors());
+                this.set('allMonitors', newValue.getMonitors({nested: true}));
+                this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
+            }
+        }
+
+        window.customElements.define(ElementMonitorViewUpsert.is, ElementMonitorViewUpsert);
+
+    </script>
 </dom-module>

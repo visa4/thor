@@ -58,6 +58,30 @@ class MonitorConfig extends PluginConfig {
             'virtualMonitorHydrator',
              virtualMonitorHydrator
         );
+
+        let monitorHydrator = new PropertyHydrator(
+            new Monitor(),
+        );
+
+        monitorHydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('offsetX')
+            .enableExtractProperty('offsetY')
+            .enableExtractProperty('height')
+            .enableExtractProperty('width');
+
+        monitorHydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('offsetX')
+            .enableHydrateProperty('offsetY')
+            .enableHydrateProperty('height')
+            .enableHydrateProperty('width');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'monitorHydrator',
+            monitorHydrator
+        );
+
     }
 
     _loadStorage() {

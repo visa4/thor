@@ -136,10 +136,6 @@
                 this.data = null;
             }
 
-            setServiceByName(name) {
-
-            }
-
             _dataValueChanged(evt) {
 
                 let service = this.services.find(
@@ -156,7 +152,6 @@
                     service.getServiceData(evt.detail.value)
                 );
             }
-
         }
 
         window.customElements.define(DataInjectorInput.is, DataInjectorInput);
