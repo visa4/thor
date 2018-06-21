@@ -1,127 +1,158 @@
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../element/file-upload/file-upload.html">
 <link rel="import" href="../iconset/iconset.html">
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 
 <dom-module id="resource-view-upsert">
-  <template>
-    <style include="global-layout"></style>
-    <style include="global-style"></style>
-    <slot name="header"></slot>
-    <div>
-      <paper-input id="name" name="name" label="Name"></paper-input>
-      <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="resource"></file-upload>
-    </div>
-    <div>
-      <div class="flex flex-horizontal-end" style="margin-top: 20px;">
-        <paper-button on-tap="upsertResoruce">{{labelAction}}</paper-button>
-      </div>
-    </div>
-  </template>
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <slot name="header"></slot>
+        <iron-form id="formResource">
+            <form method="post" action="">
+                <div>
+                    <paper-input id="name" name="name" label="Name" required></paper-input>
+                    <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="resource"></file-upload>
+                </div>
+                <div>
+                    <div class="flex flex-horizontal-end" style="margin-top: 20px;">
+                        <paper-button on-tap="submitResourceButton">{{labelAction}}</paper-button>
+                    </div>
+                </div>
+            </form>
+        </iron-form>
+    </template>
 
-  <script>
-      class ElementResourceViewUpsert extends Polymer.Element {
+    <script>
+        class ElementResourceViewUpsert extends Polymer.Element {
 
-          static get is() { return 'resource-view-upsert'; }
+            static get is() {
+                return 'resource-view-upsert';
+            }
 
-          static get fs() { return require('fs') }
+            static get fs() {
+                return require('fs')
+            }
 
-          static get path() { return require('path') }
+            static get path() {
+                return require('path')
+            }
 
-          static get properties() {
-              return {
+            static get properties() {
+                return {
 
-                  resource: {
-                      type: Object,
-                      notify: true,
-                      value: {},
-                      observer: '_resourceChanged'
-                  },
+                    resource: {
+                        type: Object,
+                        notify: true,
+                        value: {},
+                        observer: '_resourceChanged'
+                    },
 
-                  labelAction: {
-                      type: String,
-                      value: 'Save'
-                  }
-              }
-          }
+                    labelAction: {
+                        type: String,
+                        value: 'Save'
+                    }
+                }
+            }
 
-          ready() {
-              super.ready();
-              serviceManager.get('StoragePluginManager')
-                  .get(ResourceConfig.NAME_SERVICE)
-                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
-              );
-          }
+            ready() {
+                super.ready();
 
-          _clearData() {
-              this.$.name.value = null;
-              this.$.fileUpload.clearName();
-          }
+                serviceManager.get('StoragePluginManager')
+                    .get(ResourceConfig.NAME_SERVICE)
+                    .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
+                );
 
-          _resourceChanged(newValue, oldValue) {
-              this.$.name.value =  newValue.customName;
-              this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
-          }
+                this.$.formResource.addEventListener('iron-form-presubmit', this.submitResource.bind(this));
+            }
 
-          upsertResoruce() {
+            submitResourceButton(evt) {
+                this.$.formResource.submit();
+            }
 
-              if (!this.$.name.value) {
-                  return;
-              }
+            /**
+             *
+             */
+            submitResource(evt) {
+                evt.preventDefault();
 
-              let data = {};
-              let resourceStorage = serviceManager.get('StoragePluginManager').get(ResourceConfig.NAME_SERVICE)
-              let file = this.$.fileUpload.files[0];
-              let nameFile = this.$.name.value;
+                let file = this.$.fileUpload.files[0];
+                let nameFile = this.$.name.value;
+                let data = {};
 
-              if (this.resource.id) {
+                if (this.resource.id) {
 
-                  data = resourceStorage.hydrator.extract(this.resource);
-                  data.customName = nameFile;
+                    data = serviceManager.get('StoragePluginManager')
+                        .get(ResourceConfig.NAME_SERVICE)
+                        .hydrator.extract(this.resource);
 
-                  if (file) {
-                      data.size = file.size;
-                      data.lastModified = file.lastModified;
-                      data.location = file.location;
-                      data.type = file.type;
+                    data.customName = nameFile;
 
-                      if (file.dimension) {
-                          data.dimension = file.dimension;
-                      }
+                    if (file) {
+                        data.size = file.size;
+                        data.lastModified = file.lastModified;
+                        data.location = file.location;
+                        data.type = file.type;
 
-                      if (file.duration) {
-                          data.duration = file.duration;
-                      }
+                        if (file.dimension) {
+                            data.dimension = file.dimension;
+                        }
 
-                  }
+                        if (file.duration) {
+                            data.duration = file.duration;
+                        }
 
-              } else {
-                  if (file) {
-                      data = resourceStorage.hydrator.extract(file);
-                  }
-                  data.customName = nameFile;
-              }
+                    }
 
-              let method = this.resource.id ?  'update' : 'save';
-              serviceManager.get('StoragePluginManager')
-                  .get(ResourceConfig.NAME_SERVICE)[method](data)
-                  .then((data) => {
-                      serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' resource');
-                  })
-                  .catch((err) => {
-                          console.log(err)
-                      }
-                  );
-          }
-      }
+                } else {
+                    if (file) {
+                        data =  serviceManager.get('StoragePluginManager')
+                            .get(ResourceConfig.NAME_SERVICE)
+                            .hydrator.extract(file);
+                    }
+                    data.customName = nameFile;
+                }
 
-      window.customElements.define(ElementResourceViewUpsert.is, ElementResourceViewUpsert);
+                let method = this.resource.id ? 'update' : 'save';
+                serviceManager.get('StoragePluginManager')
+                    .get(ResourceConfig.NAME_SERVICE)[method](data)
+                    .then((data) => {
+                        serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' resource');
+                    })
+                    .catch((err) => {
+                            console.log(err)
+                        }
+                    );
 
-  </script>
+            }
+
+            /**
+             * @private
+             */
+            _clearData() {
+                this.$.formResource.reset();
+                this.$.fileUpload.clearName();
+            }
+
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
+            _resourceChanged(newValue, oldValue) {
+                this.$.name.value = newValue.customName;
+                this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
+            }
+
+        }
+
+        window.customElements.define(ElementResourceViewUpsert.is, ElementResourceViewUpsert);
+
+    </script>
 </dom-module>

@@ -242,6 +242,11 @@
                 super.ready();
                 this.$.formSubMonitor.addEventListener('iron-form-presubmit', this.submitSubMonitor.bind(this));
                 this.$.formMonitor.addEventListener('iron-form-presubmit', this.submitMonitor.bind(this));
+
+                serviceManager.get('StoragePluginManager')
+                    .get(MonitorConfig.NAME_SERVICE)
+                    .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
+                );
             }
 
             /**
@@ -370,6 +375,15 @@
                 this.set('monitors', newValue.getMonitors());
                 this.set('allMonitors', newValue.getMonitors({nested: true}));
                 this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
+            }
+
+            /**
+             * @private
+             */
+            _clearData() {
+                this.$.formMonitor.reset();
+                this.$.monitor._selectedOption = null;
+                this.set('monitors', []);
             }
         }
 

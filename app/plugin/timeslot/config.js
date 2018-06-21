@@ -155,7 +155,7 @@ class TimeslotConfig extends PluginConfig {
                         {
                             "name": TimeslotConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "name", "status"
+                                "++id", "name", "status", "duration", "virtualMonitorReference"
                             ]
                         }
                     );
