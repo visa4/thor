@@ -67,4 +67,4 @@ serviceManager.set(
             JSON.parse(fs.readFileSync(__dirname + '/config/application.json'))
         );
     })()
-)
+);

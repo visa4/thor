@@ -1,4 +1,3 @@
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
@@ -8,6 +7,10 @@
 <link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
 <link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
 <link rel="import" href="../../../../bower_components/neon-animation/web-animations.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../../../../bower_components/paper-chip/paper-chip.html">
+<link rel="import" href="../../../../bower_components/paper-chip/paper-chip-icons.html">
 <link rel="import" href="../../../../element/file-upload/file-upload.html">
 
 
@@ -16,291 +19,516 @@
 <link rel="import" href="../data-injector-input/data-injector-input.html">
 
 <dom-module id="timeslot-view-upsert">
-  <template>
-    <style include="global-layout"></style>
-    <style include="global-style"></style>
-    <style>
-      paper-dropdown-menu {
-        width: 100%;
-      }
-    </style>
-    <slot name="header"></slot>
-    <div>
-      <paper-input id="name" name="name" label="Name"></paper-input>
-      <paper-input id="duration" name="duration" label="Duration" type="number" min="1"></paper-input>
-      <paper-dropdown-menu id="monitor" label="Monitor">
-        <paper-listbox id="monitors" slot="dropdown-content">
-          <template is="dom-repeat" items="{{monitors}}" as="monitorWrapper">
-            <paper-item item="{{monitorWrapper}}">{{monitorWrapper.monitor.name}} - {{monitorWrapper.config.name}}</paper-item>
-          </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-      <paper-dropdown-menu id="resource" label="Resource">
-        <paper-listbox id="resources" slot="dropdown-content" multi>
-          <template is="dom-repeat" items="{{resources}}" as="resource">
-            <paper-item item="{{resource}}">{{resource.customName}}</paper-item>
-          </template>
-        </paper-listbox>
-      </paper-dropdown-menu>
-    </div>
-    <paper-dropdown-menu id="bind" label="Bind timeslot">
-      <paper-listbox id="binds" slot="dropdown-content" multi>
-        <template is="dom-repeat" items="{{binds}}" as="bind">
-          <paper-item item="{{bind}}">{{bind.name}}</paper-item>
-        </template>
-      </paper-listbox>
-    </paper-dropdown-menu>
-    </div>
-    <data-injector-input id="dataRefernces"></data-injector-input>
-    <div>
-      <div class="flex flex-horizontal-end" style="margin-top: 20px;">
-        <paper-button on-tap="upsertTimeslot">{{labelAction}}</paper-button>
-      </div>
-    </div>
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
+            paper-dropdown-menu {
+                width: 100%;
+            }
+        </style>
+        <slot name="header"></slot>
+        <iron-form id="formTimeslot">
+            <form method="post" action="">
+                <paper-input id="name" name="name" label="Name" required></paper-input>
+                <paper-input id="duration" name="duration" label="Duration" type="number" min="1" required></paper-input>
+                <paper-autocomplete
+                        id="monitor"
+                        label="Monitor"
+                        text-property="name"
+                        value-property="name"
+                        remote-source
+                        on-autocomplete-selected="_selectMonitor"
+                        on-autocomplete-change="_searcMonitorChanged">
+                    <template slot="autocomplete-custom-template">
+                        <style>
+                            :host {
+                                display: block;
+                            }
 
-  </template>
+                            paper-item.account-item {
+                                padding: 8px 16px;
+                            }
 
-  <script>
-      class ElementTimeslotViewUpsert extends Polymer.Element {
+                            .service-name {
+                                color: #333;
+                            }
 
-          static get is() { return 'timeslot-view-upsert'; }
+                            .service-description {
+                                margin-top: 4px;
+                                color: #999;
+                            }
+                        </style>
+                        <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                            <div>
+                                <div class="service-name">[[item.monitor.name]]</div>
+                                <div class="service-description">Width [[item.monitor.width]]px Height [[item.monitor.height]]px</div>
+                            </div>
+                            <paper-ripple></paper-ripple>
+                        </paper-item>
+                    </template>
+                </paper-autocomplete>
+                <paper-autocomplete
+                        id="resource"
+                        label="Resource"
+                        text-property="name"
+                        value-property="name"
+                        remote-source
+                        on-autocomplete-selected="_selectResource"
+                        on-autocomplete-change="_searchResourceChanged">
+                    <template slot="autocomplete-custom-template">
+                        <style>
+                            :host {
+                                display: block;
+                            }
 
-          static get fs() { return require('fs') }
+                            paper-item.account-item {
+                                padding: 8px 16px;
+                            }
 
-          static get path() { return require('path') }
+                            .service-name {
+                                color: #333;
+                            }
 
-          static get properties() {
-              return {
+                            .service-description {
+                                margin-top: 4px;
+                                color: #999;
+                            }
+                        </style>
+                        <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                            <div>
+                                <div class="service-name">[[item.customName]]</div>
+                            </div>
+                            <paper-ripple></paper-ripple>
+                        </paper-item>
+                    </template>
+                </paper-autocomplete>
+                <div id="listResource"></div>
+                <paper-autocomplete
+                        id="bind"
+                        label="Bind timeslots"
+                        text-property="name"
+                        value-property="name"
+                        remote-source
+                        on-autocomplete-selected="_selectBind"
+                        on-autocomplete-change="_searchBindChanged">
+                    <template slot="autocomplete-custom-template">
+                        <style>
+                            :host {
+                                display: block;
+                            }
 
-                  timeslot: {
-                      type: Object,
-                      notify: true,
-                      value: new Timeslot(),
-                      observer: '_timeslotChanged'
-                  },
+                            paper-item.account-item {
+                                padding: 8px 16px;
+                            }
 
-                  monitors: {
-                      type: Array,
-                      notify: true,
-                      value: [],
-                      observer: '_monitorsChanged'
-                  },
+                            .service-name {
+                                color: #333;
+                            }
 
-                  resources: {
-                      type: Array,
-                      value: []
-                  },
+                            .service-description {
+                                margin-top: 4px;
+                                color: #999;
+                            }
+                        </style>
+                        <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                            <div>
+                                <div class="service-name">[[item.name]]</div>
+                            </div>
+                            <paper-ripple></paper-ripple>
+                        </paper-item>
+                    </template>
+                </paper-autocomplete>
+                <div id="listBind"></div>
+                <data-injector-input id="dataRefernces"></data-injector-input>
+                <div>
+                    <div class="flex flex-horizontal-end" style="margin-top: 20px;">
+                        <paper-button on-tap="submitTimeslotButton">{{labelAction}}</paper-button>
+                    </div>
+                </div>
+            </form>
+        </iron-form>
+    </template>
 
-                  labelAction: {
-                      type: String,
-                      value: 'Save'
-                  },
+    <script>
+        class ElementTimeslotViewUpsert extends Polymer.Element {
 
-                  binds: {
-                      type: Array,
-                      value: []
-                  }
-              }
-          }
+            static get is() {
+                return 'timeslot-view-upsert';
+            }
 
-          ready() {
-              super.ready();
-              serviceManager.get('StoragePluginManager')
-                  .get(TimeslotConfig.NAME_SERVICE)
-                  .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
-              );
+            static get fs() {
+                return require('fs')
+            }
 
-              serviceManager.get('StoragePluginManager')
-                  .get(TimeslotConfig.NAME_SERVICE)
-                  .getAll(1, 100)
-                  .then((data) =>  {
-                     this.binds = data;
-                  });
-          }
+            static get path() {
+                return require('path')
+            }
 
-          _clearData() {
-              this.$.name.value = null;
-              this.$.duration.value = null;
-              this.timeslot = new Timeslot();
-          }
+            static get properties() {
+                return {
 
-          connectedCallback () {
-              super.connectedCallback();
-              let virtualMonitors = [];
-              let monitors =  [];
+                    timeslot: {
+                        type: Object,
+                        notify: true,
+                        value: new Timeslot(),
+                        observer: '_timeslotChanged'
+                    },
 
-              serviceManager.get('StoragePluginManager')
-                  .get(MonitorConfig.NAME_SERVICE)
-                  .getAll()
-                  .then((data) =>  {
-                      virtualMonitors = data;
+                    monitors: {
+                        type: Array,
+                        notify: true,
+                        value: []
+                    },
 
-                      for (let cont = 0; virtualMonitors.length > cont; cont++) {
-                          let internaMonitor =  virtualMonitors[cont].getMonitors({nested:true});
-                          for (let index = 0; internaMonitor.length > index; index++) {
-                              monitors.push({
-                                  monitor : internaMonitor[index],
-                                  config : virtualMonitors[cont]
-                              });
-                          }
-                      }
-                      this.monitors = monitors;
-                  });
-          }
+                    resources: {
+                        type: Array,
+                        value: []
+                    },
 
-          _monitorsChanged(newValue, oldValue) {
+                    labelAction: {
+                        type: String,
+                        value: 'Save'
+                    },
 
-              if (!newValue || newValue.length === 0) {
-                  return;
-              }
+                    binds: {
+                        type: Array,
+                        value: []
+                    }
+                }
+            }
 
-              serviceManager.get('StoragePluginManager')
-                  .get(ResourceConfig.NAME_SERVICE)
-                  .getAll(1, 100)
-                  .then((data) => {
-                      this.resources = data;
-                  })
-                  .catch((err) => {
-                          console.log(err)
-                      }
-                  );
-          }
+            ready() {
+                super.ready();
 
-          _timeslotChanged(newValue, oldValue) {
+                this.$.formTimeslot.addEventListener('iron-form-presubmit', this.submitTimeslot.bind(this));
 
+                serviceManager.get('StoragePluginManager')
+                    .get(TimeslotConfig.NAME_SERVICE)
+                    .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearData.bind(this)
+                );
 
-              if (newValue.name) {
-                  this.$.name.value = newValue.name;
-              }
+                serviceManager.get('StoragePluginManager')
+                    .get(TimeslotConfig.NAME_SERVICE)
+                    .getAll(1, 100)
+                    .then((data) => {
+                        this.binds = data;
+                    });
+            }
 
-              if (newValue.duration) {
-                  this.$.duration.value = newValue.duration;
-              }
+            connectedCallback() {
+                super.connectedCallback();
+                let virtualMonitors = [];
+                let monitors = [];
 
-              for (let cont = 0; this.$.monitors.items.length > cont; cont++) {
+                serviceManager.get('StoragePluginManager')
+                    .get(MonitorConfig.NAME_SERVICE)
+                    .getAll()
+                    .then((data) => {
+                        virtualMonitors = data;
 
-                  if (newValue.virtualMonitorReference
-                      && this.$.monitors.items[cont].item.monitor.id === newValue.virtualMonitorReference.monitorId) {
-                      this.$.monitors.selected = cont;
-                      break;
-                  }
-              }
+                        for (let cont = 0; virtualMonitors.length > cont; cont++) {
+                            let internaMonitor = virtualMonitors[cont].getMonitors({nested: true});
+                            for (let index = 0; internaMonitor.length > index; index++) {
+                                monitors.push({
+                                    monitor: internaMonitor[index],
+                                    config: virtualMonitors[cont],
+                                    name: internaMonitor[index].name
+                                });
+                            }
+                        }
+                        this.monitors = monitors;
+                    });
+            }
 
+            /**
+             * @param evt
+             */
+            submitTimeslotButton(evt) {
+                this.$.formTimeslot.submit();
+            }
 
-              if (!newValue.resources || newValue.resources.length === 0) {
-                  return;
-              }
+            /**
+             * @param evt
+             */
+            submitTimeslot(evt) {
+                evt.preventDefault();
 
-              let multiselect = [];
-              for (let cont = 0; newValue.resources.length > cont; cont++) {
+                let method = 'save';
 
-                  let index =  this.$.resources.items.findIndex(
-                      (paperItem) => {
-                          return newValue.resources[cont].id  === paperItem.item.id
-                      }
-                  )
-                  multiselect.push(index);
-              }
-              this.$.resources.selectedValues = multiselect;
+                if (this.timeslot.id) {
+                    method = 'update';
+                } else {
+                    this.timeslot.id = Utils.uid;
+                }
 
-              multiselect = [];
-              for (let cont = 0; newValue.binds.length > cont; cont++) {
+                this.timeslot.name = this.$.name.value;
+                this.timeslot.duration = this.$.duration.value;
 
-                  let index =  this.$.binds.items.findIndex(
-                      (paperItem) => {
-                          return newValue.binds[cont].id  === paperItem.item.id
-                      }
-                  );
-                  multiselect.push(index);
-              }
-              this.$.binds.selectedValues = multiselect;
+                this.timeslot.dataReferences = [];
 
-              if (Array.isArray(this.timeslot.dataReferences) && this.timeslot.dataReferences.length > 0) {
-                  let dataReferences = this.timeslot.dataReferences[0];
-
-                  let index = this.$.dataRefernces.$.serviceInput.source.findIndex(
-                      (element) => {
-                          return element.serviceName == dataReferences.name;
-                      }
-                  );
-
-                  if (index > -1) {
-                      this.$.dataRefernces.service = this.$.dataRefernces.$.serviceInput.source[index];
-                      this.$.dataRefernces.$.serviceInput.text =  this.$.dataRefernces.service.serviceLabel;
-                      this.$.dataRefernces.hideDataInput = false;
-
-                      this.$.dataRefernces.data = this.$.dataRefernces.service.getTimeslotData(dataReferences.data);
-                      console.log('jjjjjjjjjj',  this.$.dataRefernces.data);
-                      this.$.dataRefernces.$.dataInput.text = this.$.dataRefernces.data.name;
-                  }
-              }
-
-
-
-
-              this.labelAction = newValue && newValue.id ? 'Update' :  'Save';
-          }
-
-          upsertTimeslot() {
-
-              // TODO VALIDATION
-              if (!this.$.name || !this.$.duration || !this.$.resource.value || !this.$.monitor.value) {
-                  return;
-              }
-
-
-              let method = 'save';
-
-              if (this.timeslot.id) {
-                  method = 'update';
-              } else {
-                  this.timeslot.id = Utils.uid;
-              }
-
-              this.timeslot.name = this.$.name.value;
-              this.timeslot.duration = this.$.duration.value;
-
-              // TODO from hydrator
-              let ref = new VirtualMonitorReference();
-              ref.virtualMonitorId = this.$.monitor.selectedItem.item.config.id;
-              ref.monitorId = this.$.monitor.selectedItem.item.monitor.id;
-              ref.name = this.$.monitor.selectedItem.item.monitor.name;
-              this.timeslot.virtualMonitorReference = ref;
-
-              let resources = [];
-              this.$.resources.selectedItems.forEach(
-                  (paperItem) => {resources.push(paperItem.item)}
-              );
-              this.timeslot.resources = resources;
-
-              let binds = [];
-              this.$.binds.selectedItems.forEach(
-                  (paperItem) => {binds.push(paperItem.item)}
-              );
-              this.timeslot.binds = binds;
-
-              this.timeslot.dataReferences = [];
-              if (this.$.dataRefernces.data && this.$.dataRefernces.service) {
-                  let timeslotData = new TimeslotDataReference();
-                  timeslotData.name = this.$.dataRefernces.service.serviceName;
-                  timeslotData.data  = this.$.dataRefernces.service.extractTimeslot(this.$.dataRefernces.data);
-                  this.timeslot.dataReferences.push(timeslotData);
-              }
+                if (this.$.dataRefernces.data && this.$.dataRefernces.service) {
+                    let timeslotData = new TimeslotDataReference();
+                    timeslotData.name = this.$.dataRefernces.service.serviceName;
+                    timeslotData.data = this.$.dataRefernces.service.extractTimeslot(this.$.dataRefernces.data);
+                    this.timeslot.dataReferences.push(timeslotData);
+                }
 
 
-              serviceManager.get('StoragePluginManager')
-                  .get(TimeslotConfig.NAME_SERVICE)[method](this.timeslot)
-                  .then((data) => {
-                      serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' timeslot');
-                  })
-                  .catch((err) => {
-                          console.log(err)
-                      }
-                  );
-          }
-      }
+                serviceManager.get('StoragePluginManager')
+                    .get(TimeslotConfig.NAME_SERVICE)[method](this.timeslot)
+                    .then((data) => {
+                        serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' timeslot');
+                    })
+                    .catch((err) => {
+                            console.log(err)
+                        }
+                    );
 
-      window.customElements.define(ElementTimeslotViewUpsert.is, ElementTimeslotViewUpsert);
+                if (method === 'save') {
+                    this.timeslot = new Timeslot();
+                    this.clearView();
+                }
+            }
 
-  </script>
+            /**
+             *
+             */
+            _clearData() {
+                this.$.name.value = null;
+                this.$.duration.value = null;
+                this.timeslot = new Timeslot();
+            }
+
+            /**
+             * @param newValue
+             * @param oldValue
+             */
+            _timeslotChanged(newValue, oldValue) {
+
+                if (!newValue || (newValue && !newValue.id)) {
+                    return;
+                }
+
+                this.clearView();
+
+                this.$.name.value = newValue.name;
+                this.$.duration.value = newValue.duration;
+                this.$.monitor.text = newValue.virtualMonitorReference.name;
+
+                for (let cont = 0; newValue.resources.length > cont; cont++) {
+
+                    let chip = this._createChip(newValue.resources[cont], 'customName', 'resource');
+                    chip.addEventListener('remove', this._removeResource.bind(this));
+                    this.$.listResource.appendChild(chip);
+                }
+
+                for (let cont = 0; newValue.binds.length > cont; cont++) {
+
+                    let chip = this._createChip(newValue.binds[cont], 'name', 'bind');
+                    chip.addEventListener('remove', this._removeBind.bind(this));
+                    this.$.listBind.appendChild(chip);
+                }
+
+                if (Array.isArray(this.timeslot.dataReferences) && this.timeslot.dataReferences.length > 0) {
+                    let dataReferences = this.timeslot.dataReferences[0];
+
+                    let index = this.$.dataRefernces.$.serviceInput.source.findIndex(
+                        (element) => {
+                            return element.serviceName == dataReferences.name;
+                        }
+                    );
+
+                    if (index > -1) {
+                        this.$.dataRefernces.service = this.$.dataRefernces.$.serviceInput.source[index];
+                        this.$.dataRefernces.$.serviceInput.text = this.$.dataRefernces.service.serviceLabel;
+                        this.$.dataRefernces.hideDataInput = false;
+
+                        this.$.dataRefernces.data = this.$.dataRefernces.service.getTimeslotData(dataReferences.data);
+                        this.$.dataRefernces.$.dataInput.text = this.$.dataRefernces.data.name;
+                    }
+                }
+
+                this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
+            }
+
+
+            /**
+             * @param evt
+             */
+            _searcMonitorChanged(evt) {
+
+                let filter = this.monitors.filter(
+                    element => {
+                        return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
+                    }
+                );
+
+                evt.detail.target.suggestions(
+                    filter
+                );
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _selectMonitor(evt) {
+                this.tim =  evt.detail.option;
+                let ref = new VirtualMonitorReference();
+                ref.virtualMonitorId = evt.detail.option.config.id;
+                ref.monitorId = evt.detail.option.monitor.id;
+                ref.name = evt.detail.option.monitor.name;
+                this.timeslot.virtualMonitorReference = ref;
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _searchResourceChanged(evt) {
+                // TODO refactor search
+                serviceManager.get('StoragePluginManager')
+                    .get(ResourceConfig.NAME_SERVICE)
+                    .getAll(1, 100)
+                    .then((data) => {
+
+                        let filter = data.filter(
+                            element => {
+                                return element.customName.search(new RegExp(evt.detail.value, 'i')) > -1;
+                            }
+                        );
+
+                        evt.detail.target.suggestions(
+                            filter
+                        );
+                    })
+                    .catch((err) => {
+                            console.log(err)
+                        }
+                    );
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _selectResource(evt) {
+
+                let chip = this._createChip(evt.detail.option, 'customName', 'resource');
+                chip.addEventListener('remove', this._removeResource.bind(this));
+
+                this.$.listResource.appendChild(this._createChip(evt.detail.option, 'customName', 'resource'));
+                this.timeslot.resources.push(
+                    evt.detail.option
+                );
+
+                this.$.resource.clear();
+            }
+
+            /**
+             * @param resource
+             * @return paper-chip
+             * @private
+             */
+            _createChip(resource, labelProperty, nameInject) {
+
+                let chip = document.createElement("paper-chip");
+                chip.setAttribute('removable', true);
+                chip.setAttribute('single-line', true);
+
+                let div = document.createElement("div");
+                div.setAttribute('slot', 'label');
+                div.innerHTML = resource[labelProperty];
+
+                chip.appendChild(div);
+                chip[nameInject] = resource;
+
+                return chip;
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _searchBindChanged(evt) {
+                serviceManager.get('StoragePluginManager')
+                    .get(TimeslotConfig.NAME_SERVICE)
+                    .getAll(1, 100)
+                    .then((data) => {
+
+                        let filter = data.filter(
+                            element => {
+                                return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
+                            }
+                        );
+
+                        evt.detail.target.suggestions(
+                            filter
+                        );
+                    })
+                    .catch((err) => {
+                            console.log(err)
+                        }
+                    );
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _selectBind(evt) {
+
+                let chip = this.$.listResource.appendChild(this._createChip(evt.detail.option, 'name', 'bind'));
+                chip.addEventListener('remove', this._removeBind.bind(this));
+
+                this.$.listBind.appendChild(chip);
+                this.timeslot.binds.push(
+                    evt.detail.option
+                );
+
+                setTimeout(
+                    function () {
+                        this.$.bind.clear();
+                    }.bind(this),
+                    200
+                );
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _removeBind(evt) {
+                this.timeslot.removeBind(evt.target.bind);
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _removeResource(evt) {
+                this.timeslot.removeResource(evt.target.resource);
+            }
+
+            /**
+             *
+             */
+            clearView() {
+
+                this.$.name.value = null;
+                this.$.duration.value = null;
+
+                this.$.monitor.clear();
+                this.$.resource.clear();
+                this.$.listResource.innerHTML = '';
+                this.$.bind.clear();
+                this.$.listBind.innerHTML = '';
+                this.$.dataRefernces.clear();
+            }
+        }
+
+        window.customElements.define(ElementTimeslotViewUpsert.is, ElementTimeslotViewUpsert);
+
+    </script>
 </dom-module>

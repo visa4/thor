@@ -113,6 +113,19 @@
                 this.$.serviceInput.queryFn = this._queryFn.bind(this.$.serviceInput);
             }
 
+            /**
+             *
+             */
+            clear() {
+                this.$.serviceInput.clear();
+                this.$.dataInput.clear();
+            }
+
+            /**
+             * @param datasource
+             * @param query
+             * @private
+             */
             _queryFn(datasource, query) {
                 return datasource.filter(function (item) {
                     return (
@@ -121,10 +134,18 @@
                 }.bind(this));
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _selectService(evt) {
                 this.hideDataInput = false;
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _resetService(evt) {
                 this.hideDataInput = true;
                 this.service = null;
@@ -132,10 +153,18 @@
                 this.data = null;
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _resetData(evt) {
                 this.data = null;
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _dataValueChanged(evt) {
 
                 let service = this.services.find(

@@ -94,6 +94,40 @@ class Timeslot {
         }
         return option;
     }
+
+    /**
+     * @param timeslot
+     * @return {number}
+     */
+    removeBind(timeslot) {
+
+        let index = this.binds.findIndex(
+            (element) => {
+                return element.id === timeslot.id;
+            }
+        );
+
+        if (index > -1) {
+            this.binds.splice(index, 1);
+        }
+    }
+
+    /**
+     * @param resource
+     * @return {number}
+     */
+    removeResource(resource) {
+
+        let index = this.resources.findIndex(
+            (element) => {
+                return element.id === resource.id;
+            }
+        );
+
+        if (index > -1) {
+            this.resources.splice(index, 1);
+        }
+    }
 }
 
 module.exports = Timeslot;

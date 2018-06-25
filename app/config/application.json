@@ -4,6 +4,16 @@
   },
   "modules": [
     {
+      "icon" : "app:widget",
+      "nameWc" : "dashboard-index",
+      "label" : "Dashboard",
+      "plugin" : true,
+      "customeStyle": {
+        "color": " green"
+      },
+      "name": "dashboard"
+    },
+    {
       "icon": "app:monitor",
       "nameWc": "monitor-index",
       "label": "Monitor",

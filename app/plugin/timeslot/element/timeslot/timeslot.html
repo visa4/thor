@@ -126,18 +126,22 @@
                             title="Play">
                     </paper-icon-button>
                 </template>
-                <paper-icon-button
-                        icon="app:edit"
-                        on-click="_update"
-                        class="circle-small"
-                        title="Modify">
-                </paper-icon-button>
-                <paper-icon-button
-                        icon="app:trash"
-                        on-click="_remove"
-                        class="circle-small"
-                        title="Delete">
-                </paper-icon-button>
+                <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
+                    <paper-icon-button
+                            icon="app:edit"
+                            on-click="_update"
+                            class="circle-small"
+                            title="Modify">
+                    </paper-icon-button>
+                </template>
+                <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
+                    <paper-icon-button
+                            icon="app:trash"
+                            on-click="_remove"
+                            class="circle-small"
+                            title="Delete">
+                    </paper-icon-button>
+                </template>
             </div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>
