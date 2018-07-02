@@ -16,7 +16,8 @@
         <style include="global-style"></style>
         <style>
 
-            .card-content {
+            .card-content,
+            .card-actions{
                 padding: 0;
                 width: 250px;
             }
@@ -28,7 +29,6 @@
             .dataWrapper {
                 margin: 6px;
             }
-
 
             #rightSection {
                 background-image: url("img/playlist.jpg");
@@ -53,10 +53,24 @@
                 font-style: italic;
             }
 
+            .movie,
+            .crud {
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
+            .card-actions {
+                justify-content: space-between;
+            }
+
+            .crud paper-icon-button {
+                background-color: #0b8043 ;
+            }
+
         </style>
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
-                <div class="data flex-basis-80 flex flex-vertical">
+                <div class="data flex-basis-85 flex flex-vertical">
                     <div class="dataWrapper">
                         <div>{{playlist.name}}</div>
                         <div class$="{{playlist.status}}">
@@ -68,7 +82,7 @@
                         <div>{{duration}} sec</div>
                     </div>
                 </div>
-                <div class="flags flex-basis-20">
+                <div class="flags flex-basis-15">
                     <paper-icon-button
                             id="loopIcon"
                             item="{{timeslot}}"
@@ -86,50 +100,58 @@
                 </div>
             </div>
             <div class="card-actions">
-                <template is="dom-if" if="{{_isInStatus(playlist, 'running', 'pause')}}">
-                    <paper-icon-button
-                            icon="playlist:stop"
-                            on-click="_stop"
-                            class="circle-small"
-                            title="Stop">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(playlist, 'running')}}">
-                    <paper-icon-button
-                            icon="playlist:pause"
-                            on-click="_pause"
-                            class="circle-small"
-                            title="Pause">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(playlist, 'pause')}}">
-                    <paper-icon-button
-                            icon="playlist:play"
-                            on-click="_resume"
-                            class="circle-small"
-                            title="Resume">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(playlist, 'idle')}}">
-                    <paper-icon-button
-                            icon="playlist:play"
-                            on-click="_play"
-                            class="circle-small"
-                            title="Play">
-                    </paper-icon-button>
-                </template>
-                <paper-icon-button
-                        icon="app:edit"
-                        on-click="_update"
-                        class="circle-small"
-                        title="Modify">
-                </paper-icon-button>
-                <paper-icon-button
-                        icon="app:trash"
-                        on-click="_remove"
-                        class="circle-small"
-                        title="Delete">
-                </paper-icon-button>
+                <div class="movie">
+                    <template is="dom-if" if="{{_isInStatus(playlist, 'running', 'pause')}}">
+                        <paper-icon-button
+                                icon="playlist:stop"
+                                on-click="_stop"
+                                class="circle-small"
+                                title="Stop">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(playlist, 'running')}}">
+                        <paper-icon-button
+                                icon="playlist:pause"
+                                on-click="_pause"
+                                class="circle-small"
+                                title="Pause">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(playlist, 'pause')}}">
+                        <paper-icon-button
+                                icon="playlist:play"
+                                on-click="_resume"
+                                class="circle-small"
+                                title="Resume">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(playlist, 'idle')}}">
+                        <paper-icon-button
+                                icon="playlist:play"
+                                on-click="_play"
+                                class="circle-small"
+                                title="Play">
+                        </paper-icon-button>
+                    </template>
+                </div>
+                <div class="crud">
+                    <template is="dom-if" if="{{_isInStatus(playlist, 'idle', 'pause')}}">
+                        <paper-icon-button
+                                icon="app:edit"
+                                on-click="_update"
+                                class="circle-small"
+                                title="Modify">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(playlist, 'idle', 'pause')}}">
+                        <paper-icon-button
+                                icon="app:trash"
+                                on-click="_remove"
+                                class="circle-small"
+                                title="Delete">
+                        </paper-icon-button>
+                    </template>
+                </div>
             </div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>
@@ -192,7 +214,7 @@
                     this.currentTimeslotName = playlist.timeslots[playlist.currentIndex].name;
                 }
 
-                if ( playlist.timeslots[playlist.currentIndex] !== undefined &&
+                if (playlist.timeslots[playlist.currentIndex] !== undefined &&
                     this.currentTimeslotTime !== playlist.timeslots[playlist.currentIndex].currentTime) {
                     this.currentTimeslotTime = playlist.timeslots[playlist.currentIndex].currentTime;
                 }

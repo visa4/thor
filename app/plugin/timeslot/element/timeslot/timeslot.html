@@ -16,7 +16,8 @@
         <style include="global-style"></style>
         <style>
 
-            .card-content {
+            .card-content,
+            .card-actions{
                 padding: 0;
                 width: 250px;
             }
@@ -33,10 +34,6 @@
                 overflow: hidden;
                 white-space: nowrap;
                 text-overflow: ellipsis;
-            }
-
-            .flags {
-
             }
 
             #rightSection {
@@ -62,10 +59,24 @@
                 font-style: italic;
             }
 
+            .card-actions {
+                justify-content: space-between;
+            }
+
+            .movie,
+            .crud {
+                padding-left: 4px;
+                padding-right: 4px;
+            }
+
+            .crud paper-icon-button {
+                background-color: #0b8043 ;
+            }
+
         </style>
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
-                <div class="data flex-basis-80 flex flex-vertical">
+                <div class="data flex-basis-85 flex flex-vertical">
                     <div class="dataWrapper">
                         <div class="nameTimeslot">{{timeslot.name}}</div>
                         <div class$="{{timeslot.status}}">{{timeslot.status}}
@@ -76,7 +87,7 @@
                         <div>{{timeslot.duration}} sec</div>
                     </div>
                 </div>
-                <div class="flags flex-basis-20">
+                <div class="flags flex-basis-15">
                     <paper-icon-button
                             id="loopIcon"
                             item="{{timeslot}}"
@@ -94,54 +105,59 @@
                 </div>
             </div>
             <div class="card-actions">
-                <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
-                    <paper-icon-button
-                            icon="timeslot:stop"
-                            on-click="_stop"
-                            class="circle-small"
-                            title="Stop">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(timeslot, 'running')}}">
-                    <paper-icon-button
-                            icon="timeslot:pause"
-                            on-click="_pause"
-                            class="circle-small"
-                            title="Pause">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(timeslot, 'pause')}}">
-                    <paper-icon-button
-                            icon="timeslot:play"
-                            on-click="_resume"
-                            class="circle-small"
-                            title="Resume">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(timeslot, 'idle')}}">
-                    <paper-icon-button
-                            icon="timeslot:play"
-                            on-click="_play"
-                            class="circle-small"
-                            title="Play">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
-                    <paper-icon-button
-                            icon="app:edit"
-                            on-click="_update"
-                            class="circle-small"
-                            title="Modify">
-                    </paper-icon-button>
-                </template>
-                <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
-                    <paper-icon-button
-                            icon="app:trash"
-                            on-click="_remove"
-                            class="circle-small"
-                            title="Delete">
-                    </paper-icon-button>
-                </template>
+                <div class="movie">
+                    <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
+                        <paper-icon-button
+                                icon="timeslot:stop"
+                                on-click="_stop"
+                                class="circle-small"
+                                title="Stop">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(timeslot, 'running')}}">
+                        <paper-icon-button
+                                icon="timeslot:pause"
+                                on-click="_pause"
+                                class="circle-small"
+                                title="Pause">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(timeslot, 'pause')}}">
+                        <paper-icon-button
+                                icon="timeslot:play"
+                                on-click="_resume"
+                                class="circle-small"
+                                title="Resume">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(timeslot, 'idle')}}">
+                        <paper-icon-button
+                                icon="timeslot:play"
+                                on-click="_play"
+                                class="circle-small"
+                                title="Play">
+                        </paper-icon-button>
+                    </template>
+                </div>
+                <div class="crud">
+                    <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
+                        <paper-icon-button
+                                icon="app:edit"
+                                on-click="_update"
+                                class="circle-small"
+                                title="Modify">
+                        </paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
+                        <paper-icon-button
+                                icon="app:trash"
+                                on-click="_remove"
+                                class="circle-small"
+                                title="Delete">
+                        </paper-icon-button>
+                    </template>
+                </div>
+
             </div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>

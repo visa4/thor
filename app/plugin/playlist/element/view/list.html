@@ -142,7 +142,7 @@
                 }
 
                 this.splice('playlists', index, 1);
-                this.hasResources = this.playlist.length > 0;
+                this.hasResources = this.playlists.length > 0;
 
                 serviceManager.get('StoragePluginManager')
                     .get(PlaylistConfig.NAME_SERVICE)

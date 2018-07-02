@@ -51,7 +51,7 @@ class Playlist {
         /**
          * @type {Array}
          */
-        this.bind = [];
+        this.binds = [];
     }
 
     /**
@@ -77,7 +77,7 @@ class Playlist {
      * @param timeslot
      * @return {Playlist}
      */
-    append(timeslot) {
+    appendTimeslot(timeslot) {
         //  TODO check if timeslot is correct
         this.timeslots.push(timeslot);
         return this;
@@ -88,14 +88,53 @@ class Playlist {
      * @param timeslot
      * @return {boolean}
      */
-    remove(timeslot) {
+    removeTimeslot(timeslot) {
         //  TODO check if timeslot is correct
-        let index  = this.timeslots.findIndex(element => element.id === timeslot.id);
+        let index = this.timeslots.findIndex(element => element.id === timeslot.id);
         if (index > -1) {
-            this.timeslots.slice(index, 1);
+            this.timeslots.splice(index, 1);
         }
         return index > -1;
     }
+
+    /**
+     * @param index
+     * @return {number}
+     */
+    removeTimeslotIndex(index) {
+        let search = -1;
+        if (this.timeslots.length > index) {
+            search = index;
+            this.timeslots.splice(index, 1);
+        }
+        return search;
+    }
+
+    /**
+     * @param timeslot
+     * @return {Playlist}
+     */
+    appendBind(playlist) {
+        //  TODO check if timeslot is correct
+        this.binds.push(playlist);
+        return this;
+    }
+
+    /**
+     *
+     * @param timeslot
+     * @return {boolean}
+     */
+    removeBind(playlist) {
+        //  TODO check if timeslot is correct
+        let index = this.binds.findIndex(element => element.id === playlist.id);
+        if (index > -1) {
+            this.binds.splice(index, 1);
+        }
+        return index > -1;
+    }
+
+
 
     /**
      *
