@@ -10,6 +10,7 @@
 <link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../../../../bower_components/paper-chip/paper-chip.html">
+<link rel="import" href="../../../../bower_components/paper-chip/paper-chip-input.html">
 <link rel="import" href="../../../../bower_components/paper-chip/paper-chip-icons.html">
 <link rel="import" href="../../../../element/file-upload/file-upload.html">
 
@@ -30,13 +31,14 @@
         <slot name="header"></slot>
         <iron-form id="formTimeslot">
             <form method="post" action="">
-                <paper-input id="name" name="name" label="Name" required></paper-input>
-                <paper-input id="duration" name="duration" label="Duration" type="number" min="1" required></paper-input>
+                <paper-input id="name" name="name" label="Name" value="{{timeslot.name}}" required></paper-input>
+                <paper-input id="duration" name="duration" label="Duration" type="number" min="1" value="{{timeslot.duration}}" required></paper-input>
                 <paper-autocomplete
                         id="monitor"
                         label="Monitor"
                         text-property="name"
                         value-property="name"
+                        text="{{timeslot.virtualMonitorReference.name}}"
                         remote-source
                         on-autocomplete-selected="_selectMonitor"
                         on-autocomplete-change="_searcMonitorChanged">
@@ -104,6 +106,7 @@
                     </template>
                 </paper-autocomplete>
                 <div id="listResource"></div>
+                <paper-chip-input values="{{timeslot.tags}}"></paper-chip-input>
                 <paper-autocomplete
                         id="bind"
                         label="Bind timeslots"
@@ -262,9 +265,6 @@
                     this.timeslot.id = Utils.uid;
                 }
 
-                this.timeslot.name = this.$.name.value;
-                this.timeslot.duration = this.$.duration.value;
-
                 this.timeslot.dataReferences = [];
 
                 if (this.$.dataRefernces.data && this.$.dataRefernces.service) {
@@ -297,7 +297,6 @@
             _clearData() {
                 this.$.name.value = null;
                 this.$.duration.value = null;
-                this.timeslot = new Timeslot();
             }
 
             /**
@@ -311,10 +310,6 @@
                 }
 
                 this.clearView();
-
-                this.$.name.value = newValue.name;
-                this.$.duration.value = newValue.duration;
-                this.$.monitor.text = newValue.virtualMonitorReference.name;
 
                 for (let cont = 0; newValue.resources.length > cont; cont++) {
 
@@ -374,6 +369,7 @@
              * @private
              */
             _selectMonitor(evt) {
+
                 this.tim =  evt.detail.option;
                 let ref = new VirtualMonitorReference();
                 ref.virtualMonitorId = evt.detail.option.config.id;
@@ -518,15 +514,15 @@
              */
             clearView() {
 
-                this.$.name.value = null;
-                this.$.duration.value = null;
-
-                this.$.monitor.clear();
                 this.$.resource.clear();
                 this.$.listResource.innerHTML = '';
                 this.$.bind.clear();
                 this.$.listBind.innerHTML = '';
                 this.$.dataRefernces.clear();
+            }
+
+            onEnter(evt) {
+                console.log('ENTER', evt);
             }
         }
 

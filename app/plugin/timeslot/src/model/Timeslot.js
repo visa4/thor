@@ -71,6 +71,11 @@ class Timeslot {
          * @type {Array}
          */
         this.dataReferences = [];
+
+        /**
+         * @type {Array}
+         */
+        this.tags = [];
     }
 
     /**
