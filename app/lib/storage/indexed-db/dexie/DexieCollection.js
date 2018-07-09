@@ -61,7 +61,31 @@ class DexieCollection {
      * @param search
      * @return {Dexie.Promise<Array<T>> | Dexie.Promise<any>}
      */
-    getAll(page = 1, itemCount = 10, search) {
+    getAll(search) {
+
+        let promise = new Promise((resolve, reject) => {
+
+            let table = this.dexieManager.db[this.nameCollection];
+            let collection = this._search(table, search);
+
+            collection.toArray()
+                .then(
+                    function (data) {
+                        resolve(data);
+                    }
+                ).catch(error => { reject(error) } );
+        });
+
+        return promise;
+    }
+
+    /**
+     * @param page
+     * @param itemCount
+     * @param search
+     * @return {Promise}
+     */
+    getPaged(page = 1, itemCount = 10, search) {
 
         let promise = new Promise((resolve, reject) => {
 
@@ -78,24 +102,35 @@ class DexieCollection {
                     function (data) {
 
                         let totalItem = data;
-                        this.dexieManager
-                            .db[this.nameCollection]
-                            .toCollection()
-                            .offset(computePage * itemCount)
+                        let table = this.dexieManager.db[this.nameCollection];
+                        let collection = this._search(table, search);
+
+                        collection.offset(computePage * itemCount)
                             .limit(itemCount)
                             .toArray().then(
-                                function (data) {
+                            function (data) {
 
-                                    let collection = new Pagination(data, page, itemCount, totalItem);
-                                    resolve(collection);
-                                }
-                            ).catch(error => { reject(error) } );
+                                let collection = new Pagination(data, page, itemCount, totalItem);
+                                resolve(collection);
+                            }
+                        ).catch(error => { reject(error) } );
 
                     }.bind(this)
                 ).catch(error => { reject(error) } );
         });
 
         return promise;
+    }
+
+    /**
+     * @param {Table} table
+     * @param search
+     * @return {*}
+     * @private
+     */
+    _search(table, search) {
+
+        return table.toCollection();
     }
 
     /**

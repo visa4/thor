@@ -109,7 +109,7 @@
 
                 serviceManager.get('StoragePluginManager')
                     .get(ResourceConfig.NAME_SERVICE)
-                    .getAll(this.page, this.itemPerPage)
+                    .getPaged(this.page, this.itemPerPage)
                     .then((data) => {
                         this.set('resources', data);
                         this.hasResources = data.length > 0;

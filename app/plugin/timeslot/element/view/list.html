@@ -117,7 +117,7 @@
 
                 serviceManager.get('StoragePluginManager')
                     .get(TimeslotConfig.NAME_SERVICE)
-                    .getAll(this.page, this.itemPerPage)
+                    .getPaged(this.page, this.itemPerPage)
                     .then((data) => {
                         this.set('timeslots', data);
                         this.hasResources = data.length > 0;

@@ -149,17 +149,47 @@ class Storage extends HydratorAware {
     }
 
     /**
-     * @param search
+     * @param {Object} search
      * @return {Promise}
      */
-    getAll(page, itemCount, search) {
+    getAll(search) {
+
+        let promise = new Promise((resolve, reject) => {
+
+            this.adapter.getAll(search)
+                .then(
+                    (data) => {
+                        for (let cont = 0; data.length > cont; cont++) {
+                            data[cont] = this.hydrator ? this.hydrator.hydrate(data[cont]) : data[cont];
+                        }
+
+                        resolve(data);
+                    }
+                ).catch(
+                (err) => {
+                    console.error(err);
+                    reject([]);
+                }
+            );
+        });
+
+        return promise;
+    }
+
+    /**
+     * @param {Integer} page
+     * @param {Integer} itemCount
+     * @param {Object} search
+     * @return {Promise}
+     */
+    getPaged(page, itemCount, search) {
 
         let promise = new Promise((resolve, reject) => {
 
             let currentPage = page ? page : Storage.DEFAULT_PAGE;
             let currentItemCount = itemCount ? itemCount : Storage.DEFAULT_ITEM_COUNT;
 
-            this.adapter.getAll(currentPage, currentItemCount, search)
+            this.adapter.getPaged(currentPage, currentItemCount, search)
                 .then(
                     (data) => {
                         for (let cont = 0; data.length > cont; cont++) {

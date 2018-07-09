@@ -16,6 +16,11 @@
         <style include="global-style"></style>
         <style>
 
+            :host {
+                color: black;
+            }
+
+
             .card-content,
             .card-actions{
                 padding: 0;
@@ -139,7 +144,7 @@
                         </paper-icon-button>
                     </template>
                 </div>
-                <div class="crud">
+                <div class="crud" hidden$="{{hideCrud}}">
                     <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
                         <paper-icon-button
                                 icon="app:edit"
@@ -176,6 +181,11 @@
                     timeslot: {
                         type: Object,
                         observer: '_timeslotChanged'
+                    },
+
+                    hideCrud : {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }

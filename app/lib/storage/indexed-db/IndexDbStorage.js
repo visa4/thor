@@ -233,7 +233,30 @@ class IndexedDbStorage {
      * @param search
      * @return {Promise}
      */
-    getAll(page, itemCount, search) {
+    getAll(search) {
+
+        let promise = new Promise((resolve, reject) => {
+
+            try {
+
+               // TODO Implement
+            } catch (err) {
+                reject({error : err, type: 'getAll'});
+            }
+        });
+
+        return promise;
+    }
+
+
+    /**
+     *
+     * @param page
+     * @param itemCount
+     * @param search
+     * @return {Promise}
+     */
+    getPaged(page, itemCount, search) {
 
         let currentPage = page;
         let currentItemCount = itemCount;

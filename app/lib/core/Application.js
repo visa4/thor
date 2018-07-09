@@ -76,7 +76,7 @@ class Application {
         let moduleObj = this.getHydrator().hydrate(module);
 
         /**
-         * Autoload file plugin
+         * laod class
          */
         for (let cont = 0; moduleObj.autoloads.length > cont; cont++) {
             // TODO CONTROLLARE SE ESISTE IL FILE
@@ -91,6 +91,14 @@ class Application {
             let pluginConfig = new config(serviceManager);
             global[pluginConfig.constructor.name] = config;
             pluginConfig.init();
+        }
+
+        if (moduleObj.widgets && Array.isArray(moduleObj.widgets)) {
+            for (let cont = 0; moduleObj.widgets.length > cont; cont++) {
+                Polymer.importHref(
+                    `${__dirname}/plugin/${moduleObj.name}/${moduleObj.widgets[cont]}`
+                );
+            }
         }
 
         this.eventManager.fire(Application.LOAD_MODULE, moduleObj);

@@ -110,7 +110,7 @@
             _loadResource() {
                 serviceManager.get('StoragePluginManager')
                     .get(PlaylistConfig.NAME_SERVICE)
-                    .getAll(this.page, this.itemPerPage)
+                    .getPaged(this.page, this.itemPerPage)
                     .then((data) => {
                         this.set('playlists', data);
                         this.hasResources = data.length > 0;

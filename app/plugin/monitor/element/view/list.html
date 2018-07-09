@@ -101,7 +101,7 @@
           _loadResource() {
               serviceManager.get('StoragePluginManager')
                   .get(MonitorConfig.NAME_SERVICE)
-                  .getAll()
+                  .getPaged(this.page, this.itemPerPage)
                   .then((data) =>  {
                       this.set('monitors', data);
                       this.hasResources = data.length > 0;

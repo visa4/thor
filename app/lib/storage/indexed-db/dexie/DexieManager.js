@@ -25,6 +25,7 @@ class DexieManager {
     }
 
     init() {
+        const Dexie = require('dexie');
 
         this.db = new Dexie( this.nameDatabase + 'test');
 

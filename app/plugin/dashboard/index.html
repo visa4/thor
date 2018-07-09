@@ -14,7 +14,18 @@
       }
 
       #grid5 tile {
-        background-color: tomato;
+        background-color: #FFFFFF;
+        box-shadow: 2px 2px 2px 2px #909196;
+        -webkit-box-shadow: 2px 2px 2px 2px #909196;
+        -moz-box-shadow: 2px 2px 2px 2px #909196;
+      }
+
+      span.resize {
+          color: white;
+      }
+
+      span.resize:hover {
+        color: black;
       }
 
       #grid5 [placeholder] {
@@ -23,33 +34,33 @@
     </style>
     <div class="container">
 
-      <the-grid id="grid5" draggable resizable animated col-count="10" row-count="10">
-        <tile col="0" row="0" height="5" width="1">
-        </tile>
-        <tile col="3" row="3" height="1" width="1">
-          <div>
-            <div>test</div>
-            <div>test</div>
-            <div>test</div>
-            <div>test</div>
-            <div>test</div>
-            <div>test</div>
+      <the-grid id="grid5" draggable resizable animated col-count="10" row-count="10" cell-margin="6">
+        <tile col="5" row="1" height="2" width="4">
+          <timeslot-tags tags='["brunori"]'></timeslot-tags>
 
-          </div>
-
-          <span resize="bottom-right">┘</span>
+          <span class="resize" resize="left">│</span>
+          <span class="resize" resize="right">│</span>
+          <span class="resize" resize="top">─</span>
+          <span class="resize" resize="bottom">─</span>
+          <span class="resize" resize="top-right">┐</span>
+          <span class="resize" resize="top-left">┌</span>
+          <span class="resize" resize="bottom-right">┘</span>
+          <span class="resize" resize="bottom-left">└</span>
         </tile>
-        <tile col="5" row="1" height="2" width="2">
-          <span resize="left">│</span>
-          <span resize="right">│</span>
-          <span resize="top">─</span>
-          <span resize="bottom">─</span>
-          <span resize="top-right">┐</span>
-          <span resize="top-left">┌</span>
-          <span resize="bottom-right">┘</span>
-          <span resize="bottom-left">└</span>
+        <tile col="1" row="1" height="2" width="4">
+          <timeslot-tags tags='["negramaro"]'></timeslot-tags>
+
+          <span class="resize" resize="left">│</span>
+          <span class="resize" resize="right">│</span>
+          <span class="resize" resize="top">─</span>
+          <span class="resize" resize="bottom">─</span>
+          <span class="resize" resize="top-right">┐</span>
+          <span class="resize" resize="top-left">┌</span>
+          <span class="resize" resize="bottom-right">┘</span>
+          <span class="resize" resize="bottom-left">└</span>
         </tile>
         <div placeholder></div>
+
       </the-grid>
     </div>
   </template>

@@ -211,7 +211,7 @@
                 // TODO refactor search
                 serviceManager.get('StoragePluginManager')
                     .get(TimeslotConfig.NAME_SERVICE)
-                    .getAll(1, 100)
+                    .getAll()
                     .then((data) => {
 
                         let filter = data.filter(
@@ -270,7 +270,7 @@
                 // TODO refactor search
                 serviceManager.get('StoragePluginManager')
                     .get(PlaylistConfig.NAME_SERVICE)
-                    .getAll(1, 100)
+                    .getAll()
                     .then((data) => {
 
                         let filter = data.filter(

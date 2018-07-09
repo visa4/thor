@@ -11,5 +11,8 @@
     "src/TimeslotDataInjectorService.js",
     "src/model/Timeslot.js",
     "src/model/TimeslotDataReference.js"
+  ],
+  "widgets": [
+    "widget/timeslot-tags.html"
   ]
 }

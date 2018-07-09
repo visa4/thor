@@ -272,6 +272,11 @@
                         if (data.enable) {
                             PluginMonitorIndex.electronIpc.send('change-monitors-configuration', data);
                         }
+
+                        if (method === 'save') {
+                            this.monitor = new VirtualMonitor();
+                            this.hasMonitor = false;
+                        }
                     })
                     .catch((err) => {
                             console.log(err)

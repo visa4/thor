@@ -4,10 +4,10 @@
   },
   "modules": [
     {
-      "icon" : "app:widget",
-      "nameWc" : "dashboard-index",
-      "label" : "Dashboard",
-      "plugin" : true,
+      "icon": "app:widget",
+      "nameWc": "dashboard-index",
+      "label": "Dashboard",
+      "plugin": true,
       "customeStyle": {
         "color": " green"
       },
@@ -60,7 +60,10 @@
         "src/Test1.js",
         "src/Test2.js"
       ],
-      "name": "timeslot"
+      "name": "timeslot",
+      "widgets": [
+        "widget/timeslot-tags.html"
+      ]
     },
     {
       "icon": "app:playlist",

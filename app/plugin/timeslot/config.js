@@ -157,7 +157,7 @@ class TimeslotConfig extends PluginConfig {
                         {
                             "name": TimeslotConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "name", "status", "duration", "virtualMonitorReference", "tags"
+                                "++id", "name", "status", "duration", "virtualMonitorReference", "*tags"
                             ]
                         }
                     );
@@ -168,8 +168,10 @@ class TimeslotConfig extends PluginConfig {
                     serviceManager.get('DexieManager').onReady(
                         function (evt) {
 
+                            let TimeslotDexieCollection = require('../timeslot/src/storage/indexed-db/dexie/TimeslotDexieCollection');
+
                             let storage = new Storage(
-                                new DexieCollection(
+                                new TimeslotDexieCollection(
                                     serviceManager.get('DexieManager'),
                                     TimeslotConfig.NAME_COLLECTION
                                 ),
