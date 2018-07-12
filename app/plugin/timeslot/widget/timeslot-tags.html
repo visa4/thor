@@ -14,17 +14,25 @@
             }
 
             .header {
-                padding: 4px;
-                padding-bottom: 8px;
+                height: 40px;
                 font-size: 18px;
+                width: 100%;
+                text-align: center;
+                background-color: #689F38;
+                color: white;
+                margin-bottom: 6px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
             .tags {
+                padding-left: 8px;
                 font-style: italic;
                 color: #3c3c3c;
             }
         </style>
-        <div class="header">Timeslot tags: <span class="tags">{{_computeHeaderTags()}}</span></div>
+        <div class="header">Timeslot tags: <span class="tags"> {{_computeHeaderTags()}}</span></div>
         <template is="dom-repeat" items="[[timeslots]]" as="timeslot">
             <timeslot-wc
                     timeslot="{{timeslot}}"
@@ -33,7 +41,6 @@
                     on-stop="stop"
                     on-pause="pause"
                     hide-crud
-
                     on-wrap-update="displayUpdateView"
                     on-wrap-update-timeslot="update"
                     on-wrap-remove="remove">
@@ -50,10 +57,10 @@
 
             static get properties() {
                 return {
-                    tags : {
-                        type : Array,
+                    data : {
+                        type : Object,
                         notify: true,
-                        value: []
+                        value: {}
                     },
 
                     timeslots : {
@@ -70,18 +77,17 @@
 
                 serviceManager.get('StoragePluginManager')
                     .get(TimeslotConfig.NAME_SERVICE)
-                    .eventManager.on(Storage.STORAGE_POST_UPDATE, this._loadResource.bind(this)
+                    .eventManager.on(Storage.STORAGE_POST_UPDATE, this.loadData.bind(this)
                 );
-
-
-                this._loadResource();
             }
 
-            _loadResource() {
+            loadData() {
 
                 let search = {};
-                if (this.tags.length > 0) {
-                    search.tags = this.tags[0]
+                if (this.data && Array.isArray(this.data.tags) && this.data.tags.length > 0) {
+                    search.tags = this.data.tags[0]
+                } else {
+                    return;
                 }
 
                 serviceManager.get('StoragePluginManager')
@@ -94,7 +100,9 @@
             }
 
             _computeHeaderTags() {
-                return this.tags.join(" ");
+                let tag = [];
+                tag = (this.data && Array.isArray(this.data.tags)) ? this.data.tags : [];
+                return tag.join(" ");
             }
 
             /**

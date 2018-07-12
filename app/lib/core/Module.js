@@ -39,8 +39,10 @@ class Module {
          */
         this.customeStyle = {};
 
-        // TODO undestand
-        // 'plugin': true,
+        /**
+         * @type {Array}
+         */
+        this.widgets = [];
     }
 }
 

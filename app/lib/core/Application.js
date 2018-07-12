@@ -93,12 +93,10 @@ class Application {
             pluginConfig.init();
         }
 
-        if (moduleObj.widgets && Array.isArray(moduleObj.widgets)) {
-            for (let cont = 0; moduleObj.widgets.length > cont; cont++) {
-                Polymer.importHref(
-                    `${__dirname}/plugin/${moduleObj.name}/${moduleObj.widgets[cont]}`
-                );
-            }
+        for (let cont = 0; moduleObj.widgets.length > cont; cont++) {
+            Polymer.importHref(
+                `${__dirname}/plugin/${moduleObj.name}/${moduleObj.widgets[cont].src}`
+            );
         }
 
         this.eventManager.fire(Application.LOAD_MODULE, moduleObj);
@@ -117,6 +115,17 @@ class Application {
         if (module === null || typeof module !== 'object') {
             throw 'Wrong exception';
         }
+    }
+
+    /**
+     * @return {Array}
+     */
+    getWidget() {
+        let widgets = [];
+        for (let cont = 0; this.modules.length > cont; cont++) {
+            widgets = widgets.concat(this.modules[cont].widgets);
+        }
+        return widgets;
     }
 }
 

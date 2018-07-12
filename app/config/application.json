@@ -2,6 +2,9 @@
   "indexedDB": {
     "name": "Dsign"
   },
+  "localoStorage": {
+    "namespace": "Dsign"
+  },
   "modules": [
     {
       "icon": "app:widget",
@@ -11,7 +14,11 @@
       "customeStyle": {
         "color": " green"
       },
-      "name": "dashboard"
+      "name": "dashboard",
+      "configFile": "config.js",
+      "autoloads": [
+        "src/model/Widget.js"
+      ]
     },
     {
       "icon": "app:monitor",
@@ -62,7 +69,15 @@
       ],
       "name": "timeslot",
       "widgets": [
-        "widget/timeslot-tags.html"
+        {
+          "src": "widget/timeslot-tags.html",
+          "description": "Widget to view tagged timeslot",
+          "name": "Timeslot tags",
+          "wc": "timeslot-tags",
+          "dataProperty": "tags",
+          "dataLabel": "tags",
+          "dataRequired": true
+        }
       ]
     },
     {

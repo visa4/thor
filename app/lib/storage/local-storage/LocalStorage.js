@@ -7,7 +7,7 @@ class LocalStorage {
 
         this.dbName = dbName;
         this.collectionName = collectionName;
-        this.data = localStorage.getItem(this.namespace) ? JSON.parse(localStorage.getItem(this.namespace)) : [];
+        this.data = localStorage.getItem(this._getNamespace()) ? JSON.parse(localStorage.getItem(this._getNamespace())) : [];
     }
 
     /**
@@ -79,6 +79,16 @@ class LocalStorage {
      *
      */
     getAll() {
+
+        return new Promise((resolve, reject) => {
+            resolve(this.data);
+        });
+    }
+
+    /**
+     *
+     */
+    getPaged() {
         throw 'Implement';
     }
 
