@@ -114,7 +114,7 @@
                       resizable
                       animated
                       overlappable
-                      col-count="10"
+                      col-count="14"
                       row-count="10"
                       cell-margin="6"
                       on-resize="resize"
@@ -257,7 +257,7 @@
              * @private
              */
             _searchWidgetChanged(evt) {
-                let widgets = serviceManager.get('Application').getWidget();
+                let widgets = serviceManager.get('Application').getWidgets();
 
 
                 let filter = widgets.filter(

@@ -134,7 +134,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                         type: String,
                         reflectToAttribute: true,
                         observer: '_pageChanged',
-                        value: 'dashboard-index'
+                        value: 'monitor-index'
                     },
 
                     nameApplication: {
@@ -160,9 +160,11 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                 this._setModules(serviceManager.get('Application').modules);
                 this.modules.forEach(function (plugin) {
 
-                    let elem =  document.createElement(plugin.nameWc);
-                    elem.name = plugin.nameWc;
-                    this.$.views.appendChild(elem);
+                    if (plugin.label) {
+                        let elem =  document.createElement(plugin.nameWc);
+                        elem.name = plugin.nameWc;
+                        this.$.views.appendChild(elem);
+                    }
 
                 }.bind(this));
             }

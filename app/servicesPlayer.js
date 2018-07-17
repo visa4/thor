@@ -4,29 +4,16 @@
  * @type {ServiceManager}
  */
 const serviceManager = new ServiceManager();
+const fs = require('fs');
 /**
- * Global hydrator plugin manager
- *
- * @type {HydratorPluginManager}
+ * inject default services
  */
-const hydratorPluginManager = new HydratorPluginManager();
-
-/**
- * @type {StoragePluginManager}
- */
-const storagePluginManager = new StoragePluginManager();
+Application.injectServices(serviceManager);
 
 /**
  * @type {Object}
  */
-
 serviceManager.set(
-    hydratorPluginManager.constructor.name,
-    hydratorPluginManager
-).set(
-    storagePluginManager.constructor.name,
-    storagePluginManager
-).set(
     'Config',
     function (sm) {
         const fs = require('fs');
@@ -37,7 +24,8 @@ serviceManager.set(
     (function(sm){
         const fs = require('fs');
         return new Application(
-            JSON.parse(fs.readFileSync(__dirname + '/config/application.json'))
+            JSON.parse(fs.readFileSync(__dirname + '/config/application.json')),
+            'player'
         );
     })()
 );

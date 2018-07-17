@@ -4,17 +4,11 @@
  * @type {ServiceManager}
  */
 const serviceManager = new ServiceManager();
+const fs = require('fs');
 /**
- * Global hydrator plugin manager
- *
- * @type {HydratorPluginManager}
+ * inject default services
  */
-const hydratorPluginManager = new HydratorPluginManager();
-
-/**
- * @type {StoragePluginManager}
- */
-const storagePluginManager = new StoragePluginManager();
+Application.injectServices(serviceManager);
 
 serviceManager.eventManager.on(
     ServiceManager.LOAD_SERVICE,
@@ -35,12 +29,6 @@ serviceManager.eventManager.on(
  * @type {Object}
  */
 serviceManager.set(
-    hydratorPluginManager.constructor.name,
-    hydratorPluginManager
-).set(
-    storagePluginManager.constructor.name,
-    storagePluginManager
-).set(
     'PaperToastNotification',
     new PaperToastNotification('notification')
 ).set(
@@ -64,7 +52,17 @@ serviceManager.set(
     (function(sm){
         const fs = require('fs');
         return new Application(
-            JSON.parse(fs.readFileSync(__dirname + '/config/application.json'))
+            JSON.parse(fs.readFileSync(__dirname + '/config/application.json')),
+            'dashboard'
         );
     })()
+).set(
+    'TcpServer',
+    function(sm){
+        let config = sm.get('Config');
+
+        return new TcpServer(
+            config.tcpClient ? config.tcpClient : {}
+        );
+    }
 );

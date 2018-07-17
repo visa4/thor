@@ -43,6 +43,11 @@ class Module {
          * @type {Array}
          */
         this.widgets = [];
+
+        /**
+         * @type {Array}
+         */
+        this.autoloadWs = []
     }
 }
 

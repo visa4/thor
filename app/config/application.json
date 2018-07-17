@@ -5,6 +5,11 @@
   "localoStorage": {
     "namespace": "Dsign"
   },
+  "tcpClient" : {
+    "port": 8002,
+    "ip": "127.0.0.1"
+  },
+  "debug": true,
   "modules": [
     {
       "icon": "app:widget",
@@ -93,6 +98,15 @@
         "src/model/Playlist.js"
       ],
       "name": "playlist"
+    },
+    {
+      "configFile": "config.js",
+      "name": "player",
+      "autoloadWs" : [
+        "element/player-timeslot/player-timeslot.html",
+        "element/player-monitor/player-monitor.html",
+        "element/player-monitor-manager/player-monitor-manager.html"
+      ]
     }
   ]
 }

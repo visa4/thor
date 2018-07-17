@@ -18,7 +18,12 @@ class Application {
     /**
      * @param {Object} config
      */
-    constructor(config = {}) {
+    constructor(config = {}, context = 'player') {
+
+        /**
+         * @type {string}
+         */
+        this.context = context;
 
         /**
          *    * @type {EvtManager}
@@ -76,13 +81,24 @@ class Application {
         let moduleObj = this.getHydrator().hydrate(module);
 
         /**
-         * laod class
+         * autoload ES6 class
          */
         for (let cont = 0; moduleObj.autoloads.length > cont; cont++) {
             // TODO CONTROLLARE SE ESISTE IL FILE
             let importClass = require(`${__dirname}/plugin/${moduleObj.name}/${moduleObj.autoloads[cont]}`);
             global[importClass.name] = importClass;
         }
+
+        /**
+         * autoload web components
+         */
+
+        for (let cont = 0; moduleObj.autoloadWs.length > cont; cont++) {
+            Polymer.importHref(
+                `${__dirname}/plugin/${moduleObj.name}/${moduleObj.autoloadWs[cont]}`
+            );
+        }
+
 
         if (moduleObj.configFile) {
 
@@ -103,10 +119,6 @@ class Application {
         return moduleObj;
     }
 
-    getConfig(value) {
-
-    }
-
     /**
      * @param module
      * @private
@@ -120,12 +132,29 @@ class Application {
     /**
      * @return {Array}
      */
-    getWidget() {
+    getWidgets() {
         let widgets = [];
         for (let cont = 0; this.modules.length > cont; cont++) {
             widgets = widgets.concat(this.modules[cont].widgets);
         }
         return widgets;
+    }
+
+    /**
+     * @param serviceManager
+     */
+    static injectServices(serviceManager) {
+
+        let hydratorPluginManager = new HydratorPluginManager();
+        let storagePluginManager = new StoragePluginManager();
+
+        serviceManager.set(
+            hydratorPluginManager.constructor.name,
+            hydratorPluginManager
+        ).set(
+            storagePluginManager.constructor.name,
+            storagePluginManager
+        );
     }
 }
 

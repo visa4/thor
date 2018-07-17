@@ -3,11 +3,8 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, minimum-scale=1, initial-scale=1, user-scalable=yes">
-    <!-- Load your application shell -->
     <link rel="stylesheet" type="text/css"  href="css/player-styles.css">
     <link rel="import" href="bower_components/polymer/polymer.html">
-    <link rel="import" href="element/player-monitor/player-monitor.html">
-    <link rel="import" href="element/player-monitor-manager/player-monitor-manager.html">
 
     <!-- TODO move into one file -->
     <script src="lib/plugin/PluginConfig.js"></script>
@@ -19,6 +16,7 @@
     <script src="lib/hydrator/strategy/HydratorStrategy.js"></script>
     <script src="lib/hydrator/AggregatePropertyHydrator.js"></script>
 
+    <script src="lib/storage/local-storage/LocalStorage.js"></script>
     <script src="lib/storage/indexed-db/dexie/DexieManager.js"></script>
     <script src="lib/storage/Storage.js"></script>
     <script src="lib/storage/StoragePluginManager.js"></script>
@@ -28,6 +26,9 @@
     <script src="lib/event/EvtManager.js"></script>
 
     <script src="plugin/monitor/src/model/Monitor.js"></script>
+
+    <script src="lib/net/tcp/TcpClient.js"></script>
+    <script src="lib/net/tcp/TcpServer.js"></script>
 
     <script src="lib/core/Application.js"></script>
     <script src="lib/core/Module.js"></script>
