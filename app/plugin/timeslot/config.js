@@ -82,7 +82,8 @@ class TimeslotConfig extends PluginConfig {
             .enableHydrateProperty('virtualMonitorReference')
             .enableHydrateProperty('resources')
             .enableHydrateProperty('dataReferences')
-            .enableHydrateProperty('tags');
+            .enableHydrateProperty('tags')
+            .enableHydrateProperty('filters');
 
         timeslotHydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
@@ -95,7 +96,8 @@ class TimeslotConfig extends PluginConfig {
             .enableExtractProperty('virtualMonitorReference')
             .enableExtractProperty('resources')
             .enableExtractProperty('dataReferences')
-            .enableExtractProperty('tags');
+            .enableExtractProperty('tags')
+            .enableExtractProperty('filters');
 
         this.serviceManager.get('HydratorPluginManager').set(
             'timeslotHydrator',

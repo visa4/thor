@@ -77,6 +77,11 @@
 
                     },
 
+                    filters: {
+                        type: Object,
+                        observer: '_changeFilters'
+                    },
+
                     data: {
                         type: Object,
                         notify: true,
@@ -156,6 +161,70 @@
                 let element = document.createElement('div');
                 element.classList.add("resource");
                 return element;
+            }
+
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
+            _changeFilters(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+
+                console.group('FILTRI');
+                let filter = '';
+                for (var property in newValue) {
+                    switch (true) {
+                        case property === 'blur' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== ''  :
+                            console.log('BLUR', newValue[property]);
+                            filter = `${filter} blur(${newValue[property]}px)`;
+                            break;
+                        case property === 'brightness' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('BRIGHTNESS', newValue[property]);
+                            filter = `${filter} brightness(${newValue[property]}%)`;
+                            break;
+                        case property === 'contrast' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('CONTRAST', newValue[property]);
+                            filter = `${filter} contrast(${newValue[property]}%)`;
+                            break;
+                        case property === 'grayscale' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('GRAYSCALE', newValue[property]);
+                            filter = `${filter} grayscale(${newValue[property]}%)`;
+                            break;
+                        case property === 'hueRotate' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('HUEROTATE', newValue[property]);
+                            filter = `${filter} hue-rotate(${newValue[property]}deg)`;
+                            break;
+                        case property === 'invert' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('INVERT', newValue[property]);
+                            filter = `${filter} invert(${newValue[property]}%)`;
+                            break;
+                        case property === 'opacity' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('OPACITY', newValue[property]);
+                            filter = `${filter} opacity(${newValue[property]}%)`;
+                            break;
+                        case property === 'saturate' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('SATURATE', newValue[property]);
+                            filter = `${filter} saturate(${newValue[property]}%)`;
+                            break;
+                        case property === 'sepia' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('SEPIA', newValue[property]);
+                            filter = `${filter} sepia(${newValue[property]}%)`;
+                            break;
+                        case property === 'dropShadow' && newValue[property] !== undefined && newValue[property] !== null  && newValue[property] !== '' :
+                            console.log('DROPSHADOW', newValue[property]);
+                            filter = `${filter} drop-shadow(${newValue[property]}%)`;
+                            break;
+                    }
+                }
+                console.log('FILTRO', filter);
+                console.groupEnd();
+
+                if (filter) {
+                    this.$.resources.style.filter = filter;
+                }
             }
 
             /**

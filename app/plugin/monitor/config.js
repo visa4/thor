@@ -68,14 +68,18 @@ class MonitorConfig extends PluginConfig {
             .enableExtractProperty('offsetX')
             .enableExtractProperty('offsetY')
             .enableExtractProperty('height')
-            .enableExtractProperty('width');
+            .enableExtractProperty('width')
+            .enableExtractProperty('backgroundColor')
+            .enableExtractProperty('polygon');
 
         monitorHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('offsetX')
             .enableHydrateProperty('offsetY')
             .enableHydrateProperty('height')
-            .enableHydrateProperty('width');
+            .enableHydrateProperty('width')
+            .enableHydrateProperty('backgroundColor')
+            .enableHydrateProperty('polygon');
 
         this.serviceManager.get('HydratorPluginManager').set(
             'monitorHydrator',

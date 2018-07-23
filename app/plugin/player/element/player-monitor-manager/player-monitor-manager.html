@@ -66,6 +66,7 @@
                 node.offsetX = config.offsetX;
                 node.offsetY = config.offsetY;
                 node.backgroundColor = config.backgroundColor;
+                node.polygon = config.polygon;
             }
 
 
@@ -132,7 +133,8 @@
                     .enableHydrateProperty('offsetY')
                     .enableHydrateProperty('width')
                     .enableHydrateProperty('height')
-                    .enableHydrateProperty('backgroundColor');
+                    .enableHydrateProperty('backgroundColor')
+                    .enableHydrateProperty('polygon');
 
                 let monitor = hydrator.hydrate(msg);
                 let monitors = [];

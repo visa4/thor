@@ -22,6 +22,7 @@
     "paper-item": "git@github.com:PolymerElements/paper-item.git#^2.1.0",
     "paper-toast": "git@github.com:PolymerElements/paper-toast.git#^2.1.0",
     "paper-chip" : "git@github.com:fabbricadigitale/paper-chip.git#^1.1.0",
+    "paper-slider" : "git@github.com:PolymerElements/paper-slider.git#^2.0.7",
 
     "iron-flex-layout": "PolymerElements/iron-flex-layout#~2.0.0",
     "iron-form": "PolymerElements/iron-form#^2.0.0",

@@ -39,16 +39,17 @@ class TcpServer  {
         /**
          *
          */
-        this.server.on('error', this._error.bind(this));
-
-        /**
-         *
-         */
         this.server.listen(
             options.port ? options.port : TcpClient.DEFAULT_PORT,
-            options.ip ? options.ip : TcpClient.DEFAULT_IP,
-            this._listen.bind(this)
+            options.ip ? options.ip : TcpClient.DEFAULT_IP
         );
+
+        /**
+         * Events
+         */
+        this.server.on('error', this._error.bind(this));
+        this.server.on('listening', this._listen.bind(this));
+
     }
 
     send(data) {

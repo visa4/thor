@@ -10,7 +10,7 @@ class Monitor {
         this.offsetX = 0;
         this.offsetY = 0;
         this.backgroundColor = 'transparent';
-        this.brightness = 100;
+        this.polygon = null;
         this.monitors = [];
     }
 

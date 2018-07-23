@@ -99,6 +99,12 @@
                         observer: '_changeOffsetY'
                     },
 
+                    polygon : {
+                        type: String,
+                        observer: '_changePolygon'
+                    },
+
+
                     timeslotDefault : {
 
                     }
@@ -160,6 +166,7 @@
                 let timeslot = document.createElement('player-timeslot');
                 timeslot.height = this.height;
                 timeslot.width  = this.width;
+                timeslot.filters = msg.timeslot.filters;
                 timeslot.config(msg.timeslot);
 
                 this.clearLayer(msg.timeslot.context);
@@ -227,6 +234,7 @@
                         timeslot.width  = this.width;
                         timeslot.config(msg.timeslot);
                         timeslot.startAt = msg.timeslot.currentTime;
+                        timeslot.filters = msg.timeslot.filters;
                         this.clearLayer(msg.timeslot.context);
                         this.appendTimeslot(msg.timeslot.context, timeslot);
                         break;
@@ -307,6 +315,13 @@
                     return;
                 }
                 this.style.top = newValue + 'px';
+            }
+
+            _changePolygon(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+                this.style.clipPath = `polygon(${newValue})`;
             }
         }
 

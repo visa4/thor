@@ -65,7 +65,7 @@ class Timeslot {
          *
          * @type {{}}
          */
-        this.options    = {};
+        this.options = {};
 
         /**
          * @type {Array}
@@ -76,6 +76,11 @@ class Timeslot {
          * @type {Array}
          */
         this.tags = [];
+
+        /**
+         * @type {Object}
+         */
+        this.filters = {};
     }
 
     /**

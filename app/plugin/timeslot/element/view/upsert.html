@@ -106,6 +106,18 @@
                     </template>
                 </paper-autocomplete>
                 <div id="listResource"></div>
+
+                <paper-input id="blur-filter" name='filters["blur"]' label="Blur filter" value="{{timeslot.filters.blur}}"></paper-input>
+                <paper-input id="brightness-filter" name='filters["brightness"]' label="Brightness filter" value="{{timeslot.filters.brightness}}"></paper-input>
+                <paper-input id="contrast-filter" name='filters["contrast"]' label="Contrast filter" value="{{timeslot.filters.contrast}}"></paper-input>
+                <paper-input id="grayscale-filter" name='filters["grayscale"]' label="Grayscale filter" value="{{timeslot.filters.grayscale}}"></paper-input>
+                <paper-input id="hue-rotate-filter" name='filters["hueRotate"]' label="Grayscale filter" value="{{timeslot.filters.hueRotate}}"></paper-input>
+                <paper-input id="invert-filter" name='filters["invert"]' label="Invert filter" value="{{timeslot.filters.invert}}"></paper-input>
+                <paper-input id="opacity-filter" name='filters["opacity"]' label="Opacity filter" value="{{timeslot.filters.opacity}}"></paper-input>
+                <paper-input id="saturate-filter" name='filters["saturate"]' label="Saturate filter" value="{{timeslot.filters.saturate}}"></paper-input>
+                <paper-input id="sepia-filter" name='filters["sepia"]' label="Sepia filter" value="{{timeslot.filters.sepia}}"></paper-input>
+                <paper-input id="drop-shadow-filter" name='filters["dropShadow"]' label="Drop Shadow filter" value="{{timeslot.filters.dropShadow}}"></paper-input>
+
                 <paper-chip-input values="{{timeslot.tags}}"></paper-chip-input>
                 <paper-autocomplete
                         id="bind"

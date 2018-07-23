@@ -70,7 +70,8 @@
                                      required></paper-input>
                         <template is="dom-repeat" items="{{monitors}}" as="monitor">
                             <paper-card class="paper-monitor">
-                                <paper-input name="name" label="Name" value="{{monitor.name}}" required style="flex-basis: 50%;"></paper-input>
+                                <paper-input name="name" label="Name" value="{{monitor.name}}" required style="flex-basis: 30%;"></paper-input>
+                                <paper-input name="polygon" label="Polygon" value="{{monitor.polygon}}"  style="flex-basis: 20%;"></paper-input>
                                 <paper-input name="height" label="Height" type="number" value="{{monitor.height}}" required style="flex-basis: 10%;"></paper-input>
                                 <paper-input name="width" label="Width" type="number" value="{{monitor.width}}" required style="flex-basis: 10%;"></paper-input>
                                 <paper-input name="offsetX" label="Offeset X" type="number" value="{{monitor.offsetX}}" required style="flex-basis: 10%;"></paper-input>
@@ -83,13 +84,14 @@
                             </paper-card>
                             <template submonitor-repeat is="dom-repeat" items="{{monitor.monitors}}" as="submonitor">
                                 <paper-card class="paper-sub-monitor">
-                                    <paper-input name="name" label="Name" value="{{submonitor.name}}" required style="flex-basis: 50%;"></paper-input>
-                                    <paper-input name="height" label="Height" type="number" value="{{submonitor.height}}" required style="flex-basis: 10%;"></paper-input>
-                                    <paper-input name="width" label="Width" type="number" value="{{submonitor.width}}" required style="flex-basis: 10%;"></paper-input>
-                                    <paper-input name="offsetX" label="Offeset X" type="number" value="{{submonitor.offsetX}}" required style="flex-basis: 10%;"></paper-input>
-                                    <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" required style="flex-basis: 10%;"></paper-input>
-                                    <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" required style="flex-basis: 10%;"></paper-input>
-                                    <div class="flex flex-center" style="flex-basis: 10%;">
+                                    <paper-input name="name" label="Name" value="{{submonitor.name}}" required style="flex-basis: 30%;"></paper-input>
+                                    <paper-input name="polygon" label="Polygon" value="{{submonitor.polygon}}" style="flex-basis: 20%;"></paper-input>
+                                    <paper-input name="height" label="Height" type="number" value="{{submonitor.height}}" required style="flex-basis: 9%;"></paper-input>
+                                    <paper-input name="width" label="Width" type="number" value="{{submonitor.width}}" required style="flex-basis: 9%;"></paper-input>
+                                    <paper-input name="offsetX" label="Offeset X" type="number" value="{{submonitor.offsetX}}" required style="flex-basis: 9%;"></paper-input>
+                                    <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" required style="flex-basis: 9%;"></paper-input>
+                                    <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" required style="flex-basis: 9%;"></paper-input>
+                                    <div class="flex flex-center" style="flex-basis: 9%;">
                                         <paper-icon-button item="{{submonitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
                                         </paper-icon-button>
                                     </div>
@@ -112,6 +114,7 @@
                                 <paper-input name="width" type="number" label="Width" required></paper-input>
                                 <paper-input name="offsetX" type="number" label="Offeset X" required></paper-input>
                                 <paper-input name="offsetY" type="number" label="Offeset Y" required></paper-input>
+                                <paper-input name="polygon" label="Polygon"></paper-input>
                                 <div hidden$="[[!hasMonitor]]">
                                     <paper-autocomplete
                                             id="monitor"
