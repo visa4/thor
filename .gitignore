@@ -1,6 +1,7 @@
 # Application
 node_modules
 dist
+app/config/config.json
 app/bower_components
 app/config/application.json
 app/config/config.json
