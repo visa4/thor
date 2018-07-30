@@ -1,0 +1,16 @@
+{
+  "name": "dsign-sideline-module",
+  "version": "0.1.0",
+  "author": "antonino visalli <antonino.visalli@gmail.com>",
+  "description": "Dsign sideline plugin",
+  "homepage": "www.visa4.it",
+  "customeStyle": {
+    "color": " green"
+  },
+  "configFile": "config.js",
+  "autoloads": [],
+  "autoloadWs" : [],
+  "widgets": [],
+  "icon": "app:sideline",
+  "nameWc": "sideline-index"
+}

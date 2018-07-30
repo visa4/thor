@@ -3,6 +3,8 @@ node_modules
 dist
 app/bower_components
 app/config/application.json
+app/config/config.json
+app/config/monitor-config.json
 app/package-lock.json
 #app/plugin/*
 package-lock.json

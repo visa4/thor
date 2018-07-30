@@ -107,6 +107,22 @@
         "element/player-monitor/player-monitor.html",
         "element/player-monitor-manager/player-monitor-manager.html"
       ]
+    },
+    {
+      "name": "sideline",
+      "label": "Sideline",
+      "customeStyle": {
+        "color": " green"
+      },
+      "configFile": "config.js",
+      "autoloads": [
+        "src/model/Sideline.js"
+      ],
+      "autoloadWs" : [],
+      "widgets": [],
+      "icon": "app:timeslot",
+      "nameWc": "sideline-index"
     }
+
   ]
 }

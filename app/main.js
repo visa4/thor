@@ -10,7 +10,7 @@ const HydratorManager = require('./lib/hydrator/pluginManager/HydratorPluginMana
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
-let packageJson;
+let config;
 let monitorsWrapper = null;
 let hydratorManager = new HydratorManager();
 
@@ -29,11 +29,25 @@ let mainMonitorHydrator = new PropertyHydrator(
     }
 );
 
+/**
+ * @return {string}
+ */
+let getMonitorConfigPath = () => {
+    return path.join(__dirname, '/config/monitor-config.json');
+};
+
+/**
+ * @return {string}
+ */
+let getAppConfigPath = () => {
+    return path.join(__dirname, '/config/config.json');
+};
+
 hydratorManager.set('mainMonitorHydrator', mainMonitorHydrator)
     .set('monitorHydrator', monitorHydrator);
 
 function loadConfig () {
-    packageJson = JSON.parse(fs.readFileSync( path.join(__dirname, '/package.json'), {'encoding': 'UTF8'}));
+    config = JSON.parse(fs.readFileSync( getAppConfigPath(), {'encoding': 'UTF8'}));
 }
 
 
@@ -64,7 +78,7 @@ function createWindowDashboard () {
     });
 
 
-    if (packageJson && packageJson.appConfig.debug === true) {
+    if (config && config.debug === true) {
         dashboard.webContents.openDevTools({detached: true});
     }
 }
@@ -111,7 +125,7 @@ function createWindowPlayer(mainMonitor) {
         browserWindows.send('player-monitor-config', mainMonitor);
     });
 
-    if (packageJson && packageJson.appConfig.debug === true) {
+    if (config && config.debug === true) {
         browserWindows.webContents.openDevTools({detached: true});
     }
 
@@ -126,7 +140,11 @@ function createWindowPlayer(mainMonitor) {
 
 
 function loadAppConfig () {
-    let appConfig = JSON.parse(fs.readFileSync( path.join(__dirname, '/storage/app-config.json'), {'encoding': 'UTF8'}));
+    let path = getMonitorConfigPath();
+    if (!fs.existsSync(path)) {
+        return;
+    }
+    let appConfig = JSON.parse(fs.readFileSync(path, {'encoding': 'UTF8'}));
     if (appConfig && appConfig.monitorConfig) {
         monitorsWrapper = createWindowsPlayer(appConfig.monitorConfig);
     }
@@ -134,6 +152,10 @@ function loadAppConfig () {
 
 
 function closeWindowsPlayer() {
+
+    if (!monitorsWrapper) {
+        return;
+    }
 
     for (let cont = 0; monitorsWrapper.monitors.length > cont; cont++) {
         monitorsWrapper.monitors[cont].browserWindows.close();
@@ -172,7 +194,7 @@ app.on('activate', () => {
 ipcMain.on('change-monitors-configuration', (event, message) => {
 
     fs.writeFile(
-        path.join(__dirname, '/storage/app-config.json'),
+        getMonitorConfigPath(),
         JSON.stringify({'monitorConfig' : message}),
         function(err) {
             if(err) {
@@ -193,7 +215,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
     if (message.monitors && Array.isArray(message.monitors) && message.monitors.length > 0) {
 
         fs.writeFile(
-            path.join(__dirname, '/storage/app-config.json'),
+            getMonitorConfigPath(),
             JSON.stringify({'monitorConfig' : message}),
             function(err) {
                 if(err) {
