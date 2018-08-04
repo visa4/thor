@@ -7,6 +7,7 @@
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/pagination/pagination.html">
+<link rel="import" href="../../element/sideline/sideline.html">
 
 <dom-module id="sideline-view-list">
     <template>
@@ -22,7 +23,7 @@
         <slot name="header"></slot>
         <div hidden$="{{!hasSidelines}}">
             <template is="dom-repeat" items="[[sidelines]]" as="sideline">
-                <div>{{sideline.name}}</div>
+                <sideline-wc sideline="{{sideline}}" on-update-view="displayUpdateView" on-remove="remove">></sideline-wc>
             </template>
             <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
         </div>
@@ -46,7 +47,7 @@
                         value: []
                     },
 
-                    sidelineSelected: {
+                    resourceSelected: {
                         type: Object,
                         notify: true,
                         value: {}
@@ -139,7 +140,7 @@
              * @param evt
              */
             displayUpdateView(evt) {
-                this.sidelineSelected = evt.detail;
+                this.resourceSelected = evt.detail;
                 this.selected = 2;
             }
         }

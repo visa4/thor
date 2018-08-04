@@ -8,7 +8,10 @@
     "color": " green"
   },
   "configFile": "config.js",
-  "autoloads": [],
+  "autoloads": [
+    "src/model/Sideline.js",
+    "src/SidelineResourceGenerator.js"
+  ],
   "autoloadWs" : [],
   "widgets": [],
   "icon": "app:sideline",

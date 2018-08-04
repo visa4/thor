@@ -1,0 +1,74 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../../../element/iconset/iconset.html">
+
+
+<dom-module id="sideline-wc">
+  <template>
+    <style include="global-layout"></style>
+    <style include="global-style"></style>
+    <style>
+
+      .card-content {
+        padding: 0;
+      }
+
+      .data {
+        padding: 8px;
+      }
+
+      .activePaperButton {
+        color: var(--app-primary-color);
+      }
+
+    </style>
+    <paper-card class="horizontal">
+      <div class="card-content flex flex-horizontal">
+        <div class="data flex-basis-80 flex flex-vertical">
+          <div>{{sideline.name}} {{sideline.width}}px {{sideline.height}}px</div>
+        </div>
+      </div>
+      <div class="card-actions">
+        <paper-icon-button icon="app:edit"  on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
+        <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
+        </paper-icon-button>
+      </div>
+      <div id="rightSection" class="rate-image"></div>
+    </paper-card>
+  </template>
+
+  <script>
+    class ElementSideline extends Polymer.Element {
+
+      static get is() { return 'sideline-wc'; }
+
+      static get properties() {
+          return {
+
+              sideline: {
+                  type: Object,
+                  value: new Sideline()
+              }
+          };
+      }
+
+      _remove(evt) {
+          this.dispatchEvent(new CustomEvent('remove', {detail: this.sideline}));
+      }
+
+      _update(evt) {
+          this.dispatchEvent(new CustomEvent('update-view', {detail: this.sideline}));
+      }
+    }
+
+    window.customElements.define(ElementSideline.is, ElementSideline);
+
+  </script>
+</dom-module>

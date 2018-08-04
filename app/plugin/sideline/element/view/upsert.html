@@ -5,6 +5,8 @@
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../element/file-upload/file-upload.html">
+<link rel="import" href="../../../../bower_components/paper-autocomplete/paper-autocomplete.html">
+
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -91,7 +93,7 @@
              * @private
              */
             _clearData() {
-                this.$.formSideline.reset();
+                this.sideline = new Sideline();
             }
 
             /**
@@ -102,7 +104,6 @@
             _sidelineChanged(newValue, oldValue) {
                 this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
             }
-
         }
 
         window.customElements.define(ElementSidelineViewUpsert.is, ElementSidelineViewUpsert);

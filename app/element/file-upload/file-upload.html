@@ -173,16 +173,18 @@
                   case 'image/png':
                   case 'application/octet-stream':
                       file.dimension = ElementFileUpload.imageSize(file.location.path + file.location.name);
+                      delete file.dimension.type;
                       break;
                   case 'video/mp4':
-                      ElementFileUpload.ffmpeg.ffprobe(
-                          file.location.path+file.location.name,
-                          (err, metadata) => {
-
+                      let command = new ElementFileUpload.ffmpeg(file.location.path+file.location.name);
+                      command.ffprobe(0, (err, metadata) => {
                               if(err) {
                                   console.error(err);
                               }
                               file.duration = metadata.format.duration;
+                              file.dimension = {};
+                              file.dimension.height = metadata.streams[0].height;
+                              file.dimension.width = metadata.streams[0].width;
                           }
                       );
                       break;

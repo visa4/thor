@@ -3,7 +3,7 @@ class Image extends GenericFile {
 
     constructor() {
         super();
-        this.dimension = [];
+        this.dimension = {};
 
         Object.defineProperty(
             this,

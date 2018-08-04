@@ -30,6 +30,7 @@ class SidelineConfig extends PluginConfig {
     init() {
         this._loadHydrator();
         this._loadStorage();
+        this._loadSidelineResourceGenerator();
     }
 
     _loadStorage() {
@@ -79,7 +80,7 @@ class SidelineConfig extends PluginConfig {
      * @private
      */
     _loadHydrator() {
-        let sidelineHydrator = new PropertyHydrator(new Video());
+        let sidelineHydrator = new PropertyHydrator(new Sideline());
         sidelineHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('width')
@@ -93,6 +94,14 @@ class SidelineConfig extends PluginConfig {
         this.serviceManager.get('HydratorPluginManager').set(
             'sidelineHydrator',
             sidelineHydrator
+        );
+    }
+
+    _loadSidelineResourceGenerator() {
+
+        this.serviceManager.set(
+            'SidelineResourceGenerator',
+            new SidelineResourceGenerator()
         );
     }
 }

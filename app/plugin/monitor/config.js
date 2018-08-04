@@ -32,14 +32,53 @@ class MonitorConfig extends PluginConfig {
     }
 
     _loadHydrator() {
+
+
+        let monitorHydrator = new PropertyHydrator(
+            new Monitor(),
+            {
+                width: new NumberStrategy(),
+                height: new NumberStrategy(),
+                offsetX: new NumberStrategy(),
+                offsetY: new NumberStrategy()
+            }
+        );
+
+        monitorHydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('offsetX')
+            .enableExtractProperty('offsetY')
+            .enableExtractProperty('height')
+            .enableExtractProperty('width')
+            .enableExtractProperty('backgroundColor')
+            .enableExtractProperty('polygon')
+            .enableExtractProperty('monitors');
+
+        monitorHydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('offsetX')
+            .enableHydrateProperty('offsetY')
+            .enableHydrateProperty('height')
+            .enableHydrateProperty('width')
+            .enableHydrateProperty('backgroundColor')
+            .enableHydrateProperty('polygon')
+            .enableHydrateProperty('monitors');
+
+        monitorHydrator.addStrategy(
+            'monitors',
+            new HydratorStrategy(monitorHydrator)
+        );
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'monitorHydrator',
+            monitorHydrator
+        );
+
         let virtualMonitorHydrator = new PropertyHydrator(
             new VirtualMonitor(),
             {
                 'monitors' :  new HydratorStrategy(
-                    new PropertyHydrator(
-                        new Monitor(),
-                        { 'monitors' :  new HydratorStrategy(new PropertyHydrator(new Monitor())) }
-                    )
+                    monitorHydrator
                 )
             }
         );
@@ -56,34 +95,7 @@ class MonitorConfig extends PluginConfig {
 
         this.serviceManager.get('HydratorPluginManager').set(
             'virtualMonitorHydrator',
-             virtualMonitorHydrator
-        );
-
-        let monitorHydrator = new PropertyHydrator(
-            new Monitor(),
-        );
-
-        monitorHydrator.enableExtractProperty('id')
-            .enableExtractProperty('name')
-            .enableExtractProperty('offsetX')
-            .enableExtractProperty('offsetY')
-            .enableExtractProperty('height')
-            .enableExtractProperty('width')
-            .enableExtractProperty('backgroundColor')
-            .enableExtractProperty('polygon');
-
-        monitorHydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('name')
-            .enableHydrateProperty('offsetX')
-            .enableHydrateProperty('offsetY')
-            .enableHydrateProperty('height')
-            .enableHydrateProperty('width')
-            .enableHydrateProperty('backgroundColor')
-            .enableHydrateProperty('polygon');
-
-        this.serviceManager.get('HydratorPluginManager').set(
-            'monitorHydrator',
-            monitorHydrator
+            virtualMonitorHydrator
         );
 
     }

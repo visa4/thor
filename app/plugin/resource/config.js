@@ -130,7 +130,8 @@ class ResourceConfig extends PluginConfig {
             .enableHydrateProperty('type')
             .enableHydrateProperty('location')
             .enableHydrateProperty('lastModified')
-            .enableHydrateProperty('duration');
+            .enableHydrateProperty('duration')
+            .enableHydrateProperty('dimension');
 
         videoHydrator.enableExtractProperty('id')
             .enableExtractProperty('customName')
@@ -138,6 +139,7 @@ class ResourceConfig extends PluginConfig {
             .enableExtractProperty('type')
             .enableExtractProperty('location')
             .enableExtractProperty('lastModified')
+            .enableExtractProperty('duration')
             .enableExtractProperty('dimension');
 
         this.serviceManager.get('HydratorPluginManager').set(

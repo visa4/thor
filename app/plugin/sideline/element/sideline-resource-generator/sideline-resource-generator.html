@@ -1,0 +1,125 @@
+
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../element/file-upload/file-upload.html">
+
+<dom-module id="sideline-resource-generator-wc">
+    <template>
+        <style>
+
+        </style>
+        <paper-input id="name" name="name" label="Name" required></paper-input>
+        <paper-autocomplete
+                id="monitor"
+                label="Monitor"
+                text-property="name"
+                value-property="name"
+                remote-source
+                on-autocomplete-selected="_selectMonitor"
+                on-autocomplete-change="_searcMonitorChanged">
+            <template slot="autocomplete-custom-template">
+                <style>
+                    :host {
+                        display: block;
+                    }
+
+                    paper-item.account-item {
+                        padding: 8px 16px;
+                    }
+
+                    .service-name {
+                        color: #333;
+                    }
+
+                    .service-description {
+                        margin-top: 4px;
+                        color: #999;
+                    }
+                </style>
+                <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                    <div>
+                        <div class="service-name">[[item.monitor.name]]</div>
+                        <div class="service-description">Width [[item.monitor.width]]px Height [[item.monitor.height]]px</div>
+                    </div>
+                    <paper-ripple></paper-ripple>
+                </paper-item>
+            </template>
+        </paper-autocomplete>
+        <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="sideline-resource"></file-upload>
+    </template>
+
+    <script>
+        class ElementSidelineResourceGenerator extends Polymer.Element {
+
+            static get is() { return 'sideline-resource-generator-wc'; }
+
+            static get properties() {
+                return {
+
+                    sideline: {
+                        type: Object
+                    },
+
+                    monitor: {
+                        type: Object,
+                        readOnly: true,
+                        notify: true
+                    }
+                };
+            }
+
+            /**
+             * @param evt
+             */
+            _searcMonitorChanged(evt) {
+
+                serviceManager.get('StoragePluginManager')
+                    .get(MonitorConfig.NAME_SERVICE)
+                    .getAll()
+                    .then((data) => {
+                        let monitors = [];
+
+                        for (let cont = 0; data.length > cont; cont++) {
+                            let internaMonitor = data[cont].getMonitors({nested: true});
+                            for (let index = 0; internaMonitor.length > index; index++) {
+                                monitors.push({
+                                    monitor: internaMonitor[index],
+                                    config: data[cont],
+                                    name: internaMonitor[index].name
+                                });
+                            }
+                        }
+
+                        let filter = monitors.filter(
+                            element => {
+                                return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
+                            }
+                        );
+
+                        evt.detail.target.suggestions(
+                            filter
+                        );
+                    });
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _selectMonitor(evt) {
+
+                this._setMonitor(evt.detail.option.monitor);
+            }
+
+            create() {
+                let service = new SidelineResourceGenerator();
+                service.generateResource(this.$.name.value, this.$.fileUpload.files, this.monitor, this.sideline);
+
+            }
+        }
+
+        window.customElements.define(ElementSidelineResourceGenerator.is, ElementSidelineResourceGenerator);
+
+    </script>
+</dom-module>
