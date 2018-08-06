@@ -80,7 +80,14 @@ class SidelineConfig extends PluginConfig {
      * @private
      */
     _loadHydrator() {
-        let sidelineHydrator = new PropertyHydrator(new Sideline());
+        let sidelineHydrator = new PropertyHydrator(
+            new Sideline(),
+            {
+                width: new NumberStrategy(),
+                height: new NumberStrategy()
+            }
+        );
+
         sidelineHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('width')
