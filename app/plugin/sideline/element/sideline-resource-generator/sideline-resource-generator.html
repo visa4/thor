@@ -1,58 +1,72 @@
-
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../../../bower_components/paper-autocomplete/paper-autocomplete.html">
 <link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-progress/paper-progress.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../element/file-upload/file-upload.html">
 
 <dom-module id="sideline-resource-generator-wc">
     <template>
         <style>
-
+            paper-progress#progress {
+                width: 100%;
+                display: none;
+            }
         </style>
-        <paper-input id="name" name="name" label="Name" required></paper-input>
-        <paper-autocomplete
-                id="monitor"
-                label="Monitor"
-                text-property="name"
-                value-property="name"
-                remote-source
-                on-autocomplete-selected="_selectMonitor"
-                on-autocomplete-change="_searcMonitorChanged">
-            <template slot="autocomplete-custom-template">
-                <style>
-                    :host {
-                        display: block;
-                    }
+        <iron-form id="formResource">
+            <form method="post">
+                <paper-input id="name" name="name" label="Name" required></paper-input>
+                <paper-autocomplete
+                        id="monitor"
+                        label="Monitor"
+                        text-property="name"
+                        value-property="name"
+                        remote-source
+                        on-autocomplete-selected="_selectMonitor"
+                        on-autocomplete-change="_searcMonitorChanged">
+                    <template slot="autocomplete-custom-template">
+                        <style>
+                            :host {
+                                display: block;
+                            }
 
-                    paper-item.account-item {
-                        padding: 8px 16px;
-                    }
+                            paper-item.account-item {
+                                padding: 8px 16px;
+                            }
 
-                    .service-name {
-                        color: #333;
-                    }
+                            .service-name {
+                                color: #333;
+                            }
 
-                    .service-description {
-                        margin-top: 4px;
-                        color: #999;
-                    }
-                </style>
-                <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
-                    <div>
-                        <div class="service-name">[[item.monitor.name]]</div>
-                        <div class="service-description">Width [[item.monitor.width]]px Height [[item.monitor.height]]px</div>
-                    </div>
-                    <paper-ripple></paper-ripple>
-                </paper-item>
-            </template>
-        </paper-autocomplete>
-        <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="sideline-resource"></file-upload>
+                            .service-description {
+                                margin-top: 4px;
+                                color: #999;
+                            }
+                        </style>
+                        <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                            <div>
+                                <div class="service-name">[[item.monitor.name]]</div>
+                                <div class="service-description">Width [[item.monitor.width]]px Height
+                                    [[item.monitor.height]]px
+                                </div>
+                            </div>
+                            <paper-ripple></paper-ripple>
+                        </paper-item>
+                    </template>
+
+                </paper-autocomplete>
+                <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="sideline-resource"></file-upload>
+                <paper-progress id="progress" indeterminate class="slow red"></paper-progress>
+            </form>
+        </iron-form>
     </template>
 
     <script>
         class ElementSidelineResourceGenerator extends Polymer.Element {
 
-            static get is() { return 'sideline-resource-generator-wc'; }
+            static get is() {
+                return 'sideline-resource-generator-wc';
+            }
 
             static get properties() {
                 return {
@@ -114,8 +128,20 @@
 
             create() {
                 let service = new SidelineResourceGenerator();
-                service.generateResource(this.$.name.value, this.$.fileUpload.files, this.monitor, this.sideline);
-
+                let options = {
+                    progress: function (progress) {
+                        console.log('progress', progress);
+                        this.$.progress.style.display = 'block';
+                    }.bind(this)
+                };
+                service.generateResource(this.$.name.value, this.$.fileUpload.files, this.monitor, this.sideline, options)
+                    .then((data) => {
+                        this.$.progress.style.display = 'none';
+                        this.$.formResource.reset();
+                        this.$.monitor.clear();
+                        this.$.fileUpload.clearName();
+                        console.log('finish', data)
+                    });
             }
         }
 
