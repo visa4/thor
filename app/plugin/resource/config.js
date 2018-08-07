@@ -125,7 +125,7 @@ class ResourceConfig extends PluginConfig {
     _loadVideoHydrator() {
         let videoHydrator = new PropertyHydrator(new Video());
         videoHydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('customName')
+            .enableHydrateProperty('name')
             .enableHydrateProperty('size')
             .enableHydrateProperty('type')
             .enableHydrateProperty('location')
@@ -134,7 +134,7 @@ class ResourceConfig extends PluginConfig {
             .enableHydrateProperty('dimension');
 
         videoHydrator.enableExtractProperty('id')
-            .enableExtractProperty('customName')
+            .enableExtractProperty('name')
             .enableExtractProperty('size')
             .enableExtractProperty('type')
             .enableExtractProperty('location')
@@ -156,7 +156,7 @@ class ResourceConfig extends PluginConfig {
     _loadImageHydrator() {
         let imageHydrator = new PropertyHydrator(new Image());
         imageHydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('customName')
+            .enableHydrateProperty('name')
             .enableHydrateProperty('size')
             .enableHydrateProperty('type')
             .enableHydrateProperty('location')
@@ -164,7 +164,7 @@ class ResourceConfig extends PluginConfig {
             .enableHydrateProperty('dimension');
 
         imageHydrator.enableExtractProperty('id')
-            .enableExtractProperty('customName')
+            .enableExtractProperty('name')
             .enableExtractProperty('size')
             .enableExtractProperty('type')
             .enableExtractProperty('location')
@@ -185,7 +185,7 @@ class ResourceConfig extends PluginConfig {
         let genericHydrator = new PropertyHydrator(new GenericFile());
 
         genericHydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('customName')
+            .enableHydrateProperty('name')
             .enableHydrateProperty('size')
             .enableHydrateProperty('wcName')
             .enableHydrateProperty('type')
@@ -193,7 +193,7 @@ class ResourceConfig extends PluginConfig {
             .enableHydrateProperty('lastModified');
 
         genericHydrator.enableExtractProperty('id')
-            .enableExtractProperty('customName')
+            .enableExtractProperty('name')
             .enableExtractProperty('size')
             .enableExtractProperty('wcName')
             .enableExtractProperty('type')
@@ -230,10 +230,7 @@ class ResourceConfig extends PluginConfig {
         let fs = require('fs');
         let path = require('path');
 
-        // TODO accept only domain object
-        evt.data.getPath = function () {
-            return this.location.path + this.location.name;
-        }.bind(evt.data);
+        console.log('RESOURCE',evt);
 
         let arrayName = path.win32.basename(evt.data.getPath()).split('.');
         let pathName = `${__dirname}/../../storage/resource/`;
@@ -280,11 +277,6 @@ class ResourceConfig extends PluginConfig {
     onUpdate(evt) {
         let fs = require('fs');
         let path = require('path');
-
-        // TODO accept only domain object
-        evt.data.getPath = function () {
-            return this.location.path + this.location.name;
-        }.bind(evt.data);
 
         let arrayName = path.win32.basename(evt.data.getPath()).split('.');
         if (arrayName[0] !== 'resource') {

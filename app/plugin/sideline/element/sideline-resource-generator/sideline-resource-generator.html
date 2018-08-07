@@ -79,6 +79,22 @@
                         type: Object,
                         readOnly: true,
                         notify: true
+                    },
+
+                    path: {
+                        type: String,
+                        value : 'app/storage/tmp/'
+                    },
+
+                    fileName : {
+                        type: String,
+                        value:  'sideline.mp4'
+                    },
+
+                    fileCounter : {
+                        type: Number,
+                        readOnly:true,
+                        value :1
                     }
                 };
             }
@@ -130,18 +146,26 @@
                 let service = new SidelineResourceGenerator();
                 let options = {
                     progress: function (progress) {
-                        console.log('progress', progress);
+                        console.log('progress');
                         this.$.progress.style.display = 'block';
                     }.bind(this)
                 };
-                service.generateResource(this.$.name.value, this.$.fileUpload.files, this.monitor, this.sideline, options)
-                    .then((data) => {
+
+                service.generateResource(
+                    this.$.name.value,
+                    this.$.fileUpload.files,
+                    this.monitor,
+                    this.sideline,
+                    `${this.path}${this.fileCounter}${this.fileName}`,
+                    options).then((data) => {
                         this.$.progress.style.display = 'none';
                         this.$.formResource.reset();
                         this.$.monitor.clear();
                         this.$.fileUpload.clearName();
-                        console.log('finish', data)
+
+                        console.log(f)
                     });
+                this._setFileCounter(this.fileCounter + 1);
             }
         }
 

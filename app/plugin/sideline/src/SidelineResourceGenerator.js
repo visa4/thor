@@ -16,7 +16,7 @@ class SidelineResourceGenerator {
      * @param sideline
      * @param options
      */
-    generateResource(name, files, monitor, sideline, options = {}) {
+    generateResource(name, files, monitor, sideline, output, options = {}) {
 
         return new Promise((resolve, reject) => {
             let command = new this.ffmpeg();
@@ -134,17 +134,15 @@ class SidelineResourceGenerator {
 
             console.log(complexFilter);
 
-            let outFile = 'test/out.mp4';
-
             command
                 .complexFilter(complexFilter, 'base'+index)
-                .save(outFile)
+                .save(output)
                 .on('error', function(err) {
                     reject(err.message);
                 })
-                .on('progress', options.progress ? options.progress : () =>{})
+                .on('progress', options.progress ? options.progress : () =>{console.log('default progress')})
                 .on('end', function(data) {
-                    resolve(data);
+                    resolve(output);
                 });
 
         });

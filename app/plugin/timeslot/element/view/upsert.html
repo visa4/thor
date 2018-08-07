@@ -99,7 +99,7 @@
                         </style>
                         <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
                             <div>
-                                <div class="service-name">[[item.customName]]</div>
+                                <div class="service-name">[[item.name]]</div>
                             </div>
                             <paper-ripple></paper-ripple>
                         </paper-item>
@@ -325,7 +325,7 @@
 
                 for (let cont = 0; newValue.resources.length > cont; cont++) {
 
-                    let chip = this._createChip(newValue.resources[cont], 'customName', 'resource');
+                    let chip = this._createChip(newValue.resources[cont], 'name', 'resource');
                     chip.addEventListener('remove', this._removeResource.bind(this));
                     this.$.listResource.appendChild(chip);
                 }
@@ -403,7 +403,7 @@
 
                         let filter = data.filter(
                             element => {
-                                return element.customName.search(new RegExp(evt.detail.value, 'i')) > -1;
+                                return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
                             }
                         );
 
@@ -423,10 +423,10 @@
              */
             _selectResource(evt) {
 
-                let chip = this._createChip(evt.detail.option, 'customName', 'resource');
+                let chip = this._createChip(evt.detail.option, 'name', 'resource');
                 chip.addEventListener('remove', this._removeResource.bind(this));
 
-                this.$.listResource.appendChild(this._createChip(evt.detail.option, 'customName', 'resource'));
+                this.$.listResource.appendChild(this._createChip(evt.detail.option, 'name', 'resource'));
                 this.timeslot.resources.push(
                     evt.detail.option
                 );

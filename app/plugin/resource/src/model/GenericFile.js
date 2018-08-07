@@ -8,6 +8,9 @@ class GenericFile {
         this.name = null;
     }
 
+    /**
+     * @returns {String}
+     */
     getPath() {
         let path = null;
         if (typeof this.location === 'object' && this.location !== null) {

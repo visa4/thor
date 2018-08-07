@@ -17,7 +17,7 @@
         <iron-form id="formResource">
             <form method="post">
                 <div>
-                    <paper-input id="name" name="name" label="Name" required></paper-input>
+                    <paper-input id="name" name="name" label="Name" value="{{resource.name}}" required></paper-input>
                     <file-upload id="fileUpload" tmp-relative-path="/storage/tmp/" rename-single-file="resource"></file-upload>
                 </div>
                 <div>
@@ -83,45 +83,18 @@
                 evt.preventDefault();
 
                 let file = this.$.fileUpload.files[0];
-                let nameFile = this.$.name.value;
-                let data = {};
 
                 if (this.resource.id) {
-
-                    data = serviceManager.get('StoragePluginManager')
-                        .get(ResourceConfig.NAME_SERVICE)
-                        .hydrator.extract(this.resource);
-
-                    data.customName = nameFile;
-
-                    if (file) {
-                        data.size = file.size;
-                        data.lastModified = file.lastModified;
-                        data.location = file.location;
-                        data.type = file.type;
-
-                        if (file.dimension) {
-                            data.dimension = file.dimension;
-                        }
-
-                        if (file.duration) {
-                            data.duration = file.duration;
-                        }
-
-                    }
-
-                } else {
-                    if (file) {
-                        data =  serviceManager.get('StoragePluginManager')
-                            .get(ResourceConfig.NAME_SERVICE)
-                            .hydrator.extract(file);
-                    }
-                    data.customName = nameFile;
+                    serviceManager.get('HydratorPluginManager').get('resourceHydrator').referenceObject = this.resource;
                 }
+
+                let resource = serviceManager.get('HydratorPluginManager').get('resourceHydrator').hydrate(file);
+                resource.id = this.resource.id;
+                resource.name = this.$.name.value;
 
                 let method = this.resource.id ? 'update' : 'save';
                 serviceManager.get('StoragePluginManager')
-                    .get(ResourceConfig.NAME_SERVICE)[method](data)
+                    .get(ResourceConfig.NAME_SERVICE)[method](resource)
                     .then((data) => {
                         serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' resource');
                     })
@@ -146,7 +119,6 @@
              * @private
              */
             _resourceChanged(newValue, oldValue) {
-                this.$.name.value = newValue.customName;
                 this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
             }
 

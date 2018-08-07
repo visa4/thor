@@ -121,7 +121,7 @@
       ],
       "autoloadWs" : [],
       "widgets": [],
-      "icon": "app:timeslot",
+      "icon": "app:sideline",
       "nameWc": "sideline-index"
     }
 
