@@ -147,6 +147,60 @@ class SidelineResourceGenerator {
 
         });
     }
+
+    _test() {
+        let command = new this.ffmpeg();
+        let complexFilter = [];
+        let backgroundColor = 'black';
+        complexFilter.push(`color=s=${8640}x${90}:c=${backgroundColor} [base0]`);
+
+        command = command.addInput('test/2880x90.mp4');
+        command = command.addInput('test/2880x90.mp4');
+        command = command.addInput('test/2880x90.mp4');
+
+        complexFilter.push({
+            filter: 'setpts=PTS-STARTPTS',
+            inputs: `${0}:v`, outputs: `block${0}`
+        });
+
+        complexFilter.push({
+            filter: 'setpts=PTS-STARTPTS',
+            inputs: `${1}:v`, outputs: `block${1}`
+        });
+
+        complexFilter.push({
+            filter: 'setpts=PTS-STARTPTS',
+            inputs: `${2}:v`, outputs: `block${2}`
+        });
+
+        complexFilter.push({
+            filter: 'overlay', options: { shortest:1, x: 0, y:  0},
+            inputs: [`base${0}`, `block${0}`], outputs: `base${1}`
+        });
+
+        complexFilter.push({
+            filter: 'overlay', options: { shortest:1, x: 2880, y:  0},
+            inputs: [`base${1}`, `block${1}`], outputs: `base${2}`
+        });
+
+        complexFilter.push({
+            filter: 'overlay', options: { shortest:1, x: 5760, y:  0},
+            inputs: [`base${2}`, `block${2}`], outputs: `base${3}`
+        });
+
+
+        command
+            .complexFilter(complexFilter, 'base3')
+            .save('test/8640x90.mp4')
+            .on('error', function(err) {
+                console.log(err.message);
+            })
+            .on('progress', () =>{console.log('default progress')})
+            .on('end', function(data) {
+                console.log('ok');
+            });
+
+    }
 }
 
 module.exports = SidelineResourceGenerator;

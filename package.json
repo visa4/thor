@@ -29,10 +29,11 @@
   "dependencies": {
     "adm-zip": "^0.4.9",
     "app-module-path": "^2.2.0",
+    "dexie": "^2.0.4",
     "easytimer.js": "git+ssh://git@github.com/albert-gonzalez/easytimer.js.git",
+    "file-metadata": "^1.0.0",
     "fluent-ffmpeg": "^2.1.2",
-    "image-size": "^0.6.2",
-    "dexie": "^2.0.4"
+    "image-size": "^0.6.2"
   },
   "nyc": {
     "reporter": [
