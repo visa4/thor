@@ -10,6 +10,10 @@ class Monitor {
         this.offsetX = 0;
         this.offsetY = 0;
         this.backgroundColor = 'transparent';
+        /**
+         * TODO now string but in the future will be an array of point
+         * @type {null}
+         */
         this.polygon = null;
         this.monitors = [];
     }

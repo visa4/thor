@@ -2,23 +2,59 @@
 class SidelineResourceGenerator {
 
     /**
-     *
+     * @param storage
      */
-    constructor() {
+    constructor(storage) {
         this.ffmpeg = require('fluent-ffmpeg');
+        this.storageMonitor = storage;
     }
 
     /**
      *
      * @param name
      * @param files
-     * @param monitor
      * @param sideline
+     * @param output
      * @param options
+     * @returns {Promise}
      */
-    generateResource(name, files, monitor, sideline, output, options = {}) {
+    generateResource(name, files, sideline, output, options = {}) {
 
         return new Promise((resolve, reject) => {
+
+
+            serviceManager.get('StoragePluginManager')
+                .get(MonitorConfig.NAME_SERVICE)
+                .get(sideline.virtualMonitorReference.virtualMonitorId)
+                .then((monitor) => {
+                    // Inject monitor in sideline
+                    this._injectsMonitor(sideline, monitor.getMonitors({nested:true}));
+
+                    // Order monitor
+                    sideline.sidelines.sort(
+                        (ele1, ele2) => {
+                            return ele1.monitor.offsetY >= ele2.monitor.offsetY
+                        }
+                    );
+
+                    let mosaic = new SidelineMosaic(sideline);
+                    mosaic.setBaseComplexFilter(`color=s=${mosaic.getWidth()}x${mosaic.getHeight()}:c=${options.backgroundColor ? options.backgroundColor : 'black'}`);
+
+                    while (mosaic.getWidth() > 0) {
+
+                        for (let cont = 0; files.length > cont; cont++) {
+                            mosaic.setResource(files[cont]);
+
+                            console.log('tets');
+                            mosaic.width = mosaic.width - files[cont].dimension.width;
+                        }
+                    }
+
+                    console.log('MOSAICO', mosaic);
+                });
+
+
+            /**
             let command = new this.ffmpeg();
             let complexFilter = [];
             let backgroundColor = options.backgroundColor ? options.backgroundColor : 'black';
@@ -35,7 +71,6 @@ class SidelineResourceGenerator {
 
             /**
              * Add files
-             */
             while (widthSideline > 0) {
                 for (let cont = 0; cont < files.length; cont++) {
 
@@ -82,7 +117,7 @@ class SidelineResourceGenerator {
 
             /**
              * Calculate the coordinates of the files
-             */
+
             while (widthSideline > 0) {
                 for (let cont = 0; cont < files.length; cont++) {
 
@@ -145,7 +180,43 @@ class SidelineResourceGenerator {
                     resolve(output);
                 });
 
+             **/
+
         });
+    }
+
+    /**
+     * @param sideline
+     * @param monitors
+     * @private
+     */
+    _injectsMonitor(sideline, monitors) {
+
+        for (let index = 0; monitors.length > index; index++) {
+            if (sideline.virtualMonitorReference.monitorId === monitors[index].id) {
+                sideline.monitor = monitors[index];
+                monitors.splice(index, 0);
+                break;
+            }
+        }
+
+        if (sideline.sidelines.length > 0) {
+            for (let cont = 0; sideline.sidelines.length > cont; cont++) {
+                this._injectsMonitor(sideline.sidelines[cont], monitors);
+            }
+        }
+
+        return;
+    }
+
+    /**
+     *
+     * @param mosaic
+     * @param resource
+     * @private
+     */
+    _addResourceToMosaic(mosaic, resource) {
+
     }
 
     _test() {
@@ -200,6 +271,39 @@ class SidelineResourceGenerator {
                 console.log('ok');
             });
 
+    }
+
+    _testCrop() {
+        let command = new this.ffmpeg();
+        let complexFilter = [];
+        let backgroundColor = 'black';
+        complexFilter.push(`color=s=${1920}x${1080}:c=${backgroundColor} [base0]`);
+
+        command = command.addInput('test/2880x90.mp4');
+
+        complexFilter.push({
+            filter: 'crop=400:90:0:0',
+            inputs: `${0}:v`,
+            outputs: `block${0}`
+        });
+
+        complexFilter.push({
+            filter: 'overlay',
+            options: { shortest:1, x: 100, y:  100},
+            inputs: [`base${0}`, `block${0}`],
+            outputs: `base${1}`
+        });
+
+        command
+            .complexFilter(complexFilter, 'base1')
+            .save('test/test.mp4')
+            .on('error', function(err) {
+                console.log(err.message);
+            })
+            .on('progress', () =>{console.log('default progress')})
+            .on('end', function(data) {
+                console.log('ok');
+            });
     }
 }
 

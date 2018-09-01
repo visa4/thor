@@ -46,7 +46,8 @@
                 margin-left: 30px;
             }
 
-            .paper-monitor paper-input {
+            .paper-monitor paper-input,
+            .paper-sub-monitor paper-input{
                 padding-left: 6px;
             }
 
@@ -66,8 +67,7 @@
             <div class="flex-basis-70" style="padding-right:16px;">
                 <iron-form id="formMonitor">
                     <form method="post" action="">
-                        <paper-input id="name" name="name" label="Name" value="{{identifier}}" class="margin-bottom-16"
-                                     required></paper-input>
+                        <paper-input id="name" name="name" label="Name" value="{{identifier}}" class="margin-bottom-16" required></paper-input>
                         <template is="dom-repeat" items="{{monitors}}" as="monitor">
                             <paper-card class="paper-monitor">
                                 <paper-input name="name" label="Name" value="{{monitor.name}}" required style="flex-basis: 30%;"></paper-input>
@@ -78,7 +78,7 @@
                                 <paper-input name="offsetY" label="Offeset Y" type="number" value="{{monitor.offsetY}}" required style="flex-basis: 10%;"></paper-input>
                                 <paper-input name="backgroundColor" label="Background color" type="color" value="{{monitor.backgroundColor}}" required style="flex-basis: 10%;"></paper-input>
                                 <div class="flex flex-center" style="flex-basis: 10%;">
-                                    <paper-icon-button item="{{monitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
+                                    <paper-icon-button item="{{monitor}}" icon="app:trash" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
                                     </paper-icon-button>
                                 </div>
                             </paper-card>
@@ -92,7 +92,7 @@
                                     <paper-input name="offsetY" label="Offeset Y" type="number" value="{{submonitor.offsetY}}" required style="flex-basis: 9%;"></paper-input>
                                     <paper-input name="backgroundColor" label="Background color" type="color" value="{{submonitor.backgroundColor}}" required style="flex-basis: 9%;"></paper-input>
                                     <div class="flex flex-center" style="flex-basis: 9%;">
-                                        <paper-icon-button item="{{submonitor}}" icon="monitor:remove" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
+                                        <paper-icon-button item="{{submonitor}}" icon="app:trash" index="{{index}}" class="circle-small" title="Delete" on-tap="deleteMonitor">
                                         </paper-icon-button>
                                     </div>
                                 </paper-card>

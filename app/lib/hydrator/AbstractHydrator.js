@@ -25,6 +25,7 @@ class AbstractHydrator {
         }
 
         this.strategies[name] = strategy;
+        return this;
     }
 
     /**

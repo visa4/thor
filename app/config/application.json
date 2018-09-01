@@ -117,7 +117,8 @@
       "configFile": "config.js",
       "autoloads": [
         "src/model/Sideline.js",
-        "src/SidelineResourceGenerator.js"
+        "src/SidelineResourceGenerator.js",
+        "src/ffmpg/SidelineMosaic.js"
       ],
       "autoloadWs" : [],
       "widgets": [],

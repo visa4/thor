@@ -30,7 +30,6 @@ class SidelineConfig extends PluginConfig {
     init() {
         this._loadHydrator();
         this._loadStorage();
-        this._loadSidelineResourceGenerator();
     }
 
     _loadStorage() {
@@ -67,6 +66,14 @@ class SidelineConfig extends PluginConfig {
                                 SidelineConfig.NAME_SERVICE,
                                 storage
                             );
+
+                            this.serviceManager.set(
+                                'SidelineResourceGenerator',
+                                new SidelineResourceGenerator(
+                                    serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE)
+                                )
+                            );
+
                         }.bind(this)
                     );
                 }
@@ -80,35 +87,50 @@ class SidelineConfig extends PluginConfig {
      * @private
      */
     _loadHydrator() {
+
+        let monitorHydrator = new PropertyHydrator(
+            new Monitor(),
+        );
+
+        monitorHydrator.enableHydrateProperty('id')
+            .enableExtractProperty('id');
+
         let sidelineHydrator = new PropertyHydrator(
             new Sideline(),
             {
                 width: new NumberStrategy(),
-                height: new NumberStrategy()
+                height: new NumberStrategy(),
+                virtualMonitorReference : new HydratorStrategy(new PropertyHydrator(new VirtualMonitorReference())),
             }
         );
 
         sidelineHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('width')
-            .enableHydrateProperty('height');
+            .enableHydrateProperty('height')
+            .enableHydrateProperty('virtualMonitorReference')
+            .enableHydrateProperty('sidelines');
 
         sidelineHydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
             .enableExtractProperty('width')
-            .enableExtractProperty('height');
+            .enableExtractProperty('height')
+            .enableExtractProperty('virtualMonitorReference')
+            .enableExtractProperty('sidelines');
+
+
+        sidelineHydrator.addStrategy(
+            'monitor',
+            new HydratorStrategy(monitorHydrator)
+        ).addStrategy(
+            'sidelines',
+            new HydratorStrategy(sidelineHydrator)
+        );
+
 
         this.serviceManager.get('HydratorPluginManager').set(
             'sidelineHydrator',
             sidelineHydrator
-        );
-    }
-
-    _loadSidelineResourceGenerator() {
-
-        this.serviceManager.set(
-            'SidelineResourceGenerator',
-            new SidelineResourceGenerator()
         );
     }
 }

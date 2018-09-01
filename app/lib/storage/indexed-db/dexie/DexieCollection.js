@@ -52,7 +52,7 @@ class DexieCollection {
      * @param {String} id
      */
     get(id) {
-        return this.dexieManager.db[this.nameCollection].get(obj.id);
+        return this.dexieManager.db[this.nameCollection].get(id);
     }
 
     /**

@@ -17,13 +17,13 @@
             <form method="post">
                 <paper-input id="name" name="name" label="Name" required></paper-input>
                 <paper-autocomplete
-                        id="monitor"
-                        label="Monitor"
+                        id="sideline"
+                        label="Sideline"
                         text-property="name"
                         value-property="name"
                         remote-source
-                        on-autocomplete-selected="_selectMonitor"
-                        on-autocomplete-change="_searcMonitorChanged">
+                        on-autocomplete-selected="_selectSideline"
+                        on-autocomplete-change="_searctSidelineChanged">
                     <template slot="autocomplete-custom-template">
                         <style>
                             :host {
@@ -45,10 +45,8 @@
                         </style>
                         <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
                             <div>
-                                <div class="service-name">[[item.monitor.name]]</div>
-                                <div class="service-description">Width [[item.monitor.width]]px Height
-                                    [[item.monitor.height]]px
-                                </div>
+                                <div class="service-name">[[item.name]]</div>
+                                <div class="service-description">Width [[item.width]]px Height [[item.height]]px</div>
                             </div>
                             <paper-ripple></paper-ripple>
                         </paper-item>
@@ -72,13 +70,8 @@
                 return {
 
                     sideline: {
-                        type: Object
-                    },
-
-                    monitor: {
                         type: Object,
-                        readOnly: true,
-                        notify: true
+                        readOnly:true,
                     },
 
                     path: {
@@ -102,26 +95,13 @@
             /**
              * @param evt
              */
-            _searcMonitorChanged(evt) {
+            _searctSidelineChanged(evt) {
 
                 serviceManager.get('StoragePluginManager')
-                    .get(MonitorConfig.NAME_SERVICE)
+                    .get(SidelineConfig.NAME_SERVICE)
                     .getAll()
                     .then((data) => {
-                        let monitors = [];
-
-                        for (let cont = 0; data.length > cont; cont++) {
-                            let internaMonitor = data[cont].getMonitors({nested: true});
-                            for (let index = 0; internaMonitor.length > index; index++) {
-                                monitors.push({
-                                    monitor: internaMonitor[index],
-                                    config: data[cont],
-                                    name: internaMonitor[index].name
-                                });
-                            }
-                        }
-
-                        let filter = monitors.filter(
+                        let filter = data.filter(
                             element => {
                                 return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
                             }
@@ -137,13 +117,12 @@
              * @param evt
              * @private
              */
-            _selectMonitor(evt) {
+            _selectSideline(evt) {
 
-                this._setMonitor(evt.detail.option.monitor);
+                this._setSideline(evt.detail.option);
             }
 
             create() {
-                let service = new SidelineResourceGenerator();
                 let options = {
                     progress: function (progress) {
                         console.log('progress');
@@ -151,10 +130,9 @@
                     }.bind(this)
                 };
 
-                service.generateResource(
+                serviceManager.get('SidelineResourceGenerator').generateResource(
                     this.$.name.value,
                     this.$.fileUpload.files,
-                    this.monitor,
                     this.sideline,
                     `${this.path}${this.fileCounter}${this.fileName}`,
                     options).then((data) => {
