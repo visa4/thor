@@ -149,7 +149,7 @@ class SidelineMosaic {
 
             switch (true) {
 
-                case sideline != null && this.currentResource.getWidth() >= sideline.monitor.width && sideline.monitor.width < this._sideline.monitor.width:
+                case this.currentResource.getWidth() >= sideline.monitor.width && sideline.monitor.width < this._sideline.monitor.width:
 
                     this.inputs.push(this.currentResource);
                     this.appendFilterComplexFilter(`crop=${sideline.monitor.width}:${sideline.monitor.height}:${this.currentYOffset}:${this.currentXOffset}`);
@@ -157,8 +157,8 @@ class SidelineMosaic {
                     console.group('CROP');
                     // TODO ADD INPUT
                     this._sidelineMonitorIndex++;
-                    this.currentYOffset =  sideline.monitor.offsetY;
-                    this.currentXOffset = sideline.monitor.offsetX;
+                    this.currentYOffset =  this.getCurrentSideline().monitor.offsetY;
+                    this.currentXOffset = this.getCurrentSideline().monitor.offsetX;
                     this.currentResourceXOffset = this.currentResourceXOffset + sideline.monitor.width;
                     widthResource = widthResource - sideline.monitor.width;
                     break;
@@ -186,11 +186,11 @@ class SidelineMosaic {
 
             }
 
-            console.log('RESOURCE REMAING WIDTH', this.getCurrentResourceRemainingWidth())
-            console.log('OFFSET X', this.currentYOffset);
-            console.log('OFFSET Y', this.currentXOffset);
-            console.log('RESOURCE OFFSET X', this.currentResourceXOffset);
-            console.log('NEXT', this._sidelineMonitorIndex);
+            console.log('getCurrentResourceRemainingWidth', this.getCurrentResourceRemainingWidth())
+            console.log('currentYOffset', this.currentYOffset);
+            console.log('currentXOffset', this.currentXOffset);
+            console.log('currentResourceXOffset', this.currentResourceXOffset);
+            console.log('_sidelineMonitorIndex', this._sidelineMonitorIndex);
             console.groupEnd();
         }
 
