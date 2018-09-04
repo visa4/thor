@@ -2,10 +2,12 @@
 class SidelineResourceGenerator {
 
     /**
+     *
      * @param storage
+     * @param resourceHydrator
      */
-    constructor(storage) {
-        this.ffmpeg = require('fluent-ffmpeg');
+    constructor(storage, resourceHydrator) {
+        this.hidrator = resourceHydrator;
         this.storageMonitor = storage;
     }
 
@@ -37,20 +39,16 @@ class SidelineResourceGenerator {
                         }
                     );
 
-                    let mosaic = new SidelineMosaic(sideline);
-                    mosaic.setBaseComplexFilter(`color=s=${mosaic.getWidth()}x${mosaic.getHeight()}:c=${options.backgroundColor ? options.backgroundColor : 'black'}`);
+                    let mosaic = new SidelineMosaic(sideline, this.hidrator);
+                    mosaic.setBaseComplexFilter(`color=s=${mosaic.getWidth()}x${mosaic.getHeight()}:c=${options.backgroundColor ? options.backgroundColor : 'red'}`);
 
-                    while (mosaic.getWidth() > 0) {
-
+                    while (mosaic.getRemainingWidth() > 0) {
                         for (let cont = 0; files.length > cont; cont++) {
-                            mosaic.setResource(files[cont]);
-
-                            console.log('tets');
-                            mosaic.width = mosaic.width - files[cont].dimension.width;
+                            mosaic.addResource(files[cont]);
                         }
                     }
 
-                    console.log('MOSAICO', mosaic);
+                    mosaic.generateVideo(name);
                 });
 
 
@@ -220,6 +218,7 @@ class SidelineResourceGenerator {
     }
 
     _test() {
+        this.ffmpeg = require('fluent-ffmpeg');
         let command = new this.ffmpeg();
         let complexFilter = [];
         let backgroundColor = 'black';
@@ -258,7 +257,7 @@ class SidelineResourceGenerator {
             filter: 'overlay', options: { shortest:1, x: 5760, y:  0},
             inputs: [`base${2}`, `block${2}`], outputs: `base${3}`
         });
-
+        console.log('COMPLEX FILTER', complexFilter);
 
         command
             .complexFilter(complexFilter, 'base3')
@@ -274,6 +273,7 @@ class SidelineResourceGenerator {
     }
 
     _testCrop() {
+        this.ffmpeg = require('fluent-ffmpeg');
         let command = new this.ffmpeg();
         let complexFilter = [];
         let backgroundColor = 'black';
@@ -284,18 +284,19 @@ class SidelineResourceGenerator {
         complexFilter.push({
             filter: 'crop=400:90:0:0',
             inputs: `${0}:v`,
-            outputs: `block${0}`
+            outputs: `filter${0}`
         });
 
         complexFilter.push({
             filter: 'overlay',
             options: { shortest:1, x: 100, y:  100},
-            inputs: [`base${0}`, `block${0}`],
-            outputs: `base${1}`
+            inputs: [`base${0}`, `filter${0}`],
+            outputs: `overlay${1}`
         });
 
+        console.log('COMPLEX FILTER', complexFilter);
         command
-            .complexFilter(complexFilter, 'base1')
+            .complexFilter(complexFilter, 'overlay1')
             .save('test/test.mp4')
             .on('error', function(err) {
                 console.log(err.message);

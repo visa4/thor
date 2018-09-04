@@ -12,6 +12,20 @@ class Video extends GenericFile {
             {writable: false, enumerable: true, configurable: true, value: 'video'}
         );
     }
+
+    /**
+     * @returns {Number}
+     */
+    getWidth() {
+        return this.dimension.width;
+    }
+
+    /**
+     * @returns {Number}
+     */
+    getHeight() {
+        return this.dimension.height;
+    }
 }
 
 module.exports = Video;
