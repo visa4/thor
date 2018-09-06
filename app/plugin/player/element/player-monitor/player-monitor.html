@@ -40,12 +40,14 @@
                 z-index: 3;
             }
 
+            .monitors {
+                z-index: 4;
+            }
+
         </style>
 
-        <div class="layers">
-            <div id="default"  class="layer default"></div>
-            <div id="standard" class="layer standard"></div>
-            <div id="overlay"  class="layer overlay"></div>
+        <div id="container" class="layers">
+
             <div id="monitors" class="layer monitors"></div>
         </div>
     </template>
@@ -289,8 +291,14 @@
                 if (!newValue) {
                     return;
                 }
+                setTimeout(
+                    () => {
+                        this.$.container.style.backgroundColor = newValue === '#ffffff' ? 'transparent' : newValue
+                    },
+                    500
+                );
                 // TODO migliore il color picker per gestire la trasparenza
-                this.style.backgroundColor = newValue === '#ffffff' ? 'transparent' : newValue
+
             }
 
             /**

@@ -40,7 +40,7 @@ class SidelineResourceGenerator {
                     );
 
                     let mosaic = new SidelineMosaic(sideline, this.hidrator);
-                    mosaic.setBaseComplexFilter(`color=s=${mosaic.getWidth()}x${mosaic.getHeight()}:c=${options.backgroundColor ? options.backgroundColor : 'red'}`);
+                    mosaic.setBaseComplexFilter(`color=s=${mosaic.getWidth()}x${mosaic.getHeight()}:c=${options.backgroundColor ? options.backgroundColor : 'black'}`);
 
                     while (mosaic.getRemainingWidth() > 0) {
                         for (let cont = 0; files.length > cont; cont++) {

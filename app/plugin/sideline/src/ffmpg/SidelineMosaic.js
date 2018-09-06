@@ -66,6 +66,13 @@ class SidelineMosaic {
     }
 
     /**
+     * @returns {boolean}
+     */
+    hasNextSideline() {
+        return !!this._sideline.sidelines[this._sidelineMonitorIndex + 1];
+    }
+
+    /**
      * @param {String} baseString
      */
     setBaseComplexFilter(baseString = '') {
@@ -94,7 +101,7 @@ class SidelineMosaic {
         this._complexFilter.overlay.push({
             filter: 'overlay',
             options:  { shortest:1, x: x, y:  y},
-            inputs: [this._filterIndex === 0 ? `overlay${this._overlayIndex}` : 'base0', `filter${this._filterIndex - 1}`],
+            inputs: [this._overlayIndex !== 0 ? `overlay${this._overlayIndex}` : 'base0', `filter${this._filterIndex - 1}`],
             outputs: `overlay${this._overlayIndex + 1}`
         });
         this._overlayIndex++;
@@ -139,64 +146,77 @@ class SidelineMosaic {
     addResource(resource) {
 
         this.setCurrentResource(resource);
-        let widthResource = this.currentResource.getWidth();
+        let resourceRemaingWidth = this.currentResource.getWidth();
 
-        while (widthResource > 0)  {
+        while (resourceRemaingWidth > 0 && this._remainingWidth > 0)  {
 
             let sideline = this.getCurrentSideline();
-           // this.inputs.push(resource);
-
 
             switch (true) {
 
                 case this.currentResource.getWidth() >= sideline.monitor.width && sideline.monitor.width < this._sideline.monitor.width:
-
+                    this.consoleLog('CROP AFTER', resourceRemaingWidth);
                     this.inputs.push(this.currentResource);
                     this.appendFilterComplexFilter(`crop=${sideline.monitor.width}:${sideline.monitor.height}:${this.currentYOffset}:${this.currentXOffset}`);
                     this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
-                    console.group('CROP');
-                    // TODO ADD INPUT
-                    this._sidelineMonitorIndex++;
-                    this.currentYOffset =  this.getCurrentSideline().monitor.offsetY;
-                    this.currentXOffset = this.getCurrentSideline().monitor.offsetX;
-                    this.currentResourceXOffset = this.currentResourceXOffset + sideline.monitor.width;
-                    widthResource = widthResource - sideline.monitor.width;
+
+                    if (this.hasNextSideline()) {
+                        this._sidelineMonitorIndex++;
+                        this.currentYOffset = this.getCurrentSideline().monitor.offsetY;
+                        this.currentXOffset = this.getCurrentSideline().monitor.offsetX;
+                    }
+                    this.currentResourceXOffset += sideline.monitor.width;
+                    resourceRemaingWidth -= sideline.monitor.width;
+                    this.consoleLog('CROP POST', resourceRemaingWidth);
                     break;
-                case this.getCurrentResourceRemainingWidth() >= sideline.width:
-                   // this.inputs.push(this.currentResource);
-                    console.group('SBORDA');
-                    this.currentYOffset = this.currentYOffset + this._sideline.height;
-                    this.currentXOffset = sideline.monitor.offsetX;
-                    this.currentResourceXOffset = this.currentResourceXOffset + sideline.monitor.offsetX;
-                    widthResource = widthResource - sideline.monitor.width;
-                    this._sidelineMonitorIndext = this.currentYOffset < sideline.monitor.height + sideline.monitor.offsetY;
 
+                case resourceRemaingWidth >= sideline.monitor.width:
+                case this.currentXOffset + resourceRemaingWidth > sideline.monitor.width:
+                    this.consoleLog('SBORDA AFTER', resourceRemaingWidth);
+                    this.inputs.push(this.currentResource);
+                    this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
+                    this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
+
+                    this.currentXOffset -= sideline.monitor.width;
+                    this.currentYOffset += this._sideline.height;
+                    this.currentResourceXOffset += sideline.monitor.offsetX;
+                    resourceRemaingWidth -=  Math.abs(this.currentXOffset);
+                    this._sidelineMonitorIndex = this.currentYOffset < (sideline.monitor.height + sideline.monitor.offsetY) ? this._sidelineMonitorIndex : this._sidelineMonitorIndex +1;
+
+                    this.consoleLog('SBORDA POST', resourceRemaingWidth);
                     break;
-                case this.getCurrentResourceRemainingWidth() < sideline.width:
-                   // this.inputs.push(this.currentResource);
-                    console.group('RIEMPIRE');
-                    this.currentXOffset = sideline.monitor.offsetX;
-                    widthResource = widthResource - this.getCurrentResourceRemainingWidth();
+                case this.getCurrentResourceRemainingWidth() <= sideline.monitor.width:
 
-
+                    this.consoleLog('RIEMPIRE AFTER', resourceRemaingWidth);
+                    this.inputs.push(this.currentResource);
+                    this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
+                    this.appendOverlayComplexFilter(this.currentXOffset - this.currentResourceXOffset, this.currentYOffset);
+                    resourceRemaingWidth -= this.getCurrentResourceRemainingWidth();
+                    this.currentXOffset += this.getCurrentResourceRemainingWidth();
+                    this.currentResourceXOffset += this.getCurrentResourceRemainingWidth();
+                    this.consoleLog('RIEMPIRE POST', resourceRemaingWidth);
                     break;
                 default:
-                    console.group('DEFAULT');
+                    this.consoleLog('DEFAULT', resourceRemaingWidth);
                     break;
 
             }
-
-            console.log('getCurrentResourceRemainingWidth', this.getCurrentResourceRemainingWidth())
-            console.log('currentYOffset', this.currentYOffset);
-            console.log('currentXOffset', this.currentXOffset);
-            console.log('currentResourceXOffset', this.currentResourceXOffset);
-            console.log('_sidelineMonitorIndex', this._sidelineMonitorIndex);
-            console.groupEnd();
         }
 
         this._remainingWidth = this._remainingWidth - resource.dimension.width;
         console.log('FINISH RESOURCE');
         this.clearCurrentResource();
+    }
+
+    consoleLog(name, resourceRemaingWidth) {
+        console.group(name);
+        console.log('getCurrentResourceRemainingWidth', this.getCurrentResourceRemainingWidth())
+        console.log('currentYOffset', this.currentYOffset);
+        console.log('currentXOffset', this.currentXOffset);
+        console.log('currentResourceXOffset', this.currentResourceXOffset);
+        console.log('_sidelineMonitorIndex', this._sidelineMonitorIndex);
+        console.log('resourceRemaingWidth', resourceRemaingWidth);
+        console.groupEnd();
     }
 
     /**
@@ -214,11 +234,11 @@ class SidelineMosaic {
         complexFilter.push(this._complexFilter.base);
 
         for (let cont = 0; this._complexFilter.filter.length > cont; cont++) {
-            complexFilter.push(this._complexFilter.filter[0]);
+            complexFilter.push(this._complexFilter.filter[cont]);
         }
 
         for (let cont = 0; this._complexFilter.overlay.length > cont; cont++) {
-            complexFilter.push(this._complexFilter.overlay[0]);
+            complexFilter.push(this._complexFilter.overlay[cont]);
         }
 
         console.log('COMPLEX FILTER', complexFilter);
@@ -233,6 +253,11 @@ class SidelineMosaic {
             .on('end', function(data) {
                 console.log('ok');
             });
+    }
+
+    __TEST() {
+        // VIDEO FROM IMAGE
+        // ffmpeg -loop 1 -t 15 -r 60 -s 1600x90 -i arcobaleno.png  -vcodec libx264 -crf 25 -pix_fmt yuv420p test.mp4
     }
 }
 
