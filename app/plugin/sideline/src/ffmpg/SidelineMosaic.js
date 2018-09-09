@@ -14,11 +14,13 @@ class SidelineMosaic {
         this._sidelineMonitorIndex = 0;
         this._remainingWidth = sideline.width;
 
+
         this.currentXOffset = 0;
         this.currentYOffset = 0;
         if (sideline.sidelines && Array.isArray(sideline.sidelines) && sideline.sidelines.length > 0 && sideline.sidelines[0].monitor) {
             this.currentXOffset = sideline.sidelines[0].monitor.offsetX;
             this.currentYOffset = sideline.sidelines[0].monitor.offsetY;
+            this.currentSidelineRemainingWidth = sideline.sidelines[0].width;
         }
 
         this.currentResource = null;
@@ -160,6 +162,7 @@ class SidelineMosaic {
                         this._sidelineMonitorIndex++;
                         this.currentYOffset = this.getCurrentSideline().monitor.offsetY;
                         this.currentXOffset = this.getCurrentSideline().monitor.offsetX;
+                        this.currentSidelineRemainingWidth = this.getCurrentSideline().width;
                     }
                     this.resourceRemainingWidth -= sideline.monitor.width;
                     this._remainingWidth -= sideline.monitor.width;
@@ -168,27 +171,42 @@ class SidelineMosaic {
 
                 case this.resourceRemainingWidth >= sideline.monitor.width:
                 case this.currentXOffset + this.resourceRemainingWidth > sideline.monitor.width:
-                   this.consoleLog('SBORDA AFTER');
-                   // this.inputs.push(this.currentResource);
-                   // this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
-                   // this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
+                    this.consoleLog('SBORDA AFTER');
+                    this.inputs.push(this.currentResource);
+                    // tmp variable
+                    let sidelineMonitorIndex = this._sidelineMonitorIndex;
                     let chunk = sideline.monitor.width - this.currentXOffset;
+                    let width = this.currentSidelineRemainingWidth < sideline.monitor.width && this.currentSidelineRemainingWidth > 0 ? this.currentSidelineRemainingWidth : chunk;
+                    this.appendFilterComplexFilter(`crop=${width}:${sideline.height}:${this.currentXOffset+this.getCurrentResourceComputedWidth()}:0`);
+                    this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
+
+                    // Calc next step
                     this.resourceRemainingWidth -=  chunk;
                     this.currentXOffset = sideline.monitor.offsetX;
                     this.currentYOffset += this._sideline.height;
                     this._sidelineMonitorIndex = this.currentYOffset < (sideline.monitor.height + sideline.monitor.offsetY) ? this._sidelineMonitorIndex : this._sidelineMonitorIndex +1;
+
+                    if (this._sidelineMonitorIndex === sidelineMonitorIndex) {
+                        this.currentSidelineRemainingWidth -= chunk;
+                    } else if (this.hasNextSideline()) {
+                        this.currentSidelineRemainingWidth = this.getCurrentSideline().width;
+                    }
+
                     this._remainingWidth -= chunk;
                     this.consoleLog('SBORDA POST');
                     break;
                 case this.getCurrentResourceComputedWidth() <= sideline.monitor.width:
 
                     this.consoleLog('RIEMPIRE AFTER');
-                   // this.inputs.push(this.currentResource);
-                   // this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
-                   // this.appendOverlayComplexFilter(this.currentXOffset - (this.getCurrentResourceComputedWidth()), this.currentYOffset);
+                  //  this.inputs.push(this.currentResource);
+                  //  this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
+                    //this.appendOverlayComplexFilter(this.currentXOffset - (this.getCurrentResourceComputedWidth()), this.currentYOffset);
+
+                    // Calc next step
                     this._remainingWidth -= this.currentResource.getWidth() - this.getCurrentResourceComputedWidth();
                     this.currentXOffset += this.resourceRemainingWidth;
                     this.resourceRemainingWidth = 0;
+                    this.currentSidelineRemainingWidth -= sideline.monitor.width;
                     this.consoleLog('RIEMPIRE POST');
                     break;
                 default:
@@ -210,6 +228,7 @@ class SidelineMosaic {
         console.log('_sidelineMonitorIndex', this._sidelineMonitorIndex);
         console.log('resourceRemainingWidth', this.resourceRemainingWidth);
         console.log('_remainingWidth',  this._remainingWidth);
+        console.log('currentSidelineRemainingWidth',  this.currentSidelineRemainingWidth);
         console.groupEnd();
 
     }
