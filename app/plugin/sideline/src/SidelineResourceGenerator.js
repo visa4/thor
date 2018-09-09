@@ -276,10 +276,10 @@ class SidelineResourceGenerator {
         this.ffmpeg = require('fluent-ffmpeg');
         let command = new this.ffmpeg();
         let complexFilter = [];
-        let backgroundColor = 'black';
+        let backgroundColor = 'white';
         complexFilter.push(`color=s=${1920}x${1080}:c=${backgroundColor} [base0]`);
 
-        command = command.addInput('test/2880x90.mp4');
+        command = command.addInput('test/test.mp4');
 
         complexFilter.push({
             filter: 'crop=400:90:0:0',
@@ -297,13 +297,13 @@ class SidelineResourceGenerator {
         console.log('COMPLEX FILTER', complexFilter);
         command
             .complexFilter(complexFilter, 'overlay1')
-            .save('test/test.mp4')
+            .save('test/croptest2.mp4')
             .on('error', function(err) {
                 console.log(err.message);
             })
             .on('progress', () =>{console.log('default progress')})
             .on('end', function(data) {
-                console.log('ok');
+                console.log('finito');
             });
     }
 }
