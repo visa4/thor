@@ -155,7 +155,7 @@ class SidelineMosaic {
                 case this.currentResource.getWidth() >= sideline.monitor.width && sideline.monitor.width < this._sideline.monitor.width:
                     this.consoleLog('CROP AFTER');
                     this.inputs.push(this.currentResource);
-                    this.appendFilterComplexFilter(`crop=${sideline.monitor.width}:${sideline.monitor.height}:${this.currentXOffset+this.getCurrentResourceComputedWidth()}:0`);
+                    this.appendFilterComplexFilter(`crop=${sideline.monitor.width}:${sideline.monitor.height}:${this.getCurrentResourceComputedWidth()}:0`);
                     this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
 
                     if (this.hasNextSideline()) {
@@ -177,7 +177,7 @@ class SidelineMosaic {
                     let sidelineMonitorIndex = this._sidelineMonitorIndex;
                     let chunk = sideline.monitor.width - this.currentXOffset;
                     let width = this.currentSidelineRemainingWidth < sideline.monitor.width && this.currentSidelineRemainingWidth > 0 ? this.currentSidelineRemainingWidth : chunk;
-                    this.appendFilterComplexFilter(`crop=${width}:${sideline.height}:${this.currentXOffset+this.getCurrentResourceComputedWidth()}:0`);
+                    this.appendFilterComplexFilter(`crop=${width}:${sideline.height}:${this.getCurrentResourceComputedWidth()}:0`);
                     this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
 
                     // Calc next step
@@ -198,15 +198,15 @@ class SidelineMosaic {
                 case this.getCurrentResourceComputedWidth() <= sideline.monitor.width:
 
                     this.consoleLog('RIEMPIRE AFTER');
-                  //  this.inputs.push(this.currentResource);
-                  //  this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
-                    //this.appendOverlayComplexFilter(this.currentXOffset - (this.getCurrentResourceComputedWidth()), this.currentYOffset);
+                    this.inputs.push(this.currentResource);
+                    this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
+                    this.appendOverlayComplexFilter(this.currentXOffset - (this.getCurrentResourceComputedWidth()), this.currentYOffset);
 
                     // Calc next step
+                    this.currentSidelineRemainingWidth -= this.resourceRemainingWidth;
                     this._remainingWidth -= this.currentResource.getWidth() - this.getCurrentResourceComputedWidth();
                     this.currentXOffset += this.resourceRemainingWidth;
                     this.resourceRemainingWidth = 0;
-                    this.currentSidelineRemainingWidth -= sideline.monitor.width;
                     this.consoleLog('RIEMPIRE POST');
                     break;
                 default:
