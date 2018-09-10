@@ -145,6 +145,7 @@ class SidelineMosaic {
     addResource(resource) {
 
         this.setCurrentResource(resource);
+        let chunk = 0;
 
         while (this.resourceRemainingWidth > 0 && this._remainingWidth > 0)  {
 
@@ -153,9 +154,12 @@ class SidelineMosaic {
             switch (true) {
 
                 case this.resourceRemainingWidth >= sideline.monitor.width && sideline.monitor.width < this._sideline.monitor.width:
-                    this.consoleLog('CROP AFTER');
+                    //this.consoleLog('CROP AFTER', sideline);
+                    // Length of the resource in the mosaic
+                    chunk = sideline.monitor.width-this.currentXOffset;
+
                     this.inputs.push(this.currentResource);
-                    this.appendFilterComplexFilter(`crop=${sideline.monitor.width-this.currentXOffset}:${sideline.monitor.height}:${this.getCurrentResourceComputedWidth()}:0`);
+                    this.appendFilterComplexFilter(`crop=${chunk}:${sideline.monitor.height}:${this.getCurrentResourceComputedWidth()}:0`);
                     this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
 
                     if (this.hasNextSideline()) {
@@ -164,40 +168,39 @@ class SidelineMosaic {
                         this.currentXOffset = this.getCurrentSideline().monitor.offsetX;
                         this.currentSidelineRemainingWidth = this.getCurrentSideline().width;
                     }
-                    this.resourceRemainingWidth -= sideline.monitor.width;
-                    this._remainingWidth -= sideline.monitor.width;
-                    this.consoleLog('CROP POST');
+                    this.resourceRemainingWidth -= chunk;
+                    this._remainingWidth -= chunk;
+                    this.consoleLog('CROP POST', sideline);
                     break;
-
                 case this.resourceRemainingWidth >= sideline.monitor.width:
                 case this.currentXOffset + this.resourceRemainingWidth > sideline.monitor.width:
-                    this.consoleLog('SBORDA AFTER');
+                    //this.consoleLog('SBORDA AFTER', sideline);
+                    // Length of the resource in the mosaic
+                    chunk = this.getOverflowComputedWidth(sideline);
+
                     this.inputs.push(this.currentResource);
-                    // tmp variable
-                    let sidelineMonitorIndex = this._sidelineMonitorIndex;
-                    let chunk = sideline.monitor.width - this.currentXOffset;
-                    let width = this.currentSidelineRemainingWidth < sideline.monitor.width && this.currentSidelineRemainingWidth > 0 ? this.currentSidelineRemainingWidth : chunk;
-                    this.appendFilterComplexFilter(`crop=${width}:${sideline.height}:${this.getCurrentResourceComputedWidth()}:0`);
+                    this.appendFilterComplexFilter(`crop=${chunk}:${sideline.height}:${this.getCurrentResourceComputedWidth()}:0`);
                     this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
 
                     // Calc next step
-                    this.resourceRemainingWidth -=  chunk;
+                    this.resourceRemainingWidth -= chunk;
                     this.currentXOffset = sideline.monitor.offsetX;
                     this.currentYOffset += this._sideline.height;
-                    this._sidelineMonitorIndex = this.currentYOffset < (sideline.monitor.height + sideline.monitor.offsetY) ? this._sidelineMonitorIndex : this._sidelineMonitorIndex +1;
 
+                    let sidelineMonitorIndex = this._sidelineMonitorIndex;
+                    this._sidelineMonitorIndex = this.currentYOffset < (sideline.monitor.height + sideline.monitor.offsetY) ? this._sidelineMonitorIndex : this._sidelineMonitorIndex +1;
                     if (this._sidelineMonitorIndex === sidelineMonitorIndex) {
-                        this.currentSidelineRemainingWidth -= width;
+                        this.currentSidelineRemainingWidth -= chunk;
                     } else if (this.hasNextSideline()) {
                         this.currentSidelineRemainingWidth = this.getCurrentSideline().width;
                     }
 
-                    this._remainingWidth -= width;
-                    this.consoleLog('SBORDA POST');
+                    this._remainingWidth -= chunk;
+                    this.consoleLog('SBORDA POST', sideline);
                     break;
-                case this.resourceRemainingWidth <= sideline.monitor.width:
+                case this.resourceRemainingWidth < sideline.monitor.width:
+                    this.consoleLog('RIEMPIRE AFTER', sideline);
 
-                    this.consoleLog('RIEMPIRE AFTER');
                     this.inputs.push(this.currentResource);
                     this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
                     this.appendOverlayComplexFilter(this.currentXOffset - (this.getCurrentResourceComputedWidth()), this.currentYOffset);
@@ -207,7 +210,7 @@ class SidelineMosaic {
                     this._remainingWidth -= this.currentResource.getWidth() - this.getCurrentResourceComputedWidth();
                     this.currentXOffset += this.resourceRemainingWidth;
                     this.resourceRemainingWidth = 0;
-                    this.consoleLog('RIEMPIRE POST');
+                    this.consoleLog('RIEMPIRE POST', sideline);
                     break;
                 default:
                     this.consoleLog('DEFAULT');
@@ -220,8 +223,18 @@ class SidelineMosaic {
         this.clearCurrentResource();
     }
 
-    consoleLog(name) {
+    /**
+     * @param sideline
+     */
+    getOverflowComputedWidth(sideline) {
+        return this.currentSidelineRemainingWidth < sideline.monitor.width && this.currentSidelineRemainingWidth > 0 ?
+            this.currentSidelineRemainingWidth :
+            (sideline.monitor.width - this.currentXOffset);
+    }
+
+    consoleLog(name, sideline) {
         console.group(name);
+        console.log('getOverflowComputedWidth', this.getOverflowComputedWidth(sideline));
         console.log('getCurrentResourceComputedWidth', this.getCurrentResourceComputedWidth())
         console.log('currentYOffset', this.currentYOffset);
         console.log('currentXOffset', this.currentXOffset);
