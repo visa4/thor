@@ -152,10 +152,10 @@ class SidelineMosaic {
 
             switch (true) {
 
-                case this.currentResource.getWidth() >= sideline.monitor.width && sideline.monitor.width < this._sideline.monitor.width:
+                case this.resourceRemainingWidth >= sideline.monitor.width && sideline.monitor.width < this._sideline.monitor.width:
                     this.consoleLog('CROP AFTER');
                     this.inputs.push(this.currentResource);
-                    this.appendFilterComplexFilter(`crop=${sideline.monitor.width}:${sideline.monitor.height}:${this.getCurrentResourceComputedWidth()}:0`);
+                    this.appendFilterComplexFilter(`crop=${sideline.monitor.width-this.currentXOffset}:${sideline.monitor.height}:${this.getCurrentResourceComputedWidth()}:0`);
                     this.appendOverlayComplexFilter(this.currentXOffset, this.currentYOffset);
 
                     if (this.hasNextSideline()) {
@@ -187,15 +187,15 @@ class SidelineMosaic {
                     this._sidelineMonitorIndex = this.currentYOffset < (sideline.monitor.height + sideline.monitor.offsetY) ? this._sidelineMonitorIndex : this._sidelineMonitorIndex +1;
 
                     if (this._sidelineMonitorIndex === sidelineMonitorIndex) {
-                        this.currentSidelineRemainingWidth -= chunk;
+                        this.currentSidelineRemainingWidth -= width;
                     } else if (this.hasNextSideline()) {
                         this.currentSidelineRemainingWidth = this.getCurrentSideline().width;
                     }
 
-                    this._remainingWidth -= chunk;
+                    this._remainingWidth -= width;
                     this.consoleLog('SBORDA POST');
                     break;
-                case this.getCurrentResourceComputedWidth() <= sideline.monitor.width:
+                case this.resourceRemainingWidth <= sideline.monitor.width:
 
                     this.consoleLog('RIEMPIRE AFTER');
                     this.inputs.push(this.currentResource);
