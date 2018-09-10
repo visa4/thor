@@ -36,6 +36,11 @@ class SidelineMosaic {
 
         this._filterIndex = 0;
         this._overlayIndex = 0;
+
+        /**
+         * @type {string}
+         */
+        this.path = 'app/tmp/'
     }
 
     /**
@@ -243,7 +248,6 @@ class SidelineMosaic {
         console.log('_remainingWidth',  this._remainingWidth);
         console.log('currentSidelineRemainingWidth',  this.currentSidelineRemainingWidth);
         console.groupEnd();
-
     }
 
     /**
@@ -272,7 +276,7 @@ class SidelineMosaic {
 
         command
             .complexFilter(complexFilter, `overlay${this._overlayIndex}`)
-            .save(`test/${name}.mp4`)
+            .save(`${this.path}${name}.mp4`)
             .on('error', function(err) {
                 console.log(err.message);
             })
