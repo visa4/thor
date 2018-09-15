@@ -10,9 +10,14 @@ class SidelineMosaic {
 
         this.ffmpeg = require('fluent-ffmpeg');
         this.hidrator = resourceHydrator;
+
+        this.name = null;
+        this.extension = 'mp4';
+
         this._sideline = sideline;
         this._sidelineMonitorIndex = 0;
         this._remainingWidth = sideline.width;
+
 
 
         this.currentXOffset = 0;
@@ -40,7 +45,16 @@ class SidelineMosaic {
         /**
          * @type {string}
          */
-        this.path = 'app/tmp/'
+        this.path = 'app/storage/tmp/'
+    }
+
+    /**
+     * @param path
+     * @returns {SidelineMosaic}
+     */
+    setPath(path) {
+        this.path = path;
+        return this;
     }
 
     /**
@@ -238,6 +252,7 @@ class SidelineMosaic {
     }
 
     consoleLog(name, sideline) {
+        /*
         console.group(name);
         console.log('getOverflowComputedWidth', this.getOverflowComputedWidth(sideline));
         console.log('getCurrentResourceComputedWidth', this.getCurrentResourceComputedWidth())
@@ -248,13 +263,16 @@ class SidelineMosaic {
         console.log('_remainingWidth',  this._remainingWidth);
         console.log('currentSidelineRemainingWidth',  this.currentSidelineRemainingWidth);
         console.groupEnd();
+        */
     }
 
     /**
-     *
+     * @param name
+     * @returns {FfmpegCommand}
      */
     generateVideo(name) {
 
+        this.name = name;
         let command = new this.ffmpeg();
         let complexFilter = [];
 
@@ -274,16 +292,22 @@ class SidelineMosaic {
 
         console.log('COMPLEX FILTER', complexFilter);
 
-        command
-            .complexFilter(complexFilter, `overlay${this._overlayIndex}`)
-            .save(`${this.path}${name}.mp4`)
-            .on('error', function(err) {
-                console.log(err.message);
-            })
-            .on('progress', () =>{console.log('default progress')})
-            .on('end', function(data) {
-                console.log('ok');
-            });
+        return command.complexFilter(complexFilter, `overlay${this._overlayIndex}`)
+            .save(`${this.path}${name}.${this.extension}`);
+    }
+
+    /**
+     * @returns {Object}
+     */
+    getLocation() {
+        let location = {
+            path: this.path
+        };
+
+        if(this.name) {
+            location.name = `${this.name}.${this.extension}`;
+        }
+        return location;
     }
 
     __TEST() {

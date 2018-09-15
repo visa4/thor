@@ -20,6 +20,9 @@ class TimeslotDexieCollection extends DexieCollection {
                     case 'tags':
                         collection = table.where(property).equals(search[property]);
                         break;
+                    case 'name':
+                        collection = table.where(property).startsWithIgnoreCase(search[property]);
+                        break;
                 }
             }
         }

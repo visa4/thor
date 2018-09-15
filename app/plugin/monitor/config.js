@@ -52,7 +52,8 @@ class MonitorConfig extends PluginConfig {
             .enableExtractProperty('width')
             .enableExtractProperty('backgroundColor')
             .enableExtractProperty('polygon')
-            .enableExtractProperty('monitors');
+            .enableExtractProperty('monitors')
+            .enableExtractProperty('defaultTimeslotId');
 
         monitorHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
@@ -62,7 +63,8 @@ class MonitorConfig extends PluginConfig {
             .enableHydrateProperty('width')
             .enableHydrateProperty('backgroundColor')
             .enableHydrateProperty('polygon')
-            .enableHydrateProperty('monitors');
+            .enableHydrateProperty('monitors')
+            .enableHydrateProperty('defaultTimeslotId');
 
         monitorHydrator.addStrategy(
             'monitors',

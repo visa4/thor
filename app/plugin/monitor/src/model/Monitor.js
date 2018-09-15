@@ -16,6 +16,8 @@ class Monitor {
          */
         this.polygon = null;
         this.monitors = [];
+
+        this.defaultTimeslotId = null;
     }
 
     /**

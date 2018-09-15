@@ -217,7 +217,7 @@ class ResourceConfig extends PluginConfig {
         } else {
             fs.unlink(evt.data.getPath(), function (err) {
                 if (err) {
-                    throw err;
+                    //throw err;
                 }
             })
         }
@@ -239,7 +239,7 @@ class ResourceConfig extends PluginConfig {
 
         fs.rename(evt.data.getPath(), url , function (err) {
             if (err) {
-                throw err;
+               // throw err;
             }
 
             evt.data.location = {
@@ -263,6 +263,8 @@ class ResourceConfig extends PluginConfig {
                     evt.data.location.name = `${evt.data.id}/${wcConfig.main}`;
                     evt.data.type = 'text/html';
                     evt.data.wcName = wcConfig.name;
+                } else {
+                    // TODO error
                 }
             }
 
@@ -293,7 +295,9 @@ class ResourceConfig extends PluginConfig {
 
             if(err) {
                 fs.readdir(pathName, (error, files) => {
-                    if (error) throw error;
+                    if (error) {
+                       // throw error;
+                    }
 
                     files.filter(nameFile => nameFile.indexOf(evt.data.id) >= 0).forEach(fileToRemove => {
                         fs.unlink(pathName + fileToRemove, function (err) {

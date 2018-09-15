@@ -54,7 +54,10 @@ class Application {
          */
         this.config = config;
 
-
+        /**
+         *
+         */
+        this.basePath = null;
     }
 
     /**
@@ -127,6 +130,22 @@ class Application {
         if (module === null || typeof module !== 'object') {
             throw 'Wrong exception';
         }
+    }
+
+    /**
+     * @param basePath
+     * @returns {Application}
+     */
+    setBasePath(basePath) {
+        this.basePath = basePath;
+        return this;
+    }
+
+    /**
+     * @returns {string}
+     */
+    getBasePath() {
+        return this.basePath;
     }
 
     /**

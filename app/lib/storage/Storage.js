@@ -39,7 +39,6 @@ class Storage extends HydratorAware {
         return 'post-remove'
     };
 
-
     /**
      * @return {number}
      */

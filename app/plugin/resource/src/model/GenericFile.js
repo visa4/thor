@@ -18,6 +18,19 @@ class GenericFile {
         }
         return path;
     }
+
+    /**
+     * @param ext
+     * @returns {string}
+     */
+    static getMimeTypeFromExtension(ext) {
+        switch (ext) {
+            case 'mp4':
+                return 'video/mp4';
+            default :
+                throw 'Mymetype no match';
+        }
+    }
 }
 
 module.exports = GenericFile;

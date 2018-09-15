@@ -71,7 +71,8 @@ class SidelineConfig extends PluginConfig {
                                 'SidelineResourceGenerator',
                                 new SidelineResourceGenerator(
                                     serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE),
-                                    serviceManager.get('HydratorPluginManager').get('resourceHydrator')
+                                    serviceManager.get('HydratorPluginManager').get('resourceHydrator'),
+                                    serviceManager.get('Application').getBasePath()
                                 )
                             );
 
