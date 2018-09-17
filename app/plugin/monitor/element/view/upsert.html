@@ -412,7 +412,6 @@
                     .getAll({name: evt.detail.value})
                     .then(
                         (data) => {
-                            console.log('SEARCCHHHHHHHHHH',data);
                             evt.detail.target.suggestions(data);
                         }
                     );
@@ -435,10 +434,19 @@
                     () => {
                         let autoCompleteTimeslot = this.shadowRoot.querySelectorAll('paper-autocomplete[default-timeslot]');
                         for (let cont = 0; autoCompleteTimeslot.length > cont; cont++) {
-                            console.log('dddddddddddd', autoCompleteTimeslot[cont]);
+
+                            if (autoCompleteTimeslot[cont].value) {
+                                serviceManager.get('StoragePluginManager')
+                                    .get(TimeslotConfig.NAME_SERVICE)
+                                    .get(autoCompleteTimeslot[cont].value)
+                                    .then((timeslot) => {
+                                        console.log('timeslot', timeslot);
+                                        autoCompleteTimeslot[cont].text = timeslot.name;
+                                    });
+                            }
                         }
                     },
-                    500
+                    250
                 );
 
 

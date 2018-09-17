@@ -99,7 +99,9 @@
             }
 
             config(timeslot) {
-                this.timeslot = timeslot;
+                this.timeslot = serviceManager.get('HydratorPluginManager')
+                    .get('timeslotHydrator')
+                    .hydrate(timeslot);
                 this.timeslotId = timeslot.id;
                 this.playlistId = timeslot.playlistId;
             }
@@ -118,7 +120,7 @@
                 for (let cont = 0; this.timeslot.resources.length > cont; cont++) {
 
                     let divResource = this._createResourceDiv();
-                    switch ( this.timeslot.resources[cont].type) {
+                    switch (this.timeslot.resources[cont].type) {
                         case 'image/jpeg':
                         case 'image/png':
 
@@ -262,7 +264,7 @@
             _createVideo(resource) {
 
                 let element = document.createElement('video');
-                element.src = `${resource.location.path}${resource.location.name}`;
+                element.src = resource.getPath();
                 element.autoplay = true;
                 element.loop =  this.timeslot.options && this.timeslot.options.loop ? true : false;
                 if (this.startAt > 0) {

@@ -10,6 +10,22 @@ const fs = require('fs');
  */
 Application.injectServices(serviceManager);
 
+serviceManager.eventManager.on(
+    ServiceManager.LOAD_SERVICE,
+    function(evt) {
+        if (evt.data.name === 'Application') {
+
+            serviceManager.set(
+                'DexieManager',
+                new DexieManager(serviceManager.get('Application').config.indexedDB.name)
+            );
+
+            serviceManager.get('DexieManager').init();
+        }
+    }
+);
+
+
 /**
  * @type {Object}
  */
@@ -23,9 +39,18 @@ serviceManager.set(
     'Application',
     (function(sm){
         const fs = require('fs');
-        return new Application(
+        let app =  new Application(
             JSON.parse(fs.readFileSync(__dirname + '/config/application.json')),
             'player'
         );
+
+        app.setServiceToLoad(
+            'timeslot',
+            ['Hydrator', 'Storage']
+        );
+
+        app.init();
+
+        return app;
     })()
 );

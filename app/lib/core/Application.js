@@ -41,14 +41,6 @@ class Application {
          */
         this.bootstrapModule = false;
 
-        if (config.modules) {
-            for (let cont = 0; config.modules.length > cont; cont++) {
-                this.modules.push(this.laodModule(config.modules[cont]))
-            }
-            delete config.modules;
-        }
-
-
         /**
          * @type {Object}
          */
@@ -58,6 +50,19 @@ class Application {
          *
          */
         this.basePath = null;
+
+        /**
+         * @type {Object}
+         */
+        this.serviceToLoad = {};
+    }
+
+    init() {
+        if (this.config.modules) {
+            for (let cont = 0; this.config.modules.length > cont; cont++) {
+                this.modules.push(this.laodModule(this.config.modules[cont]))
+            }
+        }
     }
 
     /**
@@ -109,7 +114,7 @@ class Application {
 
             let pluginConfig = new config(serviceManager);
             global[pluginConfig.constructor.name] = config;
-            pluginConfig.init();
+            pluginConfig.init(this.getServiceToLoad(moduleObj));
         }
 
         for (let cont = 0; moduleObj.widgets.length > cont; cont++) {
@@ -157,6 +162,25 @@ class Application {
             widgets = widgets.concat(this.modules[cont].widgets);
         }
         return widgets;
+    }
+
+    /**
+     *
+     * @param {Module} module
+     * @return {array}
+     */
+    getServiceToLoad(module) {
+        return this.serviceToLoad[module.name] !== undefined ? this.serviceToLoad[module.name] : [];
+    }
+
+    /**
+     * @param moduleName
+     * @param services
+     * @return {Application}
+     */
+    setServiceToLoad(moduleName, services) {
+        this.serviceToLoad[moduleName] = services;
+        return this;
     }
 
     /**

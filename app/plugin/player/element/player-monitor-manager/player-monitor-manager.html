@@ -39,6 +39,8 @@
             _appendRecursiveMonitor(node, monitor) {
 
                 let monitorElement = document.createElement("player-monitor");
+                monitorElement.defaultTimeslotId = monitor.defaultTimeslotId ? monitor.defaultTimeslotId : undefined;
+                console.log(monitorElement.defaultTimeslotId, 'ppppppppppppppp');
                 this._setStyleNode(monitorElement, monitor);
 
                 Polymer.dom(this._getNodeToAppend(node)).appendChild(monitorElement);
@@ -125,18 +127,10 @@
              * @private
              */
             _getMonitorsFromMessage(msg, parent) {
-                // TODO retrive from service manager and hydrator manager
-                let hydrator = new PropertyHydrator(new Monitor());
-                hydrator.enableHydrateProperty('id')
-                    .enableHydrateProperty('brightness')
-                    .enableHydrateProperty('offsetX')
-                    .enableHydrateProperty('offsetY')
-                    .enableHydrateProperty('width')
-                    .enableHydrateProperty('height')
-                    .enableHydrateProperty('backgroundColor')
-                    .enableHydrateProperty('polygon');
+                let monitor = serviceManager.get('HydratorPluginManager')
+                    .get('monitorHydrator')
+                    .hydrate(msg);
 
-                let monitor = hydrator.hydrate(msg);
                 let monitors = [];
 
                 if (msg.monitors && Array.isArray(msg.monitors) && msg.monitors.length > 0) {

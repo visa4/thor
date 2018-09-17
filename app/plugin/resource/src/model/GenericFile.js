@@ -2,6 +2,8 @@
 class GenericFile {
 
     constructor() {
+
+        this._path = require('path');
         this.location = {};
         this.size = null;
         this.type = null;
@@ -14,7 +16,7 @@ class GenericFile {
     getPath() {
         let path = null;
         if (typeof this.location === 'object' && this.location !== null) {
-            path = this.location.path + this.location.name;
+            path = this._path.normalize(this.location.path + this.location.name);
         }
         return path;
     }

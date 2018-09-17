@@ -59,6 +59,9 @@ serviceManager.set(
             );
             application.setBasePath(__dirname);
         }
+
+        app.init();
+
         return application;
     })()
 ).set(

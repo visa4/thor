@@ -74,6 +74,12 @@
                         reflectToAttribute : true,
                     },
 
+                    defaultTimeslotId: {
+                        type: String,
+                        notify : true,
+                        observer: '_changeDefaultTimeslotId'
+                    },
+
                     height: {
                         type: Number,
                         notify : true,
@@ -258,6 +264,25 @@
                 }
 
                 return this.shadowRoot.querySelector(query);
+            }
+
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
+            _changeDefaultTimeslotId(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+
+                serviceManager.get('StoragePluginManager')
+                    .get(TimeslotConfig.NAME_SERVICE)
+                    .get(newValue)
+                    .then((timeslot) => {
+                        console.log('hhhhhhhhhhhhhhhhhhhhhhhhhhh', timeslot);
+                    });
+
             }
 
             /**
