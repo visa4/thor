@@ -99,9 +99,7 @@
             }
 
             config(timeslot) {
-                this.timeslot = serviceManager.get('HydratorPluginManager')
-                    .get('timeslotHydrator')
-                    .hydrate(timeslot);
+                this.timeslot = timeslot;
                 this.timeslotId = timeslot.id;
                 this.playlistId = timeslot.playlistId;
             }

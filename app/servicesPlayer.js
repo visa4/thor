@@ -39,18 +39,21 @@ serviceManager.set(
     'Application',
     (function(sm){
         const fs = require('fs');
-        let app =  new Application(
+        let application =  new Application(
             JSON.parse(fs.readFileSync(__dirname + '/config/application.json')),
             'player'
         );
 
-        app.setServiceToLoad(
+        application.setServiceToLoad(
             'timeslot',
+            ['Hydrator', 'Storage', 'TimeslotDataInjectorService']
+        ).setServiceToLoad(
+            'playlist',
             ['Hydrator', 'Storage']
         );
 
-        app.init();
+        application.init();
 
-        return app;
+        return application;
     })()
 );

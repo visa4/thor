@@ -60,7 +60,7 @@ serviceManager.set(
             application.setBasePath(__dirname);
         }
 
-        app.init();
+        application.init();
 
         return application;
     })()
