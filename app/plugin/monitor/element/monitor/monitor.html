@@ -52,9 +52,9 @@
             </div>
             <div class="card-actions flex flex-horizontal-end">
                 <paper-radio-button
+                        id="enableInput"
                         class="monitor-configuration"
                         on-click="_changeEnableMonitor"
-                        checked="{{monitor.enable}}"
                         title="Enable/Disabled">
                 </paper-radio-button>
                 <div class="crud" hidden$="{{hideCrud}}">
@@ -78,27 +78,58 @@
 
                     monitor: {
                         type: Object,
+                        notify : true
                     },
 
                     hideCrud : {
                         type: Boolean,
                         value: false
-                    }
+                    },
                 };
             }
 
+            static get observers() {
+                return [
+                    'monitorEnableChange(monitor.enable)'
+                ]
+            }
+
+            /**
+             * @param {Number} enable
+             */
+            monitorEnableChange(enable) {
+                this.$.enableInput.disabled = !!enable;
+                this.$.enableInput.checked = !!enable;
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
             _remove(evt) {
                 this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.monitor}));
             }
 
-            _changeEnableMonitor() {
+            /**
+             * @param evt
+             * @private
+             */
+            _changeEnableMonitor(evt) {
                 this.dispatchEvent(new CustomEvent('wrap-change-enable-monitor', {detail: this.monitor}));
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _update(evt) {
                 this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.monitor}));
             }
 
+            /**
+             * @returns {Number}
+             * @private
+             */
             _computeMonitorNumber() {
                 return this.monitor.getMonitors({nested:true}).length;
             }

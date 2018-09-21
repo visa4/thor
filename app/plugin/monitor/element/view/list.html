@@ -139,33 +139,35 @@
            */
           changeEnableMonior(evt) {
 
-              for (let cont = 0; this.monitors.length > cont; cont++) {
-                  if (this.monitors[cont].enable && evt.detail.id !==  this.monitors[cont].id) {
-                      this.set(`monitors.${cont}.enable`, false);
-                      this.monitors[cont].enable = false;
 
-                      serviceManager.get('StoragePluginManager')
-                          .get(MonitorConfig.NAME_SERVICE)
-                          .update(this.monitors[cont])
-                          .then((data) => {})
+              let monitorStorage = serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE);
+              let newEnableMonitor =  evt.detail;
+
+              monitorStorage.getAll({enable: 1})
+                  .then((enableMonitors) => {
+                      for (let cont = 0; this.monitors.length > cont; cont++) {
+
+                          this.monitors[cont].enable = 0;
+                          monitorStorage.update(this.monitors[cont])
+                              .then((data) => {})
+                              .catch((err) => {
+                                      console.log(err)
+                                  }
+                              );
+                      }
+
+                      newEnableMonitor.enable = 1;
+                      monitorStorage.update(evt.detail)
+                          .then((data) => {
+                              serviceManager.get('PaperToastNotification').notify(' Enable ' + evt.detail.name);
+                              PluginMonitorIndex.electronIpc.send('change-monitors-configuration', evt.detail);
+                          })
                           .catch((err) => {
                                   console.log(err)
                               }
                           );
-                  }
-              }
-              evt.detail.enable = true;
-              serviceManager.get('StoragePluginManager')
-                  .get(MonitorConfig.NAME_SERVICE)
-                  .update(evt.detail)
-                  .then((data) => {
-                      serviceManager.get('PaperToastNotification').notify(' Enable ' + evt.detail.name);
-                  })
-                  .catch((err) => {
-                          console.log(err)
-                      }
-                  );
-              PluginMonitorIndex.electronIpc.send('change-monitors-configuration', evt.detail);
+
+                  });
           }
 
           displayUpdateView(evt) {

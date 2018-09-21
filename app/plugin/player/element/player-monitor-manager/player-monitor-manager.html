@@ -72,6 +72,12 @@
 
 
             updateMonitors(evt, msg) {
+                let virtualMonitor =  serviceManager.get('HydratorPluginManager')
+                    .get('virtualMonitorHydrator')
+                    .hydrate(msg);
+
+                console.log('sucaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', virtualMonitor);
+                    /*
                 let monitors = this._getMonitorsFromMessage(msg);
                 let domMonitors = this._getMonitorsFromDom(document);
 
@@ -104,6 +110,8 @@
                 for (let cont = 0; domMonitors.length > cont; cont++) {
                     domMonitors[cont].remove();
                 }
+
+                */
             }
 
             _appendToParent(id, element) {

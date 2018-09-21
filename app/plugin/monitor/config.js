@@ -113,7 +113,7 @@ class MonitorConfig extends PluginConfig {
                         {
                             "name": MonitorConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "name"
+                                "++id", "name", "enable"
                             ]
                         }
                     );
@@ -124,8 +124,10 @@ class MonitorConfig extends PluginConfig {
                     serviceManager.get('DexieManager').onReady(
                         function (evt) {
 
+                            let MonitorDexieCollection = require('../monitor/src/storage/indexed-db/dexie/MonitorDexieCollection');
+
                             let storage = new Storage(
-                                new DexieCollection(
+                                new MonitorDexieCollection(
                                     serviceManager.get('DexieManager'),
                                     MonitorConfig.NAME_COLLECTION
                                 ),

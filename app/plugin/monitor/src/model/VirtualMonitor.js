@@ -6,7 +6,7 @@ class VirtualMonitor {
     constructor() {
         this.id    = null;
         this.name  = null;
-        this.enable = false;
+        this.enable = 0;
         this.monitors = [];
     }
 
@@ -51,7 +51,7 @@ class VirtualMonitor {
                 this.monitors.splice(cont, 1);
             }
 
-            if (typeof this.monitors[cont].getMonitors === "function") {
+            if (typeof this.monitors[cont] === 'object' && typeof this.monitors[cont].getMonitors === "function") {
                 let nestedMonitor = this.monitors[cont].getMonitors({nested: true});
                 for (let cont2 = 0; nestedMonitor.length > cont2; cont2++) {
                     if (nestedMonitor[cont2].id === monitor.id) {

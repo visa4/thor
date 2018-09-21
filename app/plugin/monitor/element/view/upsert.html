@@ -73,6 +73,43 @@
                         <template is="dom-repeat" items="{{monitors}}" as="monitor">
                             <paper-card class="paper-monitor">
                                 <paper-input name="name" label="Name" value="{{monitor.name}}" required style="flex-basis: 30%;"></paper-input>
+                                <paper-autocomplete
+                                        default-timeslot
+                                        label="Default timeslot"
+                                        text-property="name"
+                                        value-property="id"
+                                        value="{{monitor.defaultTimeslotId}}"
+                                        remote-source
+                                        on-autocomplete-change="_timeslotChanged"
+                                        on-autocomplete-reset-blur="_resetData">
+                                    <template slot="autocomplete-custom-template">
+                                        <style>
+                                            :host {
+                                                display: block;
+                                            }
+
+                                            paper-item.account-item {
+                                                padding: 8px 16px;
+                                            }
+
+                                            .service-name {
+                                                color: #333;
+                                            }
+
+                                            .service-description {
+                                                margin-top: 4px;
+                                                color: #999;
+                                            }
+                                        </style>
+                                        <paper-item class="account-item" on-tap="_onSelect" role="option"
+                                                    aria-selected="false">
+                                            <div>
+                                                <div class="service-name">[[item.name]]</div>
+                                            </div>
+                                            <paper-ripple></paper-ripple>
+                                        </paper-item>
+                                    </template>
+                                </paper-autocomplete>
                                 <paper-input name="polygon" label="Polygon" value="{{monitor.polygon}}"  style="flex-basis: 20%;"></paper-input>
                                 <paper-input name="height" label="Height" type="number" value="{{monitor.height}}" required style="flex-basis: 10%;"></paper-input>
                                 <paper-input name="width" label="Width" type="number" value="{{monitor.width}}" required style="flex-basis: 10%;"></paper-input>
@@ -308,26 +345,34 @@
                 let method = this.monitor.id ? 'update' : 'save';
 
                 let monitorStorage = serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE);
-                let monitor = monitorStorage[method](this.monitor)
-                    .then((data) => {
-                        serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' monitor');
-                        if (data.enable) {
-                            PluginMonitorIndex.electronIpc.send('change-monitors-configuration', data);
-                        }
 
-                        if (method === 'save') {
-                            this.monitor = new VirtualMonitor();
-                            this.hasMonitor = false;
+                monitorStorage.getAll({enable: 1})
+                    .then(
+                        (data) => {
+                            let enableMonitor = data.length > 0 ? data[0] : null;
+                            monitorStorage[method](this.monitor)
+                                .then((data) => {
+
+                                    serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' monitor');
+                                    if (method === 'save') {
+                                        this.monitor = new VirtualMonitor();
+                                        this.hasMonitor = false;
+                                    } else {
+
+                                        if (data.enable > 0 && data.id === enableMonitor.id) {
+                                            console.log('modificaaaaaaaaaaa', enableMonitor, data);
+                                            PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', data)
+                                        }
+                                    }
+                                })
+                                .catch((err) => {
+                                        console.log(err)
+                                    }
+                                );
                         }
-                    })
-                    .catch((err) => {
-                            console.log(err)
-                        }
+                    ).catch(
+                        (err) => { console.log(); }
                     );
-
-                if (monitor.enable) {
-                    PluginMonitorIndex.electronIpc.send('update-enable-monitor-configuration', monitor)
-                }
             }
 
             /**

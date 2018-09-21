@@ -2,10 +2,11 @@ const {app, BrowserWindow, globalShortcut, ipcMain} = require('electron')
 const fs    = require('fs');
 const url   = require('url');
 const path  = require('path');
-const MainMonitor = require('./plugin/monitor/src/model/Monitor.js');
-const mainMonitorWrapper = require('./plugin/monitor/src/model/VirtualMonitor.js');
-const PropertyHydrator = require('./lib/hydrator/PropertyHydrator.js');
-const HydratorStrategy = require('./lib/hydrator/strategy/HydratorStrategy.js');
+const Monitor = require('./plugin/monitor/src/model/Monitor');
+const VirtualMonitor = require('./plugin/monitor/src/model/VirtualMonitor');
+const PropertyHydrator = require('./lib/hydrator/PropertyHydrator');
+const HydratorStrategy = require('./lib/hydrator/strategy/HydratorStrategy');
+const NumberStrategy = require('./lib/hydrator/strategy/NumberStrategy');
 const HydratorManager = require('./lib/hydrator/pluginManager/HydratorPluginManager');
 
 // Keep a global reference of the window object, if you don't, the window will
@@ -14,20 +15,31 @@ let config;
 let monitorsWrapper = null;
 let hydratorManager = new HydratorManager();
 
-
 let monitorHydrator = new PropertyHydrator(
-    new MainMonitor(),
+    new Monitor(),
     {
-        'monitors' :  new HydratorStrategy(new PropertyHydrator(new MainMonitor()))
+        width: new NumberStrategy(),
+        height: new NumberStrategy(),
+        offsetX: new NumberStrategy(),
+        offsetY: new NumberStrategy()
     }
 );
 
-let mainMonitorHydrator = new PropertyHydrator(
-    new mainMonitorWrapper(),
+monitorHydrator.addStrategy(
+    'monitors',
+    new HydratorStrategy(monitorHydrator)
+);
+
+let virtualHydrator = new PropertyHydrator(
+    new VirtualMonitor(),
     {
         'monitors' :  new HydratorStrategy(monitorHydrator)
     }
 );
+
+
+hydratorManager.set('virtualHydrator', virtualHydrator)
+    .set('monitorHydrator', monitorHydrator);
 
 /**
  * @return {string}
@@ -42,9 +54,6 @@ let getMonitorConfigPath = () => {
 let getAppConfigPath = () => {
     return path.join(__dirname, '/config/config.json');
 };
-
-hydratorManager.set('mainMonitorHydrator', mainMonitorHydrator)
-    .set('monitorHydrator', monitorHydrator);
 
 function loadConfig () {
     config = JSON.parse(fs.readFileSync( getAppConfigPath(), {'encoding': 'UTF8'}));
@@ -89,7 +98,7 @@ function createWindowDashboard () {
  */
 function createWindowsPlayer(monitorsConfig) {
 
-    let monitorWrapper = hydratorManager.get('mainMonitorHydrator').hydrate(monitorsConfig);
+    let monitorWrapper = hydratorManager.get('virtualHydrator').hydrate(monitorsConfig);
 
     for (let cont = 0; monitorWrapper.monitors.length > cont; cont++) {
 
@@ -99,16 +108,16 @@ function createWindowsPlayer(monitorsConfig) {
 }
 
 /**
- * @param mainMonitor
+ * @param monitor
  * @returns {Electron.AllElectron.BrowserWindow}
  */
-function createWindowPlayer(mainMonitor) {
+function createWindowPlayer(monitor) {
 
     let browserWindows = new BrowserWindow({
-        width: parseInt(mainMonitor.width),
-        height: parseInt(mainMonitor.height),
-        x: parseInt(mainMonitor.offsetX),
-        y: parseInt(mainMonitor.offsetY),
+        width: parseInt(monitor.width),
+        height: parseInt(monitor.height),
+        x: parseInt(monitor.offsetX),
+        y: parseInt(monitor.offsetY),
         movable: true,
         resizable: false,
         frame: false,
@@ -122,7 +131,7 @@ function createWindowPlayer(mainMonitor) {
     });
 
     browserWindows.webContents.on('did-finish-load', () => {
-        browserWindows.send('player-monitor-config', mainMonitor);
+        browserWindows.send('player-monitor-config', monitor);
     });
 
     if (config && config.debug === true) {
@@ -222,71 +231,49 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                     return console.log("UpdateMonitor save error: " + err);
                 }
 
-                for (let cont = 0; message.monitors.length > cont; cont++) {
+                let virtualMonitor = hydratorManager.get('virtualHydrator').hydrate(message);
 
-                    let currentMonitor = monitorsWrapper.getMonitor(message.monitors[cont].id);
-
-                    if (!currentMonitor) {
-
-                        let mainMonitor = hydratorManager.get('moonitorHydrator').hydrate(message.monitors[cont]);
-
-                        mainMonitor.browserWindows = createWindowPlayer(mainMonitor);
-                        monitorsWrapper.pushMonitor(mainMonitor);
-                        continue;
-                    }
-
-                    let changeSize = false;
-
-                    if (currentMonitor.width !== message.monitors[cont].width ||
-                        currentMonitor.height !== message.monitors[cont].height
-                    ) {
-                        changeSize = true;
-                    }
-
-                    if (changeSize) {
-
-                        currentMonitor.browserWindows.setSize(
-                            parseInt(message.monitors[cont].width),
-                            parseInt(message.monitors[cont].height)
-                        );
-
-                        currentMonitor.height = message.monitors[cont].height;
-                        currentMonitor.width = message.monitors[cont].width;
-
-                        //currentMonitor.browserWindows.send('player-monitor-update-size', message.monitors[cont]);
-                    }
-
-                    let position = false;
-
-                    if (currentMonitor.offsetX !== message.monitors[cont].offsetX ||
-                        currentMonitor.offsetY !== message.monitors[cont].offsetY
-                    ) {
-                        position = true;
-                    }
-
-                    if (position) {
-                        currentMonitor.browserWindows.setPosition(
-                            parseInt(message.monitors[cont].offsetX),
-                            parseInt(message.monitors[cont].offsetY)
-                        );
-
-                        currentMonitor.offsetY = message.monitors[cont].offsetY
-                        currentMonitor.offsetX = message.monitors[cont].offsetX;
-                    }
-                    currentMonitor.browserWindows.send('player-monitor-update', message.monitors[cont]);
+                for (let cont = 0; monitorsWrapper.monitors.length > cont; cont++) {
+                    monitorsWrapper.monitors[cont].remove = true;
                 }
 
-                /**
-                 * Save runtime config
-                 */
-                let hydrator = hydratorManager.get('mainMonitorHydrator');
-                hydrator.referenceObject = monitorsWrapper;
-                hydrator.hydrate(message);
+                for (let cont = 0; virtualMonitor.monitors.length > cont; cont++) {
+
+                    let currentMonitor = monitorsWrapper.getMonitor(virtualMonitor.monitors[cont].id);
+
+                    switch (true) {
+                        case currentMonitor === undefined :
+
+                            virtualMonitor.monitors[cont].browserWindows = createWindowPlayer(virtualMonitor.monitors[cont]);
+                            monitorsWrapper.pushMonitor(virtualMonitor.monitors[cont]);
+                            continue;
+                        default :
+                            currentMonitor.browserWindows.setPosition(
+                                virtualMonitor.monitors[cont].offsetX,
+                                virtualMonitor.monitors[cont].offsetY
+                            );
+
+                            currentMonitor.browserWindows.setSize(
+                                virtualMonitor.monitors[cont].width,
+                                virtualMonitor.monitors[cont].height
+                            );
+
+                            currentMonitor.remove = false;
+                            currentMonitor.browserWindows.send('player-monitor-update', virtualMonitor.monitors[cont]);
+                            break;
+                    }
+                }
+
+                for (let cont = 0; monitorsWrapper.monitors.length > cont; cont++) {
+                    if (monitorsWrapper.monitors[cont].remove === true) {
+                        monitorsWrapper.monitors[cont].browserWindows.close();
+                        delete monitorsWrapper.monitors[cont];
+                        console.log('remove widows')
+                    }
+                }
             }
         );
-
     }
-
 });
 
 
