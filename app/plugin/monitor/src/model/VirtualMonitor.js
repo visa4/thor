@@ -23,8 +23,7 @@ class VirtualMonitor {
      * @returns {Array}
      */
     getMonitors(options) {
-        let monitors = this.monitors;
-
+        let monitors = [];
         if (options && typeof options === 'object' && options.nested) {
            for (let cont = 0; this.monitors.length > cont; cont++) {
                if (typeof this.monitors[cont].getMonitors === "function") {
@@ -34,6 +33,8 @@ class VirtualMonitor {
                    }
                }
            }
+        } else {
+            monitors = this.monitors;
         }
         return monitors;
     }
@@ -62,8 +63,6 @@ class VirtualMonitor {
         }
     }
 
-
-
     /**
      * @returns {VirtualMonitor}
      */
@@ -77,43 +76,25 @@ class VirtualMonitor {
      * @returns {*}
      */
     getMonitor(id) {
-        return this.monitors.find(
+        let monitors = this.getMonitors({nested:true});
+        return monitors.find(
             (element) => {
                 return element.id === id;
             }
-        )
+        );
     }
 
     /**
-     *
-     * @param id
-     * @return {*}
+     * @param {string} id
+     * @returns {boolean}
      */
-    getMainMonitor(id) {
-        let mainMonitor = null;
-        let find;
-
-        for (let cont = 0; this.monitors.length > cont; cont++) {
-
-            if (this.monitors[cont].id === id) {
-                mainMonitor = this.monitors[cont];
-                break;
+    hasMonitor(id) {
+        let monitors = this.getMonitors({nested:true});
+        return !!monitors.find(
+            (element) => {
+                return element.id === id;
             }
-
-            let subMonitors = this.monitors[cont].getMonitors({nested:true});
-
-            find = subMonitors.find(
-                (element) => {
-                    return element.id === id;
-                }
-            );
-
-            if (find) {
-                mainMonitor = this.monitors[cont];
-                break;
-            }
-        }
-        return mainMonitor;
+        );
     }
 
 }

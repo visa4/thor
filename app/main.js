@@ -70,8 +70,8 @@ function createWindowDashboard () {
         width: 1170,
         height: 800,
         titleBarStyle: 'hidden',
-        x: 0,
-        y: 0,
+        x: 2400,
+        y: 200,
         autoHideMenuBar: true
     });
 
@@ -243,11 +243,11 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
 
                     switch (true) {
                         case currentMonitor === undefined :
-
                             virtualMonitor.monitors[cont].browserWindows = createWindowPlayer(virtualMonitor.monitors[cont]);
                             monitorsWrapper.pushMonitor(virtualMonitor.monitors[cont]);
-                            continue;
-                        default :
+                            break;
+
+                        case typeof currentMonitor === 'object' && currentMonitor !== null:
                             currentMonitor.browserWindows.setPosition(
                                 virtualMonitor.monitors[cont].offsetX,
                                 virtualMonitor.monitors[cont].offsetY
@@ -267,7 +267,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
                 for (let cont = 0; monitorsWrapper.monitors.length > cont; cont++) {
                     if (monitorsWrapper.monitors[cont].remove === true) {
                         monitorsWrapper.monitors[cont].browserWindows.close();
-                        delete monitorsWrapper.monitors[cont];
+                        monitorsWrapper.removeMonitor(monitorsWrapper.monitors[cont]);
                         console.log('remove widows')
                     }
                 }
@@ -284,9 +284,10 @@ ipcMain.on('play-timeslot', (event, message) => {
             /**
              * start timeslot in current monitor setting
              */
-            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
-            if (monitor) {
-                monitor.browserWindows.send('play-timeslot', message);
+            if (monitorsWrapper.hasMonitor(message.timeslot.virtualMonitorReference.monitorId)) {
+                monitorsWrapper.getMonitor(message.timeslot.virtualMonitorReference.monitorId)
+                    .browserWindows
+                    .send('play-timeslot', message);
             } else {
                 // TODO write lo log
                 console.error('Error not found');
@@ -304,9 +305,10 @@ ipcMain.on('stop-timeslot', (event, message) => {
             /**
              * start timeslot in current monitor setting
              */
-            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
-            if (monitor) {
-                monitor.browserWindows.send('stop-timeslot', message);
+            if (monitorsWrapper.hasMonitor(message.timeslot.virtualMonitorReference.monitorId)) {
+                monitorsWrapper.getMonitor(message.timeslot.virtualMonitorReference.monitorId)
+                    .browserWindows
+                    .send('stop-timeslot', message);
             } else {
                 // TODO write lo log
                 console.error('Error not found');
@@ -324,9 +326,10 @@ ipcMain.on('pause-timeslot', (event, message) => {
             /**
              * start timeslot in current monitor setting
              */
-            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
-            if (monitor) {
-                monitor.browserWindows.send('pause-timeslot', message);
+            if (monitorsWrapper.hasMonitor(message.timeslot.virtualMonitorReference.monitorId)) {
+                monitorsWrapper.getMonitor(message.timeslot.virtualMonitorReference.monitorId)
+                    .browserWindows
+                    .send('pause-timeslot', message);
             } else {
                 // TODO write lo log
                 console.error('Error not found');
@@ -344,9 +347,10 @@ ipcMain.on('resume-timeslot', (event, message) => {
             /**
              * start timeslot in current monitor setting
              */
-            let monitor = monitorsWrapper.getMainMonitor(message.timeslot.virtualMonitorReference.monitorId);
-            if (monitor) {
-                monitor.browserWindows.send('resume-timeslot', message);
+            if (monitorsWrapper.hasMonitor(message.timeslot.virtualMonitorReference.monitorId)) {
+                monitorsWrapper.getMonitor(message.timeslot.virtualMonitorReference.monitorId)
+                    .browserWindows
+                    .send('resume-timeslot', message);
             } else {
                 // TODO write lo log
                 console.error('Error not found');

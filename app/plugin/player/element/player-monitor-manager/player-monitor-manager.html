@@ -72,14 +72,30 @@
 
 
             updateMonitors(evt, msg) {
-                let virtualMonitor =  serviceManager.get('HydratorPluginManager')
-                    .get('virtualMonitorHydrator')
+                let monitor =  serviceManager.get('HydratorPluginManager')
+                    .get('monitorHydrator')
                     .hydrate(msg);
 
-                console.log('sucaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa', virtualMonitor);
+                    let mainMonitor = document.querySelector('player-monitor');
+
+                    if (mainMonitor === null || !monitor.hasMonitor(mainMonitor.identifier)) {
+                        console.warn('Main monitor not found', mainMonitor);
+                        return;
+                    }
+
+                    let monitors = monitor.getMonitors({nested : true});
+                    let nodeMonitors = this._getMonitorsFromDom(document);
+
+                    console.log('RECECIVED', monitors, nodeMonitors);
+
+                    //console.log('RECECIVED', mainMonitorReceived);
+                    //return true;
+
+
+
                     /*
                 let monitors = this._getMonitorsFromMessage(msg);
-                let domMonitors = this._getMonitorsFromDom(document);
+
 
                 let cont = 0;
                 while (cont < monitors.length) {
@@ -153,6 +169,11 @@
                 }
             }
 
+            /**
+             * @param node
+             * @returns {Array}
+             * @private
+             */
             _getMonitorsFromDom(node) {
 
                 let nodeList = [];

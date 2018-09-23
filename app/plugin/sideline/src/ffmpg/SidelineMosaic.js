@@ -218,7 +218,7 @@ class SidelineMosaic {
                     this.consoleLog('SBORDA POST', sideline);
                     break;
                 case this.resourceRemainingWidth < sideline.monitor.width:
-                    this.consoleLog('RIEMPIRE AFTER', sideline);
+                    //this.consoleLog('RIEMPIRE AFTER', sideline);
 
                     this.inputs.push(this.currentResource);
                     this.appendFilterComplexFilter(`setpts=PTS-STARTPTS`);
@@ -252,10 +252,9 @@ class SidelineMosaic {
     }
 
     consoleLog(name, sideline) {
-        /*
         console.group(name);
         console.log('getOverflowComputedWidth', this.getOverflowComputedWidth(sideline));
-        console.log('getCurrentResourceComputedWidth', this.getCurrentResourceComputedWidth())
+        console.log('getCurrentResourceComputedWidth', this.getCurrentResourceComputedWidth());
         console.log('currentYOffset', this.currentYOffset);
         console.log('currentXOffset', this.currentXOffset);
         console.log('_sidelineMonitorIndex', this._sidelineMonitorIndex);
@@ -263,7 +262,6 @@ class SidelineMosaic {
         console.log('_remainingWidth',  this._remainingWidth);
         console.log('currentSidelineRemainingWidth',  this.currentSidelineRemainingWidth);
         console.groupEnd();
-        */
     }
 
     /**
