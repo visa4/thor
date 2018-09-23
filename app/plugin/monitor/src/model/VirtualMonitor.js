@@ -47,20 +47,23 @@ class VirtualMonitor {
             throw 'wrong input for removeMonitor';
         }
 
+        let remove = false;
         for (let cont = 0; this.monitors.length > cont; cont++) {
-            if (this.monitors[cont].id === monitor.id) {
-                this.monitors.splice(cont, 1);
+
+            if (remove) {
+                continue;
             }
 
-            if (typeof this.monitors[cont] === 'object' && typeof this.monitors[cont].getMonitors === "function") {
-                let nestedMonitor = this.monitors[cont].getMonitors({nested: true});
-                for (let cont2 = 0; nestedMonitor.length > cont2; cont2++) {
-                    if (nestedMonitor[cont2].id === monitor.id) {
-                        nestedMonitor.splice(cont2, 1);
-                    }
-                }
+            if (this.monitors[cont].id === monitor.id) {
+                this.monitors.splice(cont, 1);
+                remove = true;
+            }
+
+            if (typeof this.monitors[cont] === 'object' && typeof this.monitors[cont].removeMonitor === "function") {
+                remove = this.monitors[cont].removeMonitor(monitor);
             }
         }
+        return remove;
     }
 
     /**

@@ -28,7 +28,10 @@
              * @param msg
              */
             configMonitor(evt, msg) {
-                this._appendRecursiveMonitor(document.body, msg);
+                let monitor =  serviceManager.get('HydratorPluginManager')
+                    .get('monitorHydrator')
+                    .hydrate(msg);
+                this._appendRecursiveMonitor(document.body, monitor);
             }
 
             /**
@@ -40,7 +43,8 @@
 
                 let monitorElement = document.createElement("player-monitor");
                 monitorElement.defaultTimeslotId = monitor.defaultTimeslotId ? monitor.defaultTimeslotId : undefined;
-                this._setStyleNode(monitorElement, monitor);
+                monitorElement.identifier = monitor.id;
+                monitorElement.setStyles(monitor);
 
                 Polymer.dom(this._getNodeToAppend(node)).appendChild(monitorElement);
 
@@ -51,26 +55,18 @@
                 }
             }
 
+            /**
+             * @param {HtmlElement} node
+             * @private
+             */
             _getNodeToAppend(node) {
                 return node.root ? node.root.getElementById('monitors') : node;
             }
 
             /**
-             * @param node
-             * @param config
-             * @private
+             * @param evt
+             * @param msg
              */
-            _setStyleNode(node, config) {
-                node.identifier = config.id;
-                node.height = config.height;
-                node.width = config.width;
-                node.offsetX = config.offsetX;
-                node.offsetY = config.offsetY;
-                node.backgroundColor = config.backgroundColor;
-                node.polygon = config.polygon;
-            }
-
-
             updateMonitors(evt, msg) {
                 let monitor =  serviceManager.get('HydratorPluginManager')
                     .get('monitorHydrator')
@@ -83,53 +79,18 @@
                         return;
                     }
 
-                    let monitors = monitor.getMonitors({nested : true});
-                    let nodeMonitors = this._getMonitorsFromDom(document);
+                    let nodeMonitor = document.querySelector('player-monitor');
 
-                    console.log('RECECIVED', monitors, nodeMonitors);
-
-                    //console.log('RECECIVED', mainMonitorReceived);
-                    //return true;
-
-
-
-                    /*
-                let monitors = this._getMonitorsFromMessage(msg);
-
-
-                let cont = 0;
-                while (cont < monitors.length) {
-                    let node = domMonitors.find( (element) => {
-                        return monitors[cont].id === element.identifier;
-                    });
-
-                    let index = domMonitors.findIndex(node => node.identifier ===  monitors[cont].id);
-                    if (index > -1) {
-                        domMonitors.splice(index, 1);
+                    if (monitor.id === nodeMonitor.identifier) {
+                        nodeMonitor.updateValueFromMonitor(monitor);
                     }
-
-                    if (node) {
-                        this._setStyleNode(node, monitors[cont]);
-                        monitors.splice(cont, 1);
-
-                    } else {
-                        cont++
-                    }
-                }
-
-                for (let cont = 0; monitors.length > cont; cont++) {
-                    let monitorElement = document.createElement("player-monitor");
-                    this._setStyleNode(monitorElement,  monitors[cont]);
-                    this._appendToParent(monitors[cont]._parent.id, monitorElement);
-                }
-
-                for (let cont = 0; domMonitors.length > cont; cont++) {
-                    domMonitors[cont].remove();
-                }
-
-                */
             }
 
+            /**
+             * @param id
+             * @param element
+             * @private
+             */
             _appendToParent(id, element) {
                 let domMonitors = this._getMonitorsFromDom(document);
                 let domElement = domMonitors.find( (element) => {
@@ -140,62 +101,6 @@
                     Polymer.dom(this._getNodeToAppend(domElement)).appendChild(element);
                 } else {
                     throw 'player-monitor parent not found';
-                }
-            }
-
-            /**
-             * @param msg
-             * @param parent
-             * @return []
-             * @private
-             */
-            _getMonitorsFromMessage(msg, parent) {
-                let monitor = serviceManager.get('HydratorPluginManager')
-                    .get('monitorHydrator')
-                    .hydrate(msg);
-
-                let monitors = [];
-
-                if (msg.monitors && Array.isArray(msg.monitors) && msg.monitors.length > 0) {
-                    for (let cont = 0; msg.monitors.length > cont; cont ++) {
-                        monitors = monitors.concat(this._getMonitorsFromMessage(msg.monitors[cont], monitor));
-                    }
-                    return monitors.concat([monitor]);
-                } else {
-                    if (parent) {
-                        monitor._parent = parent;
-                    }
-                    return [monitor];
-                }
-            }
-
-            /**
-             * @param node
-             * @returns {Array}
-             * @private
-             */
-            _getMonitorsFromDom(node) {
-
-                let nodeList = [];
-                let monitors = [];
-
-                if (node.nodeName === 'playerMonitor') {
-                    monitors.push(node);
-                }
-
-                if (node.root) {
-                    nodeList = node.root.querySelectorAll('player-monitor');
-                } else {
-                    nodeList = node.querySelectorAll('player-monitor');
-                }
-
-                if (nodeList.length === 0) {
-                    return monitors;
-                } else {
-                    for (let cont = 0; nodeList.length > cont; cont++) {
-                        monitors = monitors.concat(this._getMonitorsFromDom(nodeList[cont]));
-                    }
-                    return monitors;
                 }
             }
         }

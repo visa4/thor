@@ -129,14 +129,66 @@
                 ElementPlayerMonitorManager.ipc.on('resume-timeslot', this._resumeTimeslot.bind(this));
             }
 
-            updateSize(evt, msg) {
-                if (this.height !==  msg.height) {
-                    this.height = msg.height;
+            /**
+             * @param {Monitor} monitor
+             */
+            updateValueFromMonitor(monitor) {
+                this.setStyles(monitor);
+                let nodeMonitors = Array.prototype.slice.call(
+                    this.shadowRoot.querySelectorAll('player-monitor')
+                );
+
+                for (let cont = 0; monitor.monitors.length > cont; cont++) {
+                    monitor.monitors[cont].addToDom = true;
+                    for (let subCont = 0; nodeMonitors.length > subCont; subCont++) {
+                        if (nodeMonitors[subCont].identifier === monitor.monitors[cont].id) {
+                            /**
+                             * update style
+                             */
+                            nodeMonitors[subCont].setStyles(monitor.monitors[cont]);
+                            monitor.monitors[cont].addToDom = false;
+
+                            if (monitor.monitors[cont].monitors.length > 0) {
+                                nodeMonitors[subCont].updateValueFromMonitor(monitor.monitors[cont]);
+                                console.log('AGGIORNIAMO SUB');
+                            }
+                            console.log('MODIFY', nodeMonitors[subCont]);
+                            nodeMonitors[subCont].removeToDom = false;
+                            nodeMonitors.splice(subCont, 1);
+                         
+                        }
+                    }
                 }
 
-                if (this.width !==  msg.width) {
-                    this.width = msg.width;
+                for (let cont = 0; nodeMonitors.length > cont; cont++) {
+                    console.log('REMOVE', nodeMonitors[cont]);
+                    nodeMonitors[cont].remove();
                 }
+
+                for (let cont = 0; monitor.monitors.length > cont; cont++) {
+                    if ( monitor.monitors[cont].addTDom === true) {
+
+                        let monitorElement = document.createElement("player-monitor");
+                        monitorElement.identifier =  monitor.monitors[cont].id;
+                        monitorElement.setStyles( monitor.monitors[cont]);
+                        this.appendMonitor(monitorElement);
+                        console.log('APPEND', monitorElement);
+                    }
+                }
+                // TODO add to dom;
+            }
+
+            /**
+             * @param {Monitor} monitor
+             */
+            setStyles(monitor) {
+                this.height = monitor.height;
+                this.width = monitor.width;
+                this.offsetX = monitor.offsetX;
+                this.offsetY = monitor.offsetY;
+                this.backgroundColor = monitor.backgroundColor;
+                this.polygon = monitor.polygon;
+                return this;
             }
 
             /**
@@ -161,6 +213,12 @@
                 this.$[layer].appendChild(wsTimeslot);
             }
 
+            /**
+             * @param playerMonitor
+             */
+            appendMonitor(playerMonitor) {
+                this.$.monitors.appendChild(playerMonitor);
+            }
 
             /**
              * @param timeslot

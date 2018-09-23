@@ -77,7 +77,7 @@ class Monitor {
     }
 
     /**
-     * @param monitor
+     * @param {Monitor} monitor
      * @returns {VirtualMonitor}
      */
     pushMonitor (monitor) {
@@ -85,7 +85,30 @@ class Monitor {
         return this;
     }
 
+    /**
+     * @param monitor
+     */
+    removeMonitor(monitor) {
 
+        let remove = false;
+        if (this.monitors.length > 0) {
+            for (let cont = 0; this.monitors.length > cont; cont++) {
+
+                switch (true) {
+                    case monitor.id === this.monitors[cont].id :
+                        this.monitors.splice(cont, 1);
+                        return true;
+                        break;
+
+                    case typeof this.monitors[cont].removeMonitor === "function":
+                        remove = remove || this.monitors[cont].removeMonitor(monitor);
+                        break
+                }
+
+            }
+        }
+        return remove;
+    }
 }
 
 module.exports = Monitor;
