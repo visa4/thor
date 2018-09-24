@@ -136,7 +136,7 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
                        type: String,
                        reflectToAttribute: true,
                        observer: '_pageChanged',
-                       value: 'monitor-index'
+                       value: 'media-device-index'
                    },
 
                    nameApplication: {
@@ -226,18 +226,49 @@ subject to an additional IP rights grant found at http://polymer.github.io/PATEN
            }
 
            /**
-            * @param page
+            * @param {string} page
             * @private
             */
            _pageChanged(page) {
                // Load page import on demand. Show 404 page if fails
                let path = page.split("-");
-               let resolvedPageUrl = this.resolveUrl(`../../plugin/${path[0]}/${path[1]}.html`);
+               let resolvedPageUrl = this.resolveUrl(`../../plugin/${this._getNameDirectoryFromPage(page)}/${this._getNameFileFromPage(page)}.html`);
                Polymer.importHref(
                    resolvedPageUrl,
                    null,
                    this._showPage404.bind(this),
                    true);
+           }
+
+           /**
+            * @param {string} page
+            * @private
+            */
+           _getNameDirectoryFromPage(page) {
+               let chunk = page.split("-");
+               let directoryName = '';
+               switch (true) {
+                   case chunk.length > 2:
+                       for (let cont = 0; chunk.length > (cont+1); cont++) {
+                           directoryName += cont === 0 ? chunk[cont] : '-' + chunk[cont];
+                       }
+                       break;
+                   case chunk.length > 1:
+                       directoryName = chunk[0];
+                       break;
+                   default:
+                       throw `Wrong page ${page}`;
+               }
+               return directoryName;
+           }
+
+           /**
+            * @param {string} page
+            * @private
+            */
+           _getNameFileFromPage(page) {
+               let chunk = page.split("-");
+               return chunk[chunk.length-1];
            }
 
            /**

@@ -124,7 +124,28 @@
       "widgets": [],
       "icon": "app:sideline",
       "nameWc": "sideline-index"
+    },
+    {
+      "icon": "app:devices",
+      "nameWc": "media-device-index",
+      "label": "Media Device",
+      "plugin": true,
+      "customeStyle": {
+        "color": " green"
+      },
+      "name": "media-device",
+      "configFile": "config.js"
+    },
+    {
+      "icon": "app:timer",
+      "nameWc": "timer-index",
+      "label": "Media Device",
+      "plugin": true,
+      "customeStyle": {
+        "color": " green"
+      },
+      "name": "timer",
+      "configFile": "config.js"
     }
-
   ]
 }
