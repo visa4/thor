@@ -1,0 +1,104 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../../../element/iconset/iconset.html">
+
+
+<dom-module id="timer-wc">
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
+
+            .card-content {
+                padding: 0;
+            }
+
+            .data {
+                padding: 8px;
+            }
+
+            .activePaperButton {
+                color: var(--app-primary-color);
+            }
+
+        </style>
+        <paper-card class="horizontal">
+            <div class="card-content flex flex-horizontal">
+                <div class="data flex-basis-80 flex flex-vertical">
+                    <div>{{timer.name}}</div>
+                </div>
+            </div>
+            <div class="card-actions">
+                <paper-icon-button icon="app:edit" on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
+                <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete"></paper-icon-button>
+                <paper-icon-button icon="timeslot:play" on-click="_play" class="circle-small" title="Play"></paper-icon-button>
+                <paper-icon-button icon="timeslot:stop" class="circle-small" on-click="_stop" title="Stop"></paper-icon-button>
+                <paper-icon-button icon="timeslot:pause" class="circle-small" on-click="_pause" title="Pause"></paper-icon-button>
+            </div>
+            <div id="rightSection" class="rate-image"></div>
+        </paper-card>
+    </template>
+
+    <script>
+        class ElementTimer extends Polymer.Element {
+
+            static get is() {
+                return 'timer-wc';
+            }
+
+            static get properties() {
+                return {
+
+                    timer: {
+                        type: Object,
+                        notify: true,
+                        value: new Timer(),
+                        observer: '_timerChanged'
+                    }
+                };
+            }
+
+            ready() {
+                super.ready();
+                this.timer.timer.addEventListener('secondTenthsUpdated', this._inTime.bind(this));
+
+            }
+
+            _remove(evt) {
+                this.dispatchEvent(new CustomEvent('remove', {detail: this.timer}));
+            }
+
+            _update(evt) {
+                this.dispatchEvent(new CustomEvent('update-view', {detail: this.timer}));
+            }
+
+            _play(evt) {
+                console.log(evt);
+                this.timer.timer.start();
+            }
+
+            _pause(evt) {
+                console.log(evt);
+                this.timer.timer.pause();
+            }
+
+            _stop(evt) {
+                console.log(evt);
+                this.timer.timer.reset();
+            }
+
+            _inTime(evt) {
+                console.log('time', evt);
+            }
+        }
+
+        window.customElements.define(ElementTimer.is, ElementTimer);
+
+    </script>
+</dom-module>

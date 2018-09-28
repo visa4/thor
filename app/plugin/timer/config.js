@@ -32,9 +32,6 @@ class TimerConfig extends PluginConfig {
         if (service.length === 0) {
             this._loadHydrator();
             this._loadStorage();
-            this._loadTimeslotServerService();
-            this._loadTimeslotService();
-            this._loadDataServiceInjectorService();
         } else {
             for (let cont = 0; service.length > cont; cont++) {
                 switch (true) {
@@ -53,7 +50,35 @@ class TimerConfig extends PluginConfig {
      * @private
      */
     _loadHydrator() {
+        let hydrator = new PropertyHydrator(
+            new Timer(),
+            {
+                startAt: new NumberStrategy(),
+                endAt: new NumberStrategy(),
+                autoStart: new NumberStrategy()
+            }
+        );
 
+        hydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('startAt')
+            .enableExtractProperty('endAt')
+            .enableExtractProperty('type')
+            .enableExtractProperty('status')
+            .enableExtractProperty('autoStart');
+
+        hydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('startAt')
+            .enableHydrateProperty('endAt')
+            .enableHydrateProperty('type')
+            .enableHydrateProperty('status')
+            .enableHydrateProperty('autoStart');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'timerHydrator',
+            hydrator
+        );
     }
 
     /**
@@ -69,9 +94,9 @@ class TimerConfig extends PluginConfig {
                 if (evt.data.name === 'DexieManager') {
                     serviceManager.get('DexieManager').pushSchema(
                         {
-                            "name": MediaDeviceConfig.NAME_COLLECTION,
+                            "name": TimerConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "name", "status", "duration", "virtualMonitorReference", "*tags"
+                                "++id", "name", "startAt", "endAt", "autoStart"
                             ]
                         }
                     );
@@ -87,7 +112,7 @@ class TimerConfig extends PluginConfig {
                                     serviceManager.get('DexieManager'),
                                     TimerConfig.NAME_COLLECTION
                                 ),
-                                serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
+                                serviceManager.get('HydratorPluginManager').get('timerHydrator')
                             );
 
 
@@ -103,4 +128,4 @@ class TimerConfig extends PluginConfig {
     }
 }
 
-module.exports = TimeslotConfig;
+module.exports = TimerConfig;

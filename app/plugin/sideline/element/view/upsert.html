@@ -40,7 +40,7 @@
         <style include="global-style"></style>
         <slot name="header"></slot>
         <div class="flex flex-horizontal">
-            <div id="sidelineMonitor" class="">
+            <div id="sidelineMonitor">
                 <iron-form id="formSideline">
                     <form method="post">
                         <paper-card id="rootSideline" class="paper-sideline flex">
@@ -341,8 +341,6 @@
                 }
 
                 this._clearSubSideline();
-                console.log(this.sideline);
-
             }
 
             /**

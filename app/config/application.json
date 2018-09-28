@@ -128,7 +128,7 @@
     {
       "icon": "app:devices",
       "nameWc": "media-device-index",
-      "label": "Media Device",
+      "label": "Device",
       "plugin": true,
       "customeStyle": {
         "color": " green"
@@ -139,13 +139,16 @@
     {
       "icon": "app:timer",
       "nameWc": "timer-index",
-      "label": "Media Device",
+      "label": "Timer",
       "plugin": true,
       "customeStyle": {
         "color": " green"
       },
       "name": "timer",
-      "configFile": "config.js"
+      "configFile": "config.js",
+      "autoloads": [
+        "src/model/Timer.js"
+      ]
     }
   ]
 }

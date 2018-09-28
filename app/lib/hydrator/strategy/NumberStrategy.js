@@ -11,9 +11,16 @@ class NumberStrategy {
     hydrateStrategy(data) {
 
         let hydrate = data;
-        if (typeof data === 'string') {
-            hydrate = parseFloat(data);
+
+        switch (typeof data) {
+            case 'string':
+                hydrate = parseFloat(data);
+                break;
+            case 'boolean':
+                hydrate = data ? 1 : 0;
+                break;
         }
+
         return hydrate;
     }
 
@@ -24,9 +31,16 @@ class NumberStrategy {
      */
     extractStrategy(data) {
         let extract = data;
-        if (typeof data === 'string') {
-            extract = parseFloat(data);
+
+        switch (typeof data) {
+            case 'string':
+                extract = parseFloat(data);
+                break;
+            case 'boolean':
+                extract = data ? 1 : 0;
+                break;
         }
+
         return extract;
     }
 

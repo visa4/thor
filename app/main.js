@@ -360,3 +360,18 @@ ipcMain.on('resume-timeslot', (event, message) => {
         // TODO broadcast on other application on comunication each other
     }
 });
+
+/**
+ * Proxy the message to all monitor open
+ */
+ipcMain.on('proxy', (event, message) => {
+
+    if (!message.nameMessage || !message.data)  {
+        console.error('Wrong message for proxy event');
+        return;
+    }
+
+    for (let cont = 0; monitorsWrapper.monitors.length > cont; cont++) {
+        monitorsWrapper.monitors[cont].browserWindows.send(message.nameMessage, message.data);
+    }
+});

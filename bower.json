@@ -24,6 +24,7 @@
     "paper-chip" : "git@github.com:fabbricadigitale/paper-chip.git#^1.1.0",
     "paper-slider" : "git@github.com:PolymerElements/paper-slider.git#^2.0.7",
     "paper-progress" : "git@github.com:PolymerElements/paper-progress.git#^2.1.1",
+    "paper-checkbox" : "git@github.com:PolymerElements/paper-checkbox.git#^2.0.4",
 
     "iron-flex-layout": "PolymerElements/iron-flex-layout#~2.0.0",
     "iron-form": "PolymerElements/iron-form#^2.0.0",

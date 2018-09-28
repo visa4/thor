@@ -7,7 +7,7 @@
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/pagination/pagination.html">
-<link rel="import" href="../../element/sideline/sideline.html">
+<link rel="import" href="../../element/timer/timer.html">
 
 <dom-module id="timer-view-list">
     <template>
@@ -21,13 +21,13 @@
         </style>
 
         <slot name="header"></slot>
-        <div hidden$="{{!hasTimer}}">
-            <template is="dom-repeat" items="[[sidelines]]" as="sideline">
-
+        <div hidden$="{{!hasResources}}">
+            <template is="dom-repeat" items="[[resources]]" as="resource">
+                <timer-wc timer="{{resource}}" on-update-view="displayUpdateView" on-remove="remove"></timer-wc>
             </template>
             <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
         </div>
-        <div hidden$="{{hasTimer}}">
+        <div hidden$="{{hasResources}}">
             Non sono presenti file
         </div>
     </template>
@@ -42,7 +42,7 @@
             static get properties() {
                 return {
 
-                    sidelines: {
+                    resources: {
                         type: Array,
                         value: []
                     },
@@ -83,33 +83,36 @@
             ready() {
                 super.ready();
                 serviceManager.get('StoragePluginManager')
-                    .get(SidelineConfig.NAME_SERVICE)
-                    .eventManager.on(Storage.STORAGE_POST_SAVE, this._getSidelines.bind(this)
+                    .get(TimerConfig.NAME_SERVICE)
+                    .eventManager.on(Storage.STORAGE_POST_SAVE, this._getResources.bind(this)
                 );
 
                 serviceManager.get('StoragePluginManager')
-                    .get(SidelineConfig.NAME_SERVICE)
-                    .eventManager.on(Storage.STORAGE_POST_UPDATE, this._getSidelines.bind(this)
+                    .get(TimerConfig.NAME_SERVICE)
+                    .eventManager.on(Storage.STORAGE_POST_UPDATE, this._getResources.bind(this)
                 );
+            }
+
+            /**
+             *
+             */
+            _getResources() {
+
+                serviceManager.get('StoragePluginManager')
+                    .get(TimerConfig.NAME_SERVICE)
+                    .getPaged(this.page, this.itemPerPage)
+                    .then((data) => {
+                        this.set('resources', data);
+                        this.hasResources = data.length > 0;
+                        this.totalItems = data.totalItems;
+                    });
             }
 
             _querySidelines(page, itemPerPage) {
                 if (page === undefined || itemPerPage === undefined) {
                     return;
                 }
-                this._getSidelines();
-            }
-
-            _getSidelines() {
-
-                serviceManager.get('StoragePluginManager')
-                    .get(SidelineConfig.NAME_SERVICE)
-                    .getPaged(this.page, this.itemPerPage)
-                    .then((data) => {
-                        this.set('sidelines', data);
-                        this.hasTimer = data.length > 0;
-                        this.totalItems = data.totalItems;
-                    });
+                this._getResources();
             }
 
             /**
@@ -118,29 +121,30 @@
             remove(evt) {
 
                 let index = null;
-                this.sidelines.find((element, ind) => {
+                this.resources.find((element, ind) => {
                     if (element.id === evt.detail.id) {
                         index = ind;
                         return element;
                     }
                 });
 
-                this.splice('sidelines', index, 1);
-                this.hasTimer = this.sidelines.length > 0;
+                this.splice('resources', index, 1);
+                this.hasTimer = this.resources.length > 0;
 
                 serviceManager.get('StoragePluginManager')
-                    .get(SidelineConfig.NAME_SERVICE)
+                    .get(TimerConfig.NAME_SERVICE)
                     .remove(evt.detail)
                     .then((data) => {
-                        serviceManager.get('PaperToastNotification').notify('Remove sideline')
+                        serviceManager.get('PaperToastNotification').notify('Remove timer')
                     });
+
             }
 
             /**
              * @param evt
              */
             displayUpdateView(evt) {
-                this.resourceSelected = evt.detail;
+                this.resourceSelected = evt.target.timer;
                 this.selected = 2;
             }
         }
