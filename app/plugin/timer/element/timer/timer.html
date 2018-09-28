@@ -27,19 +27,24 @@
                 color: var(--app-primary-color);
             }
 
+            paper-icon-button[aria-disabled="true"] {
+                background-color: grey;
+            }
+
         </style>
         <paper-card class="horizontal">
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-80 flex flex-vertical">
                     <div>{{timer.name}}</div>
+                    <div>{{status}}</div>
                 </div>
             </div>
             <div class="card-actions">
                 <paper-icon-button icon="app:edit" on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
                 <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete"></paper-icon-button>
-                <paper-icon-button icon="timeslot:play" on-click="_play" class="circle-small" title="Play"></paper-icon-button>
-                <paper-icon-button icon="timeslot:stop" class="circle-small" on-click="_stop" title="Stop"></paper-icon-button>
-                <paper-icon-button icon="timeslot:pause" class="circle-small" on-click="_pause" title="Pause"></paper-icon-button>
+                <paper-icon-button icon="timeslot:play" on-click="_play" class="circle-small" title="Play" disabled="{{disableStart}}"></paper-icon-button>
+                <paper-icon-button icon="timeslot:stop" class="circle-small" on-click="_stop" title="Stop" disabled="{{disableStop}}"></paper-icon-button>
+                <paper-icon-button icon="timeslot:pause" class="circle-small" on-click="_pause" title="Pause" disabled="{{disablePause}}"></paper-icon-button>
             </div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>
@@ -60,14 +65,40 @@
                         notify: true,
                         value: new Timer(),
                         observer: '_timerChanged'
+                    },
+
+                    disableStart: {
+                        type: Boolean,
+                        notify: true,
+                        value: false
+                    },
+
+                    disableStop: {
+                        type: Boolean,
+                        notify: true,
+                        value: true
+                    },
+
+                    disablePause: {
+                        type: Boolean,
+                        notify: true,
+                        value: true
+                    },
+
+                    status: {
+                        type: String,
+                        notify: true
                     }
                 };
             }
 
             ready() {
                 super.ready();
-                this.timer.timer.addEventListener('secondTenthsUpdated', this._inTime.bind(this));
-
+                this.timer.addEventListener('secondTenthsUpdated', this._inTime.bind(this));
+                this.timer.addEventListener('start', this._inStart.bind(this));
+                this.timer.addEventListener('stop', this._inStop.bind(this));
+                this.timer.addEventListener('pause', this._inPause.bind(this));
+                this.status = this.timer.getStatus();
             }
 
             _remove(evt) {
@@ -79,23 +110,48 @@
             }
 
             _play(evt) {
-                console.log(evt);
-                this.timer.timer.start();
+                this.timer.start();
+                this.disableStart = true;
+                this.disableStop = false;
+                this.disablePause = false;
+                this.status = this.timer.getStatus();
             }
 
             _pause(evt) {
                 console.log(evt);
-                this.timer.timer.pause();
+                this.timer.pause();
+                this.disableStart = false;
+                this.disableStop = false;
+                this.disablePause = true;
+                this.status = this.timer.getStatus();
             }
 
             _stop(evt) {
                 console.log(evt);
-                this.timer.timer.reset();
+                this.timer.stop();
+                this.disableStart = false;
+                this.disableStop = true;
+                this.disablePause = true;
+                this.status = this.timer.getStatus();
             }
 
             _inTime(evt) {
-                console.log('time', evt);
+                console.log('time', evt.detail.timer.getTimeValues());
             }
+
+            _inStop(evt) {
+                console.log('stop', evt);
+            }
+
+            _inStart(evt) {
+                console.log('start', evt);
+            }
+
+            _inPause(evt) {
+                console.log('pause', evt);
+            }
+
+
         }
 
         window.customElements.define(ElementTimer.is, ElementTimer);

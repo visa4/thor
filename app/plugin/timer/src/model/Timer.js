@@ -1,5 +1,9 @@
 class Timer {
 
+    static get TYPE_COUNTDOWN() { return 'countdown'; }
+
+    static get TYPE_TIMER() { return 'timer'; }
+
     constructor() {
 
         /**
@@ -25,17 +29,85 @@ class Timer {
         /**
          * @type string|Object
          */
-        this.type = null;
-
-        /**
-         * @type string
-         */
-        this.status = 'idle';
+        this.type = Timer.TYPE_TIMER;
 
         /**
          * @type {easytimer}
          */
         this.timer = new (require('easytimer.js'))();
+
+        /**
+         * @type {Element}
+         */
+        this.eventEmitter = document.createElement('span');
+    }
+
+    start() {
+        this.timer.start();
+        this.eventEmitter.dispatchEvent(new CustomEvent('start', this.timer));
+    }
+
+    stop() {
+        this.timer.stop();
+        this.eventEmitter.dispatchEvent(new CustomEvent('stop', this.timer));
+    }
+
+    pause() {
+        this.timer.pause();
+        this.eventEmitter.dispatchEvent(new CustomEvent('pause', this.timer));
+    }
+
+    /**
+     * @return {string}
+     */
+    getStatus() {
+        let status = 'idle';
+        switch (true) {
+            case this.timer.isRunning() === true:
+                status = 'running';
+                break;
+
+            case this.timer.isPaused() === true:
+                status = 'pause';
+                break;
+        }
+        return status;
+    }
+
+    /**
+     * Proxy
+     *
+     * @param event
+     * @param listener
+     */
+    addEventListener(event, listener) {
+        switch (event) {
+            case 'start':
+            case 'pause':
+            case 'stop':
+                this.eventEmitter.addEventListener(event, listener);
+                break;
+
+        }
+        this.timer.addEventListener(event, listener);
+    }
+
+    /**
+
+     *
+     * @param event
+     * @param listener
+     */
+    removeEventListener(event, listener) {
+        switch (event) {
+            case 'start':
+            case 'pause':
+            case 'stop':
+                this.eventEmitter.removeEventListener(event, listener);
+                break;
+
+        }
+        this.timer.removeEventListener(event, listener);
     }
 }
 
