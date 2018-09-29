@@ -37,6 +37,7 @@
                 <div class="data flex-basis-80 flex flex-vertical">
                     <div>{{timer.name}}</div>
                     <div>{{status}}</div>
+                    <div>{{hours}}:{{minutes}}:{{seconds}}</div>
                 </div>
             </div>
             <div class="card-actions">
@@ -88,6 +89,24 @@
                     status: {
                         type: String,
                         notify: true
+                    },
+
+                    hours: {
+                        type: String,
+                        notify: true,
+                        value: '00'
+                    },
+
+                    minutes: {
+                        type: String,
+                        notify: true,
+                        value: '00'
+                    },
+
+                    seconds: {
+                        type: String,
+                        notify: true,
+                        value: '00'
                     }
                 };
             }
@@ -111,32 +130,31 @@
 
             _play(evt) {
                 this.timer.start();
-                this.disableStart = true;
-                this.disableStop = false;
-                this.disablePause = false;
+                this._setViewActionButton(true, false, false);
                 this.status = this.timer.getStatus();
             }
 
             _pause(evt) {
                 console.log(evt);
                 this.timer.pause();
-                this.disableStart = false;
-                this.disableStop = false;
-                this.disablePause = true;
+                this._setViewActionButton(false, false, true);
                 this.status = this.timer.getStatus();
             }
 
             _stop(evt) {
                 console.log(evt);
                 this.timer.stop();
-                this.disableStart = false;
-                this.disableStop = true;
-                this.disablePause = true;
+                this._setViewActionButton(false, true, true);
                 this.status = this.timer.getStatus();
+                this._setTimeValue('00', '00', '00');
             }
 
             _inTime(evt) {
                 console.log('time', evt.detail.timer.getTimeValues());
+                let data = evt.detail.timer.getTimeValues();
+                this.hours = data.hours < 10 ? '0' + data.hours : data.hours;
+                this.minutes = data.minutes < 10 ? '0' + data.minutes : data.minutes;
+                this.seconds = data.seconds < 10 ? '0' + data.seconds : data.seconds;
             }
 
             _inStop(evt) {
@@ -151,6 +169,17 @@
                 console.log('pause', evt);
             }
 
+            _setViewActionButton(start, stop, pause) {
+                this.disableStart = start;
+                this.disableStop  = stop;
+                this.disablePause = pause;
+            }
+
+            _setTimeValue(hours, minutes, seconds) {
+                this.hours   = hours;
+                this.minutes = minutes;
+                this.seconds = seconds;
+            }
 
         }
 

@@ -74,6 +74,12 @@ class Timer {
         return status;
     }
 
+    init() {
+        let params = {};
+        params.countdown = this.type === Timer.TYPE_TIMER ? false : true;
+
+    }
+
     /**
      * Proxy
      *
