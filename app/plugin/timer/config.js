@@ -50,11 +50,30 @@ class TimerConfig extends PluginConfig {
      * @private
      */
     _loadHydrator() {
+
         let hydrator = new PropertyHydrator(
+            new Object(),
+            {
+                hours: new NumberStrategy(),
+                minutes: new NumberStrategy(),
+                seconds: new NumberStrategy()
+            }
+        );
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'dataTimeHydrator',
+            hydrator
+        );
+
+        hydrator = new PropertyHydrator(
             new Timer(),
             {
-                startAt: new NumberStrategy(),
-                endAt: new NumberStrategy(),
+                startAt: new HydratorStrategy(
+                    this.serviceManager.get('HydratorPluginManager').get('dataTimeHydrator')
+                ),
+                endAt: new HydratorStrategy(
+                    this.serviceManager.get('HydratorPluginManager').get('dataTimeHydrator')
+                ),
                 autoStart: new NumberStrategy()
             }
         );

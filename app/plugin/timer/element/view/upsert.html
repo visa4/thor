@@ -27,6 +27,11 @@
 
             .padding-left {
                 margin-left: 30px;
+
+            }
+
+            .pd-r {
+                padding-right: 6px;
             }
 
             #formResource {
@@ -52,8 +57,33 @@
             <iron-form id="formResource">
                 <form method="post">
                     <paper-input id="name" name="name" value="{{resource.name}}" label="Name" required></paper-input>
-                    <paper-input id="startAt" name="name" label="Start" value="{{resource.startAt}}"  type="number" required></paper-input>
-                    <paper-input id="endAt" name="name" label="End" value="{{resource.endAt}}"  type="number" required></paper-input>
+                    <div class="flex-horizontal flex" style="width: 100%;">
+                        <div class="flex-basis-33">
+                            <paper-input label="Start hours" value="{{resource.startAt.hours}}" type="number" required></paper-input>
+                        </div>
+                        <div class="pd-r"></div>
+                        <div class="flex-basis-33">
+                            <paper-input label="Start minutes" value="{{resource.startAt.minutes}}" type="number" required></paper-input>
+                        </div>
+                        <div class="pd-r"></div>
+                        <div class="flex-basis-33">
+                            <paper-input label="Start seconds" value="{{resource.startAt.seconds}}" type="number" required></paper-input>
+                        </div>
+                    </div>
+                    <div class="flex-horizontal flex" style="width: 100%;">
+                        <div class="flex-basis-33">
+                            <paper-input label="End houhs" value="{{resource.endAt.hours}}" type="number" required></paper-input>
+                        </div>
+                        <div class="pd-r"></div>
+                        <div class="flex-basis-33">
+                            <paper-input label="End minutes" value="{{resource.endAt.minutes}}" type="number" required></paper-input>
+                        </div>
+                        <div class="pd-r"></div>
+                        <div class="flex-basis-33">
+                            <paper-input name="name" label="End seconds" value="{{resource.endAt.seconds}}" type="number" required></paper-input>
+                        </div>
+                    </div>
+
                     <paper-dropdown-menu label="Type">
                         <paper-listbox slot="dropdown-content" class="dropdown-content"  selected="0">
                             <paper-item>Timer</paper-item>

@@ -36,7 +36,7 @@
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-80 flex flex-vertical">
                     <div>{{timer.name}}</div>
-                    <div>{{status}}</div>
+                    <div>{{status}} - {{timer.type}}</div>
                     <div>{{hours}}:{{minutes}}:{{seconds}}</div>
                 </div>
             </div>
@@ -64,8 +64,7 @@
                     timer: {
                         type: Object,
                         notify: true,
-                        value: new Timer(),
-                        observer: '_timerChanged'
+                        value: new Timer()
                     },
 
                     disableStart: {
@@ -118,6 +117,22 @@
                 this.timer.addEventListener('stop', this._inStop.bind(this));
                 this.timer.addEventListener('pause', this._inPause.bind(this));
                 this.status = this.timer.getStatus();
+
+                this._resetTimeData();
+            }
+
+            _resetTimeData() {
+                if (typeof this.timer.startAt.seconds === 'number') {
+                    this.seconds = this.timer.startAt.seconds < 10 ? `0${this.timer.startAt.seconds}` : this.timer.startAt.seconds ;
+                }
+
+                if (typeof this.timer.startAt.minutes === 'number') {
+                    this.minutes = this.timer.startAt.minutes < 10 ? `0${this.timer.startAt.minutes}` : this.timer.startAt.minutes ;
+                }
+
+                if (typeof this.timer.startAt.hours === 'number') {
+                    this.hours = this.timer.startAt.hours < 10 ? `0${this.timer.startAt.hours}` : this.timer.startAt.hours ;
+                }
             }
 
             _remove(evt) {
@@ -146,7 +161,7 @@
                 this.timer.stop();
                 this._setViewActionButton(false, true, true);
                 this.status = this.timer.getStatus();
-                this._setTimeValue('00', '00', '00');
+                this._resetTimeData();
             }
 
             _inTime(evt) {
@@ -174,13 +189,6 @@
                 this.disableStop  = stop;
                 this.disablePause = pause;
             }
-
-            _setTimeValue(hours, minutes, seconds) {
-                this.hours   = hours;
-                this.minutes = minutes;
-                this.seconds = seconds;
-            }
-
         }
 
         window.customElements.define(ElementTimer.is, ElementTimer);

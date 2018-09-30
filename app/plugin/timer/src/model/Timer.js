@@ -7,14 +7,14 @@ class Timer {
     constructor() {
 
         /**
-         * @type {number}
+         * @type {Object}
          */
-        this.startAt = 0;
+        this.startAt = {};
 
         /**
-         * @type {number}
+         * @type {Object}
          */
-        this.endAt = 0;
+        this.endAt = {};
 
         /**
          * @type string|Object
@@ -42,8 +42,17 @@ class Timer {
         this.eventEmitter = document.createElement('span');
     }
 
+    _startConfig() {
+        let params = {};
+
+        params.countdown = this.type === Timer.TYPE_TIMER ? false : true;
+        params.startValues = this.startAt;
+        params.target = this.endAt;
+        return params;
+    }
+
     start() {
-        this.timer.start();
+        this.timer.start(this._startConfig());
         this.eventEmitter.dispatchEvent(new CustomEvent('start', this.timer));
     }
 
@@ -72,12 +81,6 @@ class Timer {
                 break;
         }
         return status;
-    }
-
-    init() {
-        let params = {};
-        params.countdown = this.type === Timer.TYPE_TIMER ? false : true;
-
     }
 
     /**
