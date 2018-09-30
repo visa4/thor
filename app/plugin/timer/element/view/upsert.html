@@ -54,10 +54,10 @@
                     <paper-input id="name" name="name" value="{{resource.name}}" label="Name" required></paper-input>
                     <paper-input id="startAt" name="name" label="Start" value="{{resource.startAt}}"  type="number" required></paper-input>
                     <paper-input id="endAt" name="name" label="End" value="{{resource.endAt}}"  type="number" required></paper-input>
-                    <paper-dropdown-menu label="Type">
+                    <paper-dropdown-menu id="type" label="Type">
                         <paper-listbox slot="dropdown-content" class="dropdown-content"  selected="0">
-                            <paper-item>Timer</paper-item>
-                            <paper-item>Countdown</paper-item>
+                            <paper-item value="timer">Timer</paper-item>
+                            <paper-item value="contdown">Countdown</paper-item>
                         </paper-listbox>
                     </paper-dropdown-menu>
                     <paper-checkbox checked="{{resource.autoStart}}">Autostart</paper-checkbox>
@@ -113,6 +113,7 @@
                 console.log(this.resource);
 
                 let method = this.resource.id ? 'update' : 'save';
+                this.resource.type = this.$.type.selectedItem.getAttribute('value');
 
                 serviceManager.get('StoragePluginManager')
                     .get(TimerConfig.NAME_SERVICE)[method](this.resource)
