@@ -179,9 +179,10 @@
                     throw 'Service not forund';
                 }
 
-                evt.detail.target.suggestions(
-                    service.getServiceData(evt.detail.value)
-                );
+                service.getServiceData(evt.detail.value)
+                    .then((data) => {
+                        evt.detail.target.suggestions(data)
+                    });
             }
         }
 

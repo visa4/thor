@@ -340,19 +340,23 @@
                 if (Array.isArray(this.timeslot.dataReferences) && this.timeslot.dataReferences.length > 0) {
                     let dataReferences = this.timeslot.dataReferences[0];
 
-                    let index = this.$.dataRefernces.$.serviceInput.source.findIndex(
+                    let service = this.$.dataRefernces.$.serviceInput.source.find(
                         (element) => {
                             return element.serviceName == dataReferences.name;
                         }
                     );
 
-                    if (index > -1) {
-                        this.$.dataRefernces.service = this.$.dataRefernces.$.serviceInput.source[index];
-                        this.$.dataRefernces.$.serviceInput.text = this.$.dataRefernces.service.serviceLabel;
+                    if (service) {
+                        this.$.dataRefernces.service = service;
+                        this.$.dataRefernces.$.serviceInput.text = service.serviceLabel;
                         this.$.dataRefernces.hideDataInput = false;
 
-                        this.$.dataRefernces.data = this.$.dataRefernces.service.getTimeslotData(dataReferences.data);
-                        this.$.dataRefernces.$.dataInput.text = this.$.dataRefernces.data.name;
+                        service.getTimeslotData(dataReferences.data)
+                            .then((data) => {
+                                this.$.dataRefernces.data = data;
+                                this.$.dataRefernces.$.dataInput.text = data.name;
+                            });
+
                     }
                 }
 

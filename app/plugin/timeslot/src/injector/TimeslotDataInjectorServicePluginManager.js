@@ -34,6 +34,8 @@ class TimeslotDataInjectorServicePluginManager extends ServiceManager {
         switch (true) {
             case service === null:
             case typeof service !== 'object':
+            case service['getServiceData'] === null:
+            case typeof service['getServiceData'] !== 'function':
             case service['getTimeslotData'] === null:
             case typeof service['getTimeslotData'] !== 'function':
             case service['extractTimeslot'] === null:

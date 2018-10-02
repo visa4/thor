@@ -47,9 +47,17 @@ class Test1 extends AbstractInjector {
     }
 
     getServiceData(value) {
-        return this.mockData.filter(function (obj) {
-            return obj.name.toLowerCase().indexOf(value.toLowerCase()) !== -1;
-        })
+        return new Promise((resolve, reject) => {
+            let filter = this.mockData.filter(function (obj) {
+                return obj.name.toLowerCase().indexOf(value.toLowerCase()) !== -1;
+            });
+
+            if (filter) {
+                resolve(filter);
+            } else {
+                reject('error');
+            }
+        });
     }
 
     getTimeslotData(data) {

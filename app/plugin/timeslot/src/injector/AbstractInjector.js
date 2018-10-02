@@ -2,7 +2,16 @@
 class AbstractInjector {
 
     /**
+     * @param {string} value
+     * @return Promise
+     */
+    getServiceData(value) {
+        throw 'method must be override';
+    }
+
+    /**
      * @param {Object} data
+     * @return Promise
      */
     getTimeslotData(data) {
         throw 'method must be override';

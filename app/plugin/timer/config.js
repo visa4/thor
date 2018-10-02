@@ -33,7 +33,6 @@ class TimerConfig extends PluginConfig {
             this._loadHydrator();
             this._loadStorage();
             this._loadTimerService();
-            this._loadTimeslotDataInjectorService();
         } else {
             for (let cont = 0; service.length > cont; cont++) {
                 switch (true) {
@@ -131,8 +130,10 @@ class TimerConfig extends PluginConfig {
                     serviceManager.get('DexieManager').onReady(
                         function (evt) {
 
+                            let TimerDexieCollection = require('../timer/src/storage/indexed-db/dexie/TimerDexieCollection');
+
                             let storage = new Storage(
-                                new DexieCollection(
+                                new TimerDexieCollection(
                                     serviceManager.get('DexieManager'),
                                     TimerConfig.NAME_COLLECTION
                                 ),
@@ -144,6 +145,12 @@ class TimerConfig extends PluginConfig {
                                 TimerConfig.NAME_SERVICE,
                                 storage
                             );
+
+                            serviceManager.get('TimeslotDataInjectorService')
+                                .set('TimerDataInjector',new TimerDataInjector(
+                                    storage
+                                ));
+
                         }.bind(this)
                     );
                 }
@@ -163,12 +170,6 @@ class TimerConfig extends PluginConfig {
             this.serviceManager.get('HydratorPluginManager').get('timerHydrator')
         );
         this.serviceManager.set('TimerService', timerService);
-    }
-
-    _loadTimeslotDataInjectorService() {
-
-        this.serviceManager.get('TimeslotDataInjectorService').set('TimerDataInjector',new TimerDataInjector());
-
     }
 }
 

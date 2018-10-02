@@ -1,26 +1,33 @@
 
 class TimerDataInjector extends AbstractInjector {
 
-    constructor() {
+    constructor(timerStorage) {
         super();
+
+        this.storage = timerStorage;
+    }
+
+    /**
+     * @param {string} value
+     * @return Promise
+     */
+    getServiceData(value) {
+        return this.storage.getAll({name: value});
     }
 
     /**
      * @param {Object} data
+     * @return Promise
      */
     getTimeslotData(data) {
-       return [
-           {'name' : 'test'}
-       ]
+       return this.storage.get(data.id);
     }
 
     /**
-     * @param {Object} data
+     * @param {Timer} timer
      */
-    extractTimeslot(data) {
-        return [
-            {'name' : 'test'}
-        ]
+    extractTimeslot(timer) {
+        return {'id' : timer.id};
     }
 
     /**
