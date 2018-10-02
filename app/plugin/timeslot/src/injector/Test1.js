@@ -1,6 +1,7 @@
-class Test2 {
+class Test1 extends AbstractInjector {
 
     constructor() {
+        super();
         this.mockData = this.createMockData();
 
     }
@@ -34,11 +35,11 @@ class Test2 {
     }
 
     get serviceLabel() {
-        return 'Test 2';
+        return 'Test 1';
     }
 
     get serviceName() {
-        return Test2.name;
+        return Test1.name;
     }
 
     get serviceDescription() {
@@ -74,4 +75,4 @@ class Test2 {
     }
 }
 
-module.exports = Test2;
+module.exports = Test1;

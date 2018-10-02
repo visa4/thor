@@ -188,15 +188,16 @@ class Application {
      */
     static injectServices(serviceManager) {
 
-        let hydratorPluginManager = new HydratorPluginManager();
-        let storagePluginManager = new StoragePluginManager();
 
         serviceManager.set(
-            hydratorPluginManager.constructor.name,
-            hydratorPluginManager
+            (new HydratorPluginManager).constructor.name,
+            new HydratorPluginManager()
         ).set(
-            storagePluginManager.constructor.name,
-            storagePluginManager
+            (new StoragePluginManager).constructor.name,
+            new StoragePluginManager()
+        ).set(
+            (new CommunicatorPluginManager).constructor.name,
+            new CommunicatorPluginManager()
         );
     }
 }

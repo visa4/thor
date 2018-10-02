@@ -25,6 +25,11 @@ serviceManager.eventManager.on(
     }
 );
 
+serviceManager.get('CommunicatorPluginManager').set(
+    'Ipc',
+     require('electron').ipcRenderer
+);
+
 /**
  * @type {Object}
  */

@@ -8,9 +8,10 @@
   "autoload": [
     "src/TimeslotSenderService.js",
     "src/TimeslotService.js",
-    "src/TimeslotDataInjectorService.js",
     "src/model/Timeslot.js",
-    "src/model/TimeslotDataReference.js"
+    "src/model/TimeslotDataReference.js",
+    "src/injector/AbstractInjector.js",
+    "src/injector/TimeslotDataInjectorServicePluginManager.js"
   ],
   "widgets": [
     "widget/timeslot-tags.html"

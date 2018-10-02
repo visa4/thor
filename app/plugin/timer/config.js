@@ -32,6 +32,8 @@ class TimerConfig extends PluginConfig {
         if (service.length === 0) {
             this._loadHydrator();
             this._loadStorage();
+            this._loadTimerService();
+            this._loadTimeslotDataInjectorService();
         } else {
             for (let cont = 0; service.length > cont; cont++) {
                 switch (true) {
@@ -39,6 +41,9 @@ class TimerConfig extends PluginConfig {
                         this._loadHydrator();
                         break;
                     case service[cont] === 'Storage':
+                        this._loadStorage();
+                        break;
+                    case service[cont] === 'TimerService':
                         this._loadStorage();
                         break;
                 }
@@ -144,6 +149,26 @@ class TimerConfig extends PluginConfig {
                 }
             }
         );
+    }
+
+    /**
+     * @private
+     */
+    _loadTimerService() {
+        let CommunicatorAggregate = require('../../lib/communicator/CommunicatorAggregate');
+        let timerService = new TimerService(
+            new CommunicatorAggregate(
+                [serviceManager.get('CommunicatorPluginManager').get('Ipc')]
+            ),
+            this.serviceManager.get('HydratorPluginManager').get('timerHydrator')
+        );
+        this.serviceManager.set('TimerService', timerService);
+    }
+
+    _loadTimeslotDataInjectorService() {
+
+        this.serviceManager.get('TimeslotDataInjectorService').set('TimerDataInjector',new TimerDataInjector());
+
     }
 }
 

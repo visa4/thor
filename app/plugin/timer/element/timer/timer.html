@@ -170,6 +170,7 @@
                 this.hours = data.hours < 10 ? '0' + data.hours : data.hours;
                 this.minutes = data.minutes < 10 ? '0' + data.minutes : data.minutes;
                 this.seconds = data.seconds < 10 ? '0' + data.seconds : data.seconds;
+                serviceManager.get('TimerService').progress(evt.detail);
             }
 
             _inStop(evt) {

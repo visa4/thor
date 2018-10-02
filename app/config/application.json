@@ -66,11 +66,12 @@
       "autoloads": [
         "src/TimeslotSenderService.js",
         "src/TimeslotService.js",
-        "src/TimeslotDataInjectorServicePluginManager.js",
         "src/model/Timeslot.js",
         "src/model/TimeslotDataReference.js",
-        "src/Test1.js",
-        "src/Test2.js"
+        "src/injector/AbstractInjector.js",
+        "src/injector/TimeslotDataInjectorServicePluginManager.js",
+        "src/injector/Test1.js",
+        "src/injector/Test2.js"
       ],
       "name": "timeslot",
       "widgets": [
@@ -147,7 +148,9 @@
       "name": "timer",
       "configFile": "config.js",
       "autoloads": [
-        "src/model/Timer.js"
+        "src/model/Timer.js",
+        "src/TimerService",
+        "src/injector/TimerDataInjector"
       ]
     }
   ]
