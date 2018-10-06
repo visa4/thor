@@ -4,6 +4,9 @@
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-menu-button/paper-menu-button.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
+<link rel="import" href="../../../../bower_components/paper-listbox/paper-listbox.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -41,6 +44,14 @@
                 text-overflow: ellipsis;
             }
 
+            paper-menu-button {
+                padding: 0;
+            }
+
+            paper-listbox {
+                min-width: 0;
+            }
+
             #rightSection {
                 background-image: url("img/timslot.jpg");
             }
@@ -65,21 +76,38 @@
             }
 
             .card-actions {
-                justify-content: space-between;
-            }
-
-            .movie,
-            .crud {
-                padding-left: 4px;
-                padding-right: 4px;
+                justify-content: flex-start;
+                padding-left: 6px;
             }
 
             .crud paper-icon-button {
                 background-color: #0b8043 ;
             }
 
+            paper-icon-button[aria-disabled="true"].action {
+                background-color: grey;
+                opacity: 0.5;
+            }
         </style>
-        <paper-card class="horizontal">
+        <paper-card id="design" class="setting">
+            <div class="card-setting">
+                <paper-icon-button
+                        id="loopIcon"
+                        item="{{timeslot}}"
+                        title="Send timeslot in loop mode"
+                        icon="timeslot:loop"
+                        class$="{{_computeLoopIcon()}}"
+                        on-tap="_tapLoop">
+                </paper-icon-button>
+                <paper-icon-button
+                        id="overlayIcon"
+                        item="{{timeslot}}"
+                        title="Send timeslot in overlay mode"
+                        icon="timeslot:overlay"
+                        class$="{{_computeContexIcon()}}"
+                        on-tap="_tapOverlay">
+                </paper-icon-button>
+            </div>
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-85 flex flex-vertical">
                     <div class="dataWrapper">
@@ -92,77 +120,23 @@
                         <div>{{timeslot.duration}} sec</div>
                     </div>
                 </div>
-                <div class="flags flex-basis-15">
-                    <paper-icon-button
-                            id="loopIcon"
-                            item="{{timeslot}}"
-                            icon="timeslot:loop"
-                            class$="{{_computeLoopIcon()}}"
-                            on-tap="_tapLoop">
-                    </paper-icon-button>
-                    <paper-icon-button
-                            id="overlayIcon"
-                            item="{{timeslot}}"
-                            icon="timeslot:overlay"
-                            class$="{{_computeContexIcon()}}"
-                            on-tap="_tapOverlay">
-                    </paper-icon-button>
+                <div class="data flex-basis-15 flex flex-vertical">
+                    <paper-menu-button ignore-select disabled="{{hideCrud}}">
+                        <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
+                        <paper-listbox slot="dropdown-content" multi>
+                            <paper-item on-click="_update">Modifica</paper-item>
+                            <paper-item  on-click="_remove">Elimina</paper-item>
+                        </paper-listbox>
+                    </paper-menu-button>
                 </div>
             </div>
             <div class="card-actions">
-                <div class="movie">
-                    <template is="dom-if" if="{{_isInStatus(timeslot, 'running', 'pause')}}">
-                        <paper-icon-button
-                                icon="timeslot:stop"
-                                on-click="_stop"
-                                class="circle-small"
-                                title="Stop">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(timeslot, 'running')}}">
-                        <paper-icon-button
-                                icon="timeslot:pause"
-                                on-click="_pause"
-                                class="circle-small"
-                                title="Pause">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(timeslot, 'pause')}}">
-                        <paper-icon-button
-                                icon="timeslot:play"
-                                on-click="_resume"
-                                class="circle-small"
-                                title="Resume">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(timeslot, 'idle')}}">
-                        <paper-icon-button
-                                icon="timeslot:play"
-                                on-click="_play"
-                                class="circle-small"
-                                title="Play">
-                        </paper-icon-button>
-                    </template>
-                </div>
-                <div class="crud" hidden$="{{hideCrud}}">
-                    <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
-                        <paper-icon-button
-                                icon="app:edit"
-                                on-click="_update"
-                                class="circle-small"
-                                title="Modify">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(timeslot, 'idle', 'pause')}}">
-                        <paper-icon-button
-                                icon="app:trash"
-                                on-click="_remove"
-                                class="circle-small"
-                                title="Delete">
-                        </paper-icon-button>
-                    </template>
-                </div>
-
+                <paper-icon-button id="play" icon="timeslot:play" on-click="_play" class="circle-small action" title="Play">
+                </paper-icon-button>
+                <paper-icon-button id="stop" icon="timeslot:stop" on-click="_stop" class="circle-small action" title="Stop">
+                </paper-icon-button>
+                <paper-icon-button id="pause" icon="timeslot:pause" on-click="_pause" class="circle-small action" title="Pause">
+                </paper-icon-button>
             </div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>
@@ -203,12 +177,34 @@
                     return;
                 }
 
-                if (newValue.status === Timeslot.RUNNING) {
-                    this.$.loopIcon.disabled = true;
-                    this.$.overlayIcon.disabled = true;
-                } else {
-                    this.$.loopIcon.disabled = false;
-                    this.$.overlayIcon.disabled = false;
+                switch (true) {
+                    case newValue.status === Timeslot.RUNNING:
+                        this.hideCrud = true;
+                        this.$.loopIcon.disabled = true;
+                        this.$.overlayIcon.disabled = true;
+
+                        this.$.play.disabled = true;
+                        this.$.stop.disabled = false;
+                        this.$.pause.disabled = false;
+                        break;
+                    case newValue.status === Timeslot.PAUSE:
+
+                        this.hideCrud = false;
+                        this.$.loopIcon.disabled = false;
+                        this.$.overlayIcon.disabled = false;
+
+                        this.$.play.disabled = false;
+                        this.$.stop.disabled = false;
+                        this.$.pause.disabled = true;
+                        break;
+                    default:
+                        this.hideCrud = false;
+                        this.$.loopIcon.disabled = false;
+                        this.$.overlayIcon.disabled = false;
+
+                        this.$.play.disabled = false;
+                        this.$.stop.disabled = true;
+                        this.$.pause.disabled = true;
                 }
             }
 
@@ -249,11 +245,12 @@
             }
 
             _play(evt) {
-                this.dispatchEvent(new CustomEvent('play', {detail: this.timeslot}));
-            }
+                if (this.timeslot.status === Timeslot.IDLE) {
+                    this.dispatchEvent(new CustomEvent('play', {detail: this.timeslot}));
+                } else {
+                    this.dispatchEvent(new CustomEvent('resume', {detail: this.timeslot}));
+                }
 
-            _resume(evt) {
-                this.dispatchEvent(new CustomEvent('resume', {detail: this.timeslot}));
             }
 
             _stop(evt) {

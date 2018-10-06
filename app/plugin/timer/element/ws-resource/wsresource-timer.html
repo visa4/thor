@@ -1,0 +1,44 @@
+
+<dom-module id="wsresource-timer">
+    <template>
+        <style>
+
+            .test {
+                padding: 0;
+                height: 100%;
+                width: 100%;
+                background-color: red;
+            }
+
+        </style>
+        <div class="test"></div>
+    </template>
+
+    <script>
+        class WsResourceTimer extends Polymer.Element {
+
+            static get is() {
+                return 'wsresource-timer';
+            }
+
+            static get properties() {
+                return {
+
+                    data: {
+                        type: Object,
+                        notify: true,
+                    },
+
+                };
+            }
+
+            ready() {
+                super.ready();
+                console.log('RESOURCEEEEEEEEEEEEEEE', this.data);
+            }
+        }
+
+        window.customElements.define(WsResourceTimer.is, WsResourceTimer);
+
+    </script>
+</dom-module>

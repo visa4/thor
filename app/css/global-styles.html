@@ -96,14 +96,90 @@
 
             paper-card {
                 min-width: 300px;
+                min-height: 160px;
                 margin-bottom: 6px;
             }
+
+            /**
+             * Paper card setting for design layout
+             */
+
+            paper-card#design div.card-content,
+            paper-card#design div.card-actions
+            {
+                margin-left: 100px;
+            }
+
+
+            paper-card#design div.card-content {
+                min-height: 105px;
+            }
+
+
+            paper-card#design.setting div.card-setting {
+                top: 0;
+                left: 100px;
+                position: absolute;
+                height: 100%;
+                width: 40px;
+            }
+
+
+            paper-card#design.setting div.card-content,
+            paper-card#design.setting div.card-actions {
+                margin-left: 140px;
+                border-left: 1px solid #e8e8e8;
+            }
+
+            paper-card#design div.card-content div.title {
+                text-transform: capitalize ;
+                size: 24px;
+            }
+
+            paper-card#design div.rate-image {
+                position: absolute;
+                top: 0;
+                left: 0;
+                bottom: 0;
+                width: 100px;
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+                background-image: url("../css/image/example.png");
+            }
+
+
 
             paper-card.horizontal div.card-content,
             paper-card.horizontal div.card-actions
             {
-                margin-right: 100px;
+                margin-left: 100px;
             }
+
+            paper-card#design div.card-actions {
+                display: flex;
+                align-items: center;
+                padding-top: 12px;
+                padding-bottom: 12px;
+            }
+
+            paper-card#design div.card-actions > * {
+                margin-right: 2px;
+            }
+
+            paper-card#design div.paper-card-rirght-bk-image {
+                background-image: url("../css/image/image-placeholder.png");
+            }
+
+            paper-card#design div.paper-card-rirght-bk-video {
+                background-image: url("../css/image/video-placeholder.jpg");
+            }
+
+
+
+
+
+
 
             paper-card.horizontal div.card-content div.title {
                 text-transform: capitalize ;
@@ -124,7 +200,7 @@
             paper-card.horizontal div.rate-image {
                 position: absolute;
                 top: 0;
-                right: 0;
+                left: 0;
                 bottom: 0;
                 width: 100px;
                 background-size: cover;

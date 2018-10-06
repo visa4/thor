@@ -227,40 +227,47 @@ class ResourceConfig extends PluginConfig {
      * @param evt
      */
     onSave(evt) {
-        let fs = require('fs');
-        let path = require('path');
 
         console.log('RESOURCE',evt);
 
-        let arrayName = path.win32.basename(evt.data.getPath()).split('.');
-        let pathName = `${__dirname}/../../storage/resource/`;
-        let fileName = `${evt.data.id}.${arrayName[1]}`;
-        let url = `${pathName}${fileName}`;
-
-        fs.rename(evt.data.getPath(), url , function (err) {
+        /**
+         * Rename and move resource
+         */
+        fs.rename(evt.data.getPath(), `${serviceManager.get('Application').getResourcePath()}/${evt.data.id}.${evt.data.getExtension()}`, function (err) {
             if (err) {
-               // throw err;
+                console.error('Rename Error', err);
+                // TODO Exception
+                return;
             }
 
             evt.data.location = {
-                path: pathName,
-                name: fileName
+                path: `${serviceManager.get('Application').getResourcePath()}/`,
+                name: `${evt.data.id}.${evt.data.getExtension()}`
             };
 
             if (evt.data.type === "application/zip") {
+
                 let AdmZip = require('adm-zip');
                 let fs = require('fs');
+                let pathResource = `${serviceManager.get('Application').getResourcePath()}/${evt.data.id}`;
 
                 let zip =  new AdmZip(evt.data.getPath());
-                zip.extractAllTo(`${pathName}${evt.data.id}`, true);
-                Utils.move(evt.data.getPath(), `${evt.data.location.path}${evt.data.id}/${evt.data.location.name}`);
+                zip.extractAllTo(pathResource, true);
+                Utils.move(evt.data.getPath(), `${pathResource}/${evt.data.id}.${evt.data.getExtension()}`);
 
-                if (fs.existsSync(`${pathName}${evt.data.id}/package.json`)) {
+                if (fs.existsSync(`${pathResource}/package.json`)) {
                     let wcConfig = JSON.parse(
-                        fs.readFileSync(`${pathName}${evt.data.id}/package.json`).toString()
+                        fs.readFileSync(`${pathResource}/package.json`).toString()
                     );
 
-                    evt.data.location.name = `${evt.data.id}/${wcConfig.main}`;
+                    if (wcConfig.main === undefined) {
+                        console.error('Main property not set in package json');
+                        // TODO Exception
+                        return;
+                    }
+
+                    evt.data.location.name = wcConfig.main;
+                    evt.data.location.path = `${pathResource}/${evt.data.id}`;
                     evt.data.type = 'text/html';
                     evt.data.wcName = wcConfig.name;
                 } else {
@@ -287,20 +294,17 @@ class ResourceConfig extends PluginConfig {
         }
 
         let pathName = `${__dirname}/../../storage/resource/`;
-        let filePath = `${__dirname}/../../storage/resource/${evt.data.id}`;
-        let fileName = `${evt.data.id}.${arrayName[1]}`;
-        let url = `${pathName}${fileName}`;
 
-        fs.lstat(filePath, (err, stats) => {
+        fs.lstat(`${serviceManager.get('Application').getResourcePath()}/${evt.data.id}`, (err, stats) => {
 
             if(err) {
-                fs.readdir(pathName, (error, files) => {
+                fs.readdir(serviceManager.get('Application').getResourcePath(), (error, files) => {
                     if (error) {
                        // throw error;
                     }
 
                     files.filter(nameFile => nameFile.indexOf(evt.data.id) >= 0).forEach(fileToRemove => {
-                        fs.unlink(pathName + fileToRemove, function (err) {
+                        fs.unlink(`${serviceManager.get('Application').getResourcePath()}/${fileToRemove}`, function (err) {
                             if (err) {
                                 throw err;
                             }
@@ -311,36 +315,48 @@ class ResourceConfig extends PluginConfig {
             }
 
             if (stats.isDirectory()) {
-                Utils.removeDir(filePath);
+                Utils.removeDir(`${serviceManager.get('Application').getResourcePath()}/${evt.data.id}`);
             }
         });
 
-        fs.rename(evt.data.getPath(), url , function (err) {
+        fs.rename(evt.data.getPath(), `${serviceManager.get('Application').getResourcePath()}/${evt.data.id}.${evt.data.getExtension()}` , function (err) {
             if (err) {
                 throw err;
             }
 
             evt.data.location = {
-                path: pathName,
-                name: fileName
+                path: `${serviceManager.get('Application').getResourcePath()}/`,
+                name: `${evt.data.id}.${evt.data.getExtension()}`
             };
 
             if (evt.data.type === "application/zip") {
+
+
                 let AdmZip = require('adm-zip');
                 let fs = require('fs');
+                let pathResource = `${serviceManager.get('Application').getResourcePath()}/${evt.data.id}`;
 
                 let zip =  new AdmZip(evt.data.getPath());
-                zip.extractAllTo(`${pathName}${evt.data.id}`, true);
-                Utils.move(evt.data.getPath(), `${evt.data.location.path}${evt.data.id}/${evt.data.location.name}`);
+                zip.extractAllTo(pathResource, true);
+                Utils.move(evt.data.getPath(), `${pathResource}/${evt.data.id}.${evt.data.getExtension()}`);
 
-                if (fs.existsSync(`${pathName}${evt.data.id}/package.json`)) {
+                if (fs.existsSync(`${pathResource}/package.json`)) {
                     let wcConfig = JSON.parse(
-                        fs.readFileSync(`${pathName}${evt.data.id}/package.json`).toString()
+                        fs.readFileSync(`${pathResource}/package.json`).toString()
                     );
 
-                    evt.data.location.name = `${evt.data.id}/${wcConfig.main}`;
+                    if (wcConfig.main === undefined) {
+                        console.error('Main property not set in package json');
+                        // TODO Exception
+                        return;
+                    }
+
+                    evt.data.location.name = wcConfig.main;
+                    evt.data.location.path = `${pathResource}/${evt.data.id}`;
                     evt.data.type = 'text/html';
                     evt.data.wcName = wcConfig.name;
+                } else {
+                    // TODO error
                 }
             }
 

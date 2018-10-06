@@ -11,9 +11,14 @@ class Utils {
         }).toLowerCase();
     }
 
-   /**
-     * @param oldPath
-     * @param newPath
+    /**
+     * String with path name and extension
+
+     * @param {string} oldPath
+     *
+     * String with path with name and extension
+
+     * @param {string} newPath
      * @private
      */
     static move(oldPath, newPath) {

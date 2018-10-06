@@ -127,9 +127,11 @@
                 ElementPlayerMonitorManager.ipc.on('stop-timeslot', this._stopTimeslot.bind(this));
                 ElementPlayerMonitorManager.ipc.on('pause-timeslot', this._pauseTimeslot.bind(this));
                 ElementPlayerMonitorManager.ipc.on('resume-timeslot', this._resumeTimeslot.bind(this));
+                // TODO REMOVE
                 ElementPlayerMonitorManager.ipc.on('timer-progress', this._test.bind(this));
             }
 
+            // TODO REMOVE
             _test(evt) {
                 console.log('TEMPO', evt)
             }

@@ -47,9 +47,14 @@ class Application {
         this.config = config;
 
         /**
-         *
+         * @type {string}
          */
         this.basePath = null;
+
+        /**
+         * @type {string}
+         */
+        this.resourcePath = null;
 
         /**
          * @type {Object}
@@ -151,6 +156,22 @@ class Application {
      */
     getBasePath() {
         return this.basePath;
+    }
+
+    /**
+     * @param resourcePath
+     * @returns {Application}
+     */
+    setResourcePath(resourcePath) {
+        this.resourcePath = resourcePath;
+        return this;
+    }
+
+    /**
+     * @returns {string}
+     */
+    getResourcePath() {
+        return this.resourcePath;
     }
 
     /**

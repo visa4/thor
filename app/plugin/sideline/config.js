@@ -53,7 +53,7 @@ class SidelineConfig extends PluginConfig {
                      */
                     serviceManager.get('DexieManager').onReady(
                         function (evt) {
-
+                      
                             let storage = new Storage(
                                 new DexieCollection(
                                     serviceManager.get('DexieManager'),

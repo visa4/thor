@@ -63,6 +63,7 @@ serviceManager.set(
                 'dashboard'
             );
             application.setBasePath(__dirname);
+            application.setResourcePath(`${__dirname}/storage/resource`);
         }
 
         application.init();
