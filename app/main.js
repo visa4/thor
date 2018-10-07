@@ -371,6 +371,10 @@ ipcMain.on('proxy', (event, message) => {
         return;
     }
 
+    if (!monitorsWrapper || !monitorsWrapper.monitors || !Array.isArray(monitorsWrapper.monitors)) {
+        return;
+    }
+
     for (let cont = 0; monitorsWrapper.monitors.length > cont; cont++) {
         monitorsWrapper.monitors[cont].browserWindows.send(message.nameMessage, message.data);
     }

@@ -21,8 +21,28 @@
                 width: 250px;
             }
 
-            .data {
-                padding: 8px;
+            paper-menu-button {
+                padding: 0;
+            }
+
+            paper-listbox {
+                min-width: 0;
+            }
+
+            .dataWrapper {
+                margin: 6px;
+            }
+
+            .enableButtonContainer {
+                height: 40px;
+                width: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .enableButtonContainer paper-radio-button {
+                width: 16px;
             }
 
             #rightSection {
@@ -43,25 +63,36 @@
             }
 
         </style>
-        <paper-card class="horizontal">
+        <paper-card id="design" class="setting">
+            <div class="card-setting">
+                <div class="enableButtonContainer">
+                    <paper-radio-button
+                            id="enableInput"
+                            class="monitor-configuration"
+                            on-click="_changeEnableMonitor"
+                            title="Enable/Disabled">
+                    </paper-radio-button>
+                </div>
+
+            </div>
             <div class="card-content flex flex-horizontal">
-                <div class="data flex flex-vertical">
-                    <div>{{monitor.name}}</div>
-                    <div>Monitor Number: {{_computeMonitorNumber()}}</div>
+                <div class="flex-basis-85 flex flex-vertical">
+                    <div class="dataWrapper">
+                        <div>{{monitor.name}}</div>
+                        <div>Monitor Number: {{_computeMonitorNumber()}}</div>
+                    </div>
+                </div>
+                <div class="data flex-basis-15 flex flex-vertical">
+                    <paper-menu-button ignore-select disabled="{{hideCrud}}">
+                        <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
+                        <paper-listbox slot="dropdown-content" multi>
+                            <paper-item on-click="_update">Modifica</paper-item>
+                            <paper-item  on-click="_remove">Elimina</paper-item>
+                        </paper-listbox>
+                    </paper-menu-button>
                 </div>
             </div>
-            <div class="card-actions flex flex-horizontal-end">
-                <paper-radio-button
-                        id="enableInput"
-                        class="monitor-configuration"
-                        on-click="_changeEnableMonitor"
-                        title="Enable/Disabled">
-                </paper-radio-button>
-                <div class="crud" hidden$="{{hideCrud}}">
-                    <paper-icon-button icon="app:edit" on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
-                    <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete"></paper-icon-button>
-                </div>
-            </div>
+            <div class="card-actions flex flex-horizontal-end"></div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>
     </template>

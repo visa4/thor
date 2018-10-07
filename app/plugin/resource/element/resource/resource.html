@@ -108,8 +108,8 @@
                 }
 
                 let size = this._byteConverter(newValue.size);
-                this.size = size[0]
-                this.sizeLabel = size[1]
+                this.size = Math.ceil(size[0]);
+                this.sizeLabel = size[1];
             }
 
             _byteConverter(byte) {

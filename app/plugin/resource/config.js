@@ -267,7 +267,7 @@ class ResourceConfig extends PluginConfig {
                     }
 
                     evt.data.location.name = wcConfig.main;
-                    evt.data.location.path = `${pathResource}/${evt.data.id}`;
+                    evt.data.location.path = `${pathResource}/${evt.data.id}/`;
                     evt.data.type = 'text/html';
                     evt.data.wcName = wcConfig.name;
                 } else {
@@ -352,7 +352,7 @@ class ResourceConfig extends PluginConfig {
                     }
 
                     evt.data.location.name = wcConfig.main;
-                    evt.data.location.path = `${pathResource}/${evt.data.id}`;
+                    evt.data.location.path = `${pathResource}/${evt.data.id}/`;
                     evt.data.type = 'text/html';
                     evt.data.wcName = wcConfig.name;
                 } else {
