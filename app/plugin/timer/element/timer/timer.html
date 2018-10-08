@@ -139,13 +139,9 @@
 
             ready() {
                 super.ready();
-                this.timer.addEventListener('secondTenthsUpdated', this._inTime.bind(this));
-                this.timer.addEventListener('start', this._inStart.bind(this));
-                this.timer.addEventListener('stop', this._inStop.bind(this));
-                this.timer.addEventListener('pause', this._inPause.bind(this));
                 this.status = this.timer.getStatus();
-
-                this._resetTimeData();
+            //    this._resetTimeData();
+                serviceManager.get('TimerService').eventManager.on('progress', this._progress.bind(this));
             }
 
             _resetTimeData() {
@@ -162,6 +158,12 @@
                 }
             }
 
+            _setViewActionButton(start, stop, pause) {
+                this.disableStart = start;
+                this.disableStop  = stop;
+                this.disablePause = pause;
+            }
+
             _remove(evt) {
                 this.dispatchEvent(new CustomEvent('remove', {detail: this.timer}));
             }
@@ -171,51 +173,34 @@
             }
 
             _play(evt) {
-                this.timer.start();
+                console.log('TIMER WS PLAY');
+                serviceManager.get('TimerService').start(this.timer);
                 this._setViewActionButton(true, false, false);
                 this.status = this.timer.getStatus();
             }
 
             _pause(evt) {
-                console.log(evt);
-                this.timer.pause();
+                console.log('TIMER WS PAUSE');
+                serviceManager.get('TimerService').pause(this.timer);
                 this._setViewActionButton(false, false, true);
                 this.status = this.timer.getStatus();
             }
 
             _stop(evt) {
-                console.log(evt);
-                this.timer.stop();
+                console.log('TIMER WS STOP');
+                serviceManager.get('TimerService').stop(this.timer);
                 this._setViewActionButton(false, true, true);
                 this.status = this.timer.getStatus();
                 this._resetTimeData();
             }
 
-            _inTime(evt) {
-                console.log('time', evt.detail.timer.getTimeValues());
+            _progress(evt) {
+                console.log('TIMER WS PROGRESS', evt);
                 let data = evt.detail.timer.getTimeValues();
                 this.hours = data.hours < 10 ? '0' + data.hours : data.hours;
                 this.minutes = data.minutes < 10 ? '0' + data.minutes : data.minutes;
                 this.seconds = data.seconds < 10 ? '0' + data.seconds : data.seconds;
-                serviceManager.get('TimerService').progress(evt.detail);
-            }
 
-            _inStop(evt) {
-                console.log('stop', evt);
-            }
-
-            _inStart(evt) {
-                console.log('start', evt);
-            }
-
-            _inPause(evt) {
-                console.log('pause', evt);
-            }
-
-            _setViewActionButton(start, stop, pause) {
-                this.disableStart = start;
-                this.disableStop  = stop;
-                this.disablePause = pause;
             }
         }
 

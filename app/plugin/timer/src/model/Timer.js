@@ -4,6 +4,12 @@ class Timer {
 
     static get TYPE_TIMER() { return 'timer'; }
 
+    static get STATUS_IDLE()  { return 'idle'; }
+
+    static get STATUS_RUNNING()  { return 'running'; }
+
+    static get STATUS_PAUSE()  { return 'pause'; }
+
     constructor() {
 
         /**
@@ -35,11 +41,21 @@ class Timer {
          * @type {easytimer}
          */
         this.timer = new (require('easytimer.js'))();
+        this.timer.addEventListener('secondTenthsUpdated', this.proxy.bind(this));
 
-        /**
-         * @type {Element}
-         */
-        this.eventEmitter = document.createElement('span');
+       // secondTenthsUpdated
+            //secondsUpdated
+        //minutesUpdated
+       // hoursUpdated
+       //daysUpdated
+
+        //stopped
+        //reset
+
+        //started
+
+        //paused
+
     }
 
     _startConfig() {
@@ -53,31 +69,28 @@ class Timer {
 
     start() {
         this.timer.start(this._startConfig());
-        this.eventEmitter.dispatchEvent(new CustomEvent('start', this.timer));
     }
 
     stop() {
         this.timer.stop();
-        this.eventEmitter.dispatchEvent(new CustomEvent('stop', this.timer));
     }
 
     pause() {
         this.timer.pause();
-        this.eventEmitter.dispatchEvent(new CustomEvent('pause', this.timer));
     }
 
     /**
      * @return {string}
      */
     getStatus() {
-        let status = 'idle';
+        let status = Timer.STATUS_IDLE;
         switch (true) {
             case this.timer.isRunning() === true:
-                status = 'running';
+                status = Timer.STATUS_RUNNING;
                 break;
 
             case this.timer.isPaused() === true:
-                status = 'pause';
+                status = Timer.STATUS_PAUSE;
                 break;
         }
         return status;
@@ -90,32 +103,16 @@ class Timer {
      * @param listener
      */
     addEventListener(event, listener) {
-        switch (event) {
-            case 'start':
-            case 'pause':
-            case 'stop':
-                this.eventEmitter.addEventListener(event, listener);
-                break;
-
-        }
         this.timer.addEventListener(event, listener);
     }
 
     /**
-
+     * Proxy
      *
      * @param event
      * @param listener
      */
     removeEventListener(event, listener) {
-        switch (event) {
-            case 'start':
-            case 'pause':
-            case 'stop':
-                this.eventEmitter.removeEventListener(event, listener);
-                break;
-
-        }
         this.timer.removeEventListener(event, listener);
     }
 }
