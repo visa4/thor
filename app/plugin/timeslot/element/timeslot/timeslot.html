@@ -27,7 +27,6 @@
             .card-content,
             .card-actions{
                 padding: 0;
-                width: 250px;
             }
 
             .data {
@@ -53,7 +52,7 @@
             }
 
             #rightSection {
-                background-image: url("img/timslot.jpg");
+                background-image: url("img/timslot.jpg") !important;
             }
 
             .activePaperButton {
@@ -131,12 +130,9 @@
                 </div>
             </div>
             <div class="card-actions">
-                <paper-icon-button id="play" icon="timeslot:play" on-click="_play" class="circle-small action" title="Play">
-                </paper-icon-button>
-                <paper-icon-button id="stop" icon="timeslot:stop" on-click="_stop" class="circle-small action" title="Stop">
-                </paper-icon-button>
-                <paper-icon-button id="pause" icon="timeslot:pause" on-click="_pause" class="circle-small action" title="Pause">
-                </paper-icon-button>
+                <paper-icon-button id="play" icon="timeslot:play" on-click="_play" class="circle-small action" title="Play"></paper-icon-button>
+                <paper-icon-button id="stop" icon="timeslot:stop" on-click="_stop" class="circle-small action" title="Stop"></paper-icon-button>
+                <paper-icon-button id="pause" icon="timeslot:pause" on-click="_pause" class="circle-small action" title="Pause"></paper-icon-button>
             </div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>
@@ -250,7 +246,6 @@
                 } else {
                     this.dispatchEvent(new CustomEvent('resume', {detail: this.timeslot}));
                 }
-
             }
 
             _stop(evt) {

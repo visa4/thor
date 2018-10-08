@@ -28,18 +28,37 @@
         color: var(--app-primary-color);
       }
 
+      paper-listbox {
+        min-width: 0;
+      }
+
+      .dataWrapper {
+        margin: 6px;
+      }
+
+      #rightSection {
+        background-image: url("img/sideline.jpg") !important;
+      }
+
     </style>
-    <paper-card class="horizontal">
+    <paper-card id="design">
       <div class="card-content flex flex-horizontal">
-        <div class="data flex-basis-80 flex flex-vertical">
-          <div>{{sideline.name}} {{sideline.width}}px {{sideline.height}}px</div>
+        <div class="data flex-basis-85 flex flex-vertical">
+          <div class="dataWrapper">
+            <div>{{sideline.name}} {{sideline.width}}px {{sideline.height}}px</div>
+          </div>
+        </div>
+        <div class="flex-basis-15 flex flex-vertical">
+          <paper-menu-button ignore-select disabled="{{hideCrud}}">
+            <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
+            <paper-listbox slot="dropdown-content" multi>
+              <paper-item on-click="_update">Modifica</paper-item>
+              <paper-item  on-click="_remove">Elimina</paper-item>
+            </paper-listbox>
+          </paper-menu-button>
         </div>
       </div>
-      <div class="card-actions">
-        <paper-icon-button icon="app:edit"  on-click="_update" class="circle-small" title="Modify"></paper-icon-button>
-        <paper-icon-button icon="app:trash" on-click="_remove" class="circle-small" title="Delete">
-        </paper-icon-button>
-      </div>
+      <div class="card-actions"></div>
       <div id="rightSection" class="rate-image"></div>
     </paper-card>
   </template>
