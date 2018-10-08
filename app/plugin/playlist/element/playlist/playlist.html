@@ -17,9 +17,8 @@
         <style>
 
             .card-content,
-            .card-actions{
+            .card-actions {
                 padding: 0;
-                width: 250px;
             }
 
             .data {
@@ -30,8 +29,17 @@
                 margin: 6px;
             }
 
+            paper-menu-button {
+                padding: 0;
+            }
+
+            paper-listbox {
+                min-width: 0;
+            }
+
+
             #rightSection {
-                background-image: url("img/playlist.jpg");
+                background-image: url("img/playlist.jpg") !important;
             }
 
             .activePaperButton {
@@ -53,22 +61,36 @@
                 font-style: italic;
             }
 
-            .movie,
-            .crud {
-                padding-left: 4px;
-                padding-right: 4px;
-            }
-
             .card-actions {
-                justify-content: space-between;
+                justify-content: flex-start;
+                padding-left: 6px;
             }
 
-            .crud paper-icon-button {
-                background-color: #0b8043 ;
+            paper-icon-button[aria-disabled="true"].action {
+                background-color: grey;
+                opacity: 0.5;
             }
 
         </style>
-        <paper-card class="horizontal">
+        <paper-card id="design" class="setting">
+            <div class="card-setting">
+                <paper-icon-button
+                        id="loopIcon"
+                        title="Send playlist in loop mode"
+                        item="{{timeslot}}"
+                        icon="playlist:loop"
+                        class$="{{_computeLoopIcon()}}"
+                        on-tap="_tapLoop">
+                </paper-icon-button>
+                <paper-icon-button
+                        id="overlayIcon"
+                        title="Send playlist in overlay mode"
+                        item="{{timeslot}}"
+                        icon="playlist:overlay"
+                        class$="{{_computeContexIcon()}}"
+                        on-tap="_tapOverlay">
+                </paper-icon-button>
+            </div>
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-85 flex flex-vertical">
                     <div class="dataWrapper">
@@ -83,75 +105,19 @@
                     </div>
                 </div>
                 <div class="flags flex-basis-15">
-                    <paper-icon-button
-                            id="loopIcon"
-                            item="{{timeslot}}"
-                            icon="playlist:loop"
-                            class$="{{_computeLoopIcon()}}"
-                            on-tap="_tapLoop">
-                    </paper-icon-button>
-                    <paper-icon-button
-                            id="overlayIcon"
-                            item="{{timeslot}}"
-                            icon="playlist:overlay"
-                            class$="{{_computeContexIcon()}}"
-                            on-tap="_tapOverlay">
-                    </paper-icon-button>
+                    <paper-menu-button ignore-select disabled="{{hideCrud}}">
+                        <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
+                        <paper-listbox slot="dropdown-content" multi>
+                            <paper-item on-click="_update">Modifica</paper-item>
+                            <paper-item  on-click="_remove">Elimina</paper-item>
+                        </paper-listbox>
+                    </paper-menu-button>
                 </div>
             </div>
             <div class="card-actions">
-                <div class="movie">
-                    <template is="dom-if" if="{{_isInStatus(playlist, 'running', 'pause')}}">
-                        <paper-icon-button
-                                icon="playlist:stop"
-                                on-click="_stop"
-                                class="circle-small"
-                                title="Stop">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(playlist, 'running')}}">
-                        <paper-icon-button
-                                icon="playlist:pause"
-                                on-click="_pause"
-                                class="circle-small"
-                                title="Pause">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(playlist, 'pause')}}">
-                        <paper-icon-button
-                                icon="playlist:play"
-                                on-click="_resume"
-                                class="circle-small"
-                                title="Resume">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(playlist, 'idle')}}">
-                        <paper-icon-button
-                                icon="playlist:play"
-                                on-click="_play"
-                                class="circle-small"
-                                title="Play">
-                        </paper-icon-button>
-                    </template>
-                </div>
-                <div class="crud">
-                    <template is="dom-if" if="{{_isInStatus(playlist, 'idle', 'pause')}}">
-                        <paper-icon-button
-                                icon="app:edit"
-                                on-click="_update"
-                                class="circle-small"
-                                title="Modify">
-                        </paper-icon-button>
-                    </template>
-                    <template is="dom-if" if="{{_isInStatus(playlist, 'idle', 'pause')}}">
-                        <paper-icon-button
-                                icon="app:trash"
-                                on-click="_remove"
-                                class="circle-small"
-                                title="Delete">
-                        </paper-icon-button>
-                    </template>
-                </div>
+                <paper-icon-button id="play" icon="playlist:play" on-click="_play" class="circle-small action" title="Play"></paper-icon-button>
+                <paper-icon-button id="stop" icon="playlist:pause" on-click="_pause" class="circle-small action" title="Pause"></paper-icon-button>
+                <paper-icon-button id="pause" icon="playlist:stop" on-click="_stop" class="circle-small action" title="Stop"></paper-icon-button>
             </div>
             <div id="rightSection" class="rate-image"></div>
         </paper-card>
@@ -168,7 +134,8 @@
                 return {
 
                     playlist: {
-                        type: Object
+                        type: Object,
+                        observer: '_changePlaylist'
                     },
 
                     duration: {
@@ -186,40 +153,61 @@
                         type: Number,
                         notify: true,
 
+                    },
+
+                    hideCrud : {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }
 
-            static get observers() {
-                return [
-                    '_changePlaylist(playlist)'
-                ]
-            }
-
-            _changePlaylist(playlist) {
-                if (!playlist) {
+            _changePlaylist(newValue, oldValue) {
+                if (!newValue) {
                     return;
                 }
 
-                if (playlist.status === Playlist.RUNNING) {
-                    this.$.loopIcon.disabled = true;
-                    this.$.overlayIcon.disabled = true;
-                } else {
-                    this.$.loopIcon.disabled = false;
-                    this.$.overlayIcon.disabled = false;
+                switch (true) {
+                    case newValue.status === Playlist.RUNNING:
+                        this.hideCrud = true;
+                        this.$.loopIcon.disabled = true;
+                        this.$.overlayIcon.disabled = true;
+
+                        this.$.play.disabled = true;
+                        this.$.stop.disabled = false;
+                        this.$.pause.disabled = false;
+                        break;
+                    case newValue.status === Timeslot.PAUSE:
+
+                        this.hideCrud = false;
+                        this.$.loopIcon.disabled = false;
+                        this.$.overlayIcon.disabled = false;
+
+                        this.$.play.disabled = false;
+                        this.$.stop.disabled = false;
+                        this.$.pause.disabled = true;
+                        break;
+                    default:
+                        this.hideCrud = false;
+                        this.$.loopIcon.disabled = false;
+                        this.$.overlayIcon.disabled = false;
+
+                        this.$.play.disabled = false;
+                        this.$.stop.disabled = true;
+                        this.$.pause.disabled = true;
                 }
 
-                if (playlist.timeslots[playlist.currentIndex] !== undefined &&
-                    this.currentTimeslotName !== playlist.timeslots[playlist.currentIndex].name) {
-                    this.currentTimeslotName = playlist.timeslots[playlist.currentIndex].name;
+                if (newValue.timeslots[newValue.currentIndex] !== undefined &&
+                    this.currentTimeslotName !== newValue.timeslots[newValue.currentIndex].name) {
+                    this.currentTimeslotName = newValue.timeslots[newValue.currentIndex].name;
                 }
 
-                if (playlist.timeslots[playlist.currentIndex] !== undefined &&
-                    this.currentTimeslotTime !== playlist.timeslots[playlist.currentIndex].currentTime) {
-                    this.currentTimeslotTime = playlist.timeslots[playlist.currentIndex].currentTime;
+                if (newValue.timeslots[newValue.currentIndex] !== undefined &&
+                    this.currentTimeslotTime !== newValue.timeslots[newValue.currentIndex].currentTime) {
+                    this.currentTimeslotTime = newValue.timeslots[newValue.currentIndex].currentTime;
                 }
 
-                this.duration = playlist.getDuration();
+                this.duration = newValue.getDuration();
             }
 
             _computeLoopIcon() {
@@ -276,7 +264,11 @@
             }
 
             _play(evt) {
-                this.dispatchEvent(new CustomEvent('play', {detail: this.playlist}));
+                if (this.playlist.status === Playlist.IDLE) {
+                    this.dispatchEvent(new CustomEvent('play', {detail: this.playlist}));
+                } else {
+                    this.dispatchEvent(new CustomEvent('resume', {detail: this.playlist}));
+                }
             }
 
             _stop(evt) {
@@ -285,10 +277,6 @@
 
             _pause(evt) {
                 this.dispatchEvent(new CustomEvent('pause', {detail: this.playlist}));
-            }
-
-            _resume(evt) {
-                this.dispatchEvent(new CustomEvent('resume', {detail: this.playlist}));
             }
 
             _remove(evt) {
