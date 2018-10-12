@@ -74,7 +74,6 @@ class TimeslotConfig extends PluginConfig {
         timeslotHydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('status')
-            .enableHydrateProperty('loop')
             .enableHydrateProperty('binds')
             .enableHydrateProperty('currentTime')
             .enableHydrateProperty('duration')
@@ -83,12 +82,12 @@ class TimeslotConfig extends PluginConfig {
             .enableHydrateProperty('resources')
             .enableHydrateProperty('dataReferences')
             .enableHydrateProperty('tags')
+            .enableHydrateProperty('rotation')
             .enableHydrateProperty('filters');
 
         timeslotHydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
             .enableExtractProperty('status')
-            .enableExtractProperty('loop')
             .enableExtractProperty('binds')
             .enableExtractProperty('currentTime')
             .enableExtractProperty('duration')
@@ -97,6 +96,7 @@ class TimeslotConfig extends PluginConfig {
             .enableExtractProperty('resources')
             .enableExtractProperty('dataReferences')
             .enableExtractProperty('tags')
+            .enableExtractProperty('rotation')
             .enableExtractProperty('filters');
 
         this.serviceManager.get('HydratorPluginManager').set(
@@ -158,7 +158,7 @@ class TimeslotConfig extends PluginConfig {
                         {
                             "name": TimeslotConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "name", "status", "duration", "virtualMonitorReference", "*tags"
+                                "++id", "name", "status", "duration", "virtualMonitorReference", "*tags", "rotation"
                             ]
                         }
                     );

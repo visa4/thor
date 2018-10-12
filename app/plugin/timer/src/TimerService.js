@@ -44,6 +44,22 @@ class TimerService {
     }
 
     /**
+     * @param id
+     * @return {Boolean}
+     */
+    hasActiveTimer(id) {
+        return !!this.activeTimer[id];
+    }
+
+    /**
+     * @param id
+     * @return {Timer}
+     */
+    getActiveTimer(id) {
+        return this.activeTimer[id];
+    }
+
+    /**
      * @param {Timer} timer
      */
     start(timer) {
@@ -52,33 +68,47 @@ class TimerService {
         }
 
         this.activeTimer[timer.id] = timer;
-        this.activeTimer[timer.id].addEventListener('secondTenthsUpdated', this._progress.bind(this));
-        this.activeTimer[timer.id].start()
+        this.activeTimer[timer.id].eventManager.on('secondTenthsUpdated', this._progress.bind(this));
+
+        this.activeTimer[timer.id].eventManager.on('stopped', this._stopped.bind(this));
+        this.activeTimer[timer.id].eventManager.on('start', this._start.bind(this));
+        this.activeTimer[timer.id].eventManager.on('pause', this._pause.bind(this));
+        this.activeTimer[timer.id].start();
     };
 
     /**
      * @param {Timer} timer
      */
     stop(timer) {
-        if (!this.activeTimer[timer.id] || timer.getStatus() !== Timer.STATUS_RUNNING) {
+        if (!this.activeTimer[timer.id]) {
             return;
         }
 
-        this.activeTimer[timer.id].removeEventListener('secondTenthsUpdated', this._progress.bind(this));
+      //  this.activeTimer[timer.id].removeEventListener('secondTenthsUpdated', this._progress.bind(this));
         this.activeTimer[timer.id].stop();
+        this.communicator.send(
+            'proxy',
+            {nameMessage : 'timer-stop', data : evt.data}
+        );
         delete this.activeTimer[timer.id];
     }
 
+    /**
+     * @param {Timer} timer
+     */
     pause(timer) {
-        if (!this.activeTimer[timer.id] || timer.getStatus() !== Timer.STATUS_RUNNING) {
+        if (!this.activeTimer[timer.id]) {
             return;
         }
 
         this.activeTimer[timer.id].pause();
     }
 
+    /**
+     * @param {Timer} timer
+     */
     resume(timer) {
-        if (!this.activeTimer[timer.id] || timer.getStatus() !== Timer.STATUS_PAUSE) {
+        if (!this.activeTimer[timer.id]) {
             return;
         }
 
@@ -89,12 +119,27 @@ class TimerService {
      * @param evt
      */
     _progress(evt) {
-        console.log('SERVICE TIMER PROGRESS', timer);
-        this.eventManager.fire('progress', this.hydrator.extract(timer));
+  //      console.log('SERVICE TIMER PROGRESS', evt.data);
+        this.eventManager.fire('progress', evt.data);
+
+        evt.data.progress = evt.data.timer.getTimeValues();
         this.communicator.send(
             'proxy',
-            {nameMessage : 'timer-progress', data : this.hydrator.extract(timer)}
+            {nameMessage : 'timer-progress', data : evt.data}
         );
+    }
+
+    _stopped(evt) {
+        this.eventManager.fire('stop', evt.data);
+        delete this.activeTimer[evt.data.id];
+    }
+
+    _start(evt) {
+        this.eventManager.fire('start', evt.data);
+    }
+
+    _pause(evt) {
+        this.eventManager.fire('pause', evt.data);
     }
 }
 

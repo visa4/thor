@@ -33,8 +33,10 @@ class EvtManager {
     }
 
     /**
+     *
      * @param event
      * @param params
+     * @param clearListener
      */
     fire(event, params, clearListener) {
 

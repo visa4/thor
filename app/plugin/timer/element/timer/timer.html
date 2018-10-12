@@ -91,7 +91,8 @@
                     timer: {
                         type: Object,
                         notify: true,
-                        value: new Timer()
+                        value: new Timer(),
+                        observer: '_changeTimer'
                     },
 
                     disableStart: {
@@ -114,7 +115,8 @@
 
                     status: {
                         type: String,
-                        notify: true
+                        notify: true,
+                        observer: '_changeStatus'
                     },
 
                     hours: {
@@ -140,66 +142,153 @@
             ready() {
                 super.ready();
                 this.status = this.timer.getStatus();
-            //    this._resetTimeData();
                 serviceManager.get('TimerService').eventManager.on('progress', this._progress.bind(this));
+                serviceManager.get('TimerService').eventManager.on('stop', this._stopService.bind(this));
             }
 
-            _resetTimeData() {
-                if (typeof this.timer.startAt.seconds === 'number') {
-                    this.seconds = this.timer.startAt.seconds < 10 ? `0${this.timer.startAt.seconds}` : this.timer.startAt.seconds ;
+            /**
+             * @param {Timer|null} newValue
+             * @param {Timer|null} oldValue
+             * @private
+             */
+            _changeTimer(newValue, oldValue) {
+
+                if (!newValue) {
+                    return;
                 }
 
-                if (typeof this.timer.startAt.minutes === 'number') {
-                    this.minutes = this.timer.startAt.minutes < 10 ? `0${this.timer.startAt.minutes}` : this.timer.startAt.minutes ;
+                if (serviceManager.get('TimerService').hasActiveTimer(this.timer.id)) {
+
+                    let timer = serviceManager.get('TimerService').getActiveTimer(this.timer.id);
+                    if (this.timer.getStatus() !== timer.getStatus()) {
+                        this.timer = timer;
+                    }
                 }
 
-                if (typeof this.timer.startAt.hours === 'number') {
-                    this.hours = this.timer.startAt.hours < 10 ? `0${this.timer.startAt.hours}` : this.timer.startAt.hours ;
+                this.status = this.timer.getStatus();
+                this._init(this.timer);
+            }
+
+            /**
+             * @param {String} newValue
+             * @param {String} oldValue
+             * @private
+             */
+            _changeStatus(newValue, oldValue) {
+                if (!newValue) {
+                    return;
+                }
+
+                switch (newValue) {
+                    case Timer.STATUS_IDLE:
+                        this._setViewActionButton(false, true, true);
+                        this.hideCrud = false;
+                        break;
+                    case Timer.STATUS_RUNNING:
+                        this.hideCrud = true;
+                        this._setViewActionButton(true, false, false);
+                        break;
+                    case Timer.STATUS_PAUSE:
+                        this.hideCrud = false;
+                        this._setViewActionButton(false, false, true);
+                        break;
                 }
             }
 
+            /**
+             * @param {Timer} timer
+             * @private
+             */
+            _init(timer) {
+
+                this.hours = timer.startAt.hours < 10 ? '0' + timer.startAt.hours : timer.startAt.hours;
+                this.minutes = timer.startAt.minutes < 10 ? '0' +  timer.startAt.minutes :  timer.startAt.minutes;
+                this.seconds = timer.startAt.seconds < 10 ? '0' + timer.startAt.seconds : timer.startAt.seconds;
+            }
+
+
+            /**
+             * @param {Boolean} start
+             * @param {Boolean} stop
+             * @param {Boolean} pause
+             * @private
+             */
             _setViewActionButton(start, stop, pause) {
                 this.disableStart = start;
                 this.disableStop  = stop;
                 this.disablePause = pause;
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _remove(evt) {
                 this.dispatchEvent(new CustomEvent('remove', {detail: this.timer}));
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _update(evt) {
                 this.dispatchEvent(new CustomEvent('update-view', {detail: this.timer}));
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _play(evt) {
-                console.log('TIMER WS PLAY');
                 serviceManager.get('TimerService').start(this.timer);
-                this._setViewActionButton(true, false, false);
                 this.status = this.timer.getStatus();
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _pause(evt) {
-                console.log('TIMER WS PAUSE');
                 serviceManager.get('TimerService').pause(this.timer);
-                this._setViewActionButton(false, false, true);
                 this.status = this.timer.getStatus();
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _stop(evt) {
-                console.log('TIMER WS STOP');
                 serviceManager.get('TimerService').stop(this.timer);
-                this._setViewActionButton(false, true, true);
                 this.status = this.timer.getStatus();
-                this._resetTimeData();
             }
 
+            /**
+             * @param evt
+             * @private
+             */
             _progress(evt) {
-                console.log('TIMER WS PROGRESS', evt);
-                let data = evt.detail.timer.getTimeValues();
+             //   console.log('TIMER WS PROGRESS', evt);
+                if (evt.data.id !== this.timer.id) {
+                    return;
+                }
+                let data = evt.data.timer.getTimeValues();
                 this.hours = data.hours < 10 ? '0' + data.hours : data.hours;
                 this.minutes = data.minutes < 10 ? '0' + data.minutes : data.minutes;
                 this.seconds = data.seconds < 10 ? '0' + data.seconds : data.seconds;
+
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _stopService(evt) {
+                //   console.log('TIMER WS PROGRESS', evt);
+                if (evt.data.id !== this.timer.id) {
+                    return;
+                }
+                this._init(this.timer);
+                this.status = this.timer.getStatus();
 
             }
         }

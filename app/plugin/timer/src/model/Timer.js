@@ -1,3 +1,12 @@
+
+try {
+    EvtManager = require('./../../../../lib/event/EvtManager');
+}
+catch(err) {
+
+    EvtManager = require(__dirname + '/lib/event/EvtManager.js');
+}
+
 class Timer {
 
     static get TYPE_COUNTDOWN() { return 'countdown'; }
@@ -38,24 +47,23 @@ class Timer {
         this.type = Timer.TYPE_TIMER;
 
         /**
+         * Event manager
+         */
+        this.eventManager = new EvtManager();
+
+        /**
          * @type {easytimer}
          */
         this.timer = new (require('easytimer.js'))();
         this.timer.addEventListener('secondTenthsUpdated', this.proxy.bind(this));
-
-       // secondTenthsUpdated
-            //secondsUpdated
-        //minutesUpdated
-       // hoursUpdated
-       //daysUpdated
-
-        //stopped
-        //reset
-
-        //started
-
-        //paused
-
+        this.timer.addEventListener('secondsUpdated', this.proxy.bind(this));
+        this.timer.addEventListener('minutesUpdated', this.proxy.bind(this));
+        this.timer.addEventListener('hoursUpdated', this.proxy.bind(this));
+        this.timer.addEventListener('daysUpdated', this.proxy.bind(this));
+        this.timer.addEventListener('stopped', this.proxy.bind(this));
+        this.timer.addEventListener('reset', this.proxy.bind(this));
+        this.timer.addEventListener('started', this.proxy.bind(this));
+        this.timer.addEventListener('paused', this.proxy.bind(this));
     }
 
     _startConfig() {
@@ -97,23 +105,11 @@ class Timer {
     }
 
     /**
-     * Proxy
      *
-     * @param event
-     * @param listener
+     * @param evt
      */
-    addEventListener(event, listener) {
-        this.timer.addEventListener(event, listener);
-    }
-
-    /**
-     * Proxy
-     *
-     * @param event
-     * @param listener
-     */
-    removeEventListener(event, listener) {
-        this.timer.removeEventListener(event, listener);
+    proxy(evt) {
+        this.eventManager.fire(evt.type, this);
     }
 }
 

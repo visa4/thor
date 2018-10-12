@@ -12,6 +12,10 @@ class Timeslot {
     static get CONTEXT_DEFAULT() { return 'default'; }
     static get CONTEXT_OVERLAY() { return 'overlay'; }
 
+    static get ROTATION_NO() { return 'rotation-no'; }
+    static get ROTATION_LOOP() { return 'rotation-loop'; }
+    static get ROTATION_INFINITY() { return 'rotation-infinity'; }
+
 
     constructor() {
 
@@ -36,9 +40,9 @@ class Timeslot {
         this.duration = null;
 
         /**
-         * @type {boolean}
+         * @type {string}
          */
-        this.loop = false;
+        this.rotation = Timeslot.ROTATION_NO;
 
         /**
          * @type {integer}

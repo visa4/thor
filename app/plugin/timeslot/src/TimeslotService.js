@@ -163,6 +163,11 @@ class TimeslotService {
         this.timeslotSender.play(timeslot);
         this.eventManager.fire(TimeslotService.PLAY, timeslot);
         console.log('RES', `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime)  * 10}`);
+        console.log(timeslot.rotation);
+        if (timeslot.rotation === Timeslot.ROTATION_INFINITY) {
+            return;
+        }
+
         this.eventManager.on(
             `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) * 10)}`,
             this.processTimeslot.bind({timeslotService : this, timeslot: timeslot})
@@ -234,8 +239,10 @@ class TimeslotService {
             case runningTimeslot && runningTimeslot.currentTime < (parseInt(runningTimeslot.duration)-1):
                 console.log('NON ANCORA',runningTimeslot, runningTimeslot.currentTime, (parseInt(runningTimeslot.duration)-1));
                 break;
-            case this.timeslot.loop === true:
+            case this.timeslot.rotation === Timeslot.ROTATION_LOOP:
                 this.timeslotService.play(this.timeslot);
+                break;
+            case this.timeslot.rotation === Timeslot.ROTATION_INFINITY:
                 break;
             case runningTimeslot !== undefined:
                 this.timeslotService.stop(this.timeslot);
@@ -302,7 +309,7 @@ class TimeslotService {
     _updateRunnintTimslots() {
 
         for (let key in this.runningTimeslots) {
-            if (this.runningTimeslots[key].currentTime >= this.runningTimeslots[key].duration) {
+            if (this.runningTimeslots[key].currentTime >= this.runningTimeslots[key].duration ||  this.runningTimeslots[key].rotation === Timeslot.ROTATION_INFINITY) {
                 continue;
             }
 

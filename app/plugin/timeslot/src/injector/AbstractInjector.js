@@ -44,6 +44,10 @@ class AbstractInjector {
     get serviceDescription() {
         throw 'method must be override';
     }
+
+    get serviceNamespace() {
+        throw 'method must be override';
+    }
 }
 
 module.exports = AbstractInjector;

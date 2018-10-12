@@ -20,7 +20,17 @@ class TimerDataInjector extends AbstractInjector {
      * @return Promise
      */
     getTimeslotData(data) {
-       return this.storage.get(data.id);
+        return new Promise((resolve, reject) => {
+
+            this.storage.get(data.id).then(function(data) {
+
+                let obj = {};
+                obj[this.serviceNamespace()] = data;
+                resolve(obj);
+            }.bind(this)).catch((err) => {
+                reject(err);
+            })
+        });
     }
 
     /**
@@ -49,6 +59,10 @@ class TimerDataInjector extends AbstractInjector {
      */
     get serviceDescription() {
         return 'Timer metadata';
+    }
+
+    serviceNamespace () {
+        return 'timer';
     }
 }
 

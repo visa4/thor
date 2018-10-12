@@ -109,11 +109,6 @@
              */
             connectedCallback() {
                 super.connectedCallback();
-                //this._handlarInterval = setInterval(this._intervalDebug.bind(this), 1000);
-
-                if (this.timeslot.dataReferences && this.timeslot.dataReferences.length > 0) {
-                    this.data = this._extractDataTimeslot(this.timeslot.dataReferences);
-                }
 
                 for (let cont = 0; this.timeslot.resources.length > cont; cont++) {
 
@@ -173,7 +168,6 @@
                     return;
                 }
 
-                console.group('FILTRI');
                 let filter = '';
                 for (var property in newValue) {
                     switch (true) {
@@ -219,8 +213,6 @@
                             break;
                     }
                 }
-                console.log('FILTRO', filter);
-                console.groupEnd();
 
                 if (filter) {
                     this.$.resources.style.filter = filter;
@@ -264,12 +256,12 @@
                 let element = document.createElement('video');
                 element.src = resource.getPath();
                 element.autoplay = true;
-                element.loop =  this.timeslot.options && this.timeslot.options.loop ? true : false;
+                element.loop = this.timeslot.rotation === Timeslot.ROTATION_LOOP ? true : false;
                 if (this.startAt > 0) {
                     element.currentTime = this.startAt;
                 }
 
-                if (!element.loop) {
+                if (element.rotation !== Timeslot.ROTATION_LOOP) {
                     let isRunning = true;
                     element.addEventListener('timeupdate', function() {
                         if ((this.currentTime + 0.5) >= this.duration && isRunning) {
@@ -289,8 +281,15 @@
              * @param resource
              * @return Element
              */
-            _createWebComponent(resource) {
+            async _createWebComponent(resource) {
                 let fs = require('fs');
+
+                if (this.timeslot.dataReferences && this.timeslot.dataReferences.length > 0) {
+                    this.data = this._computeDataInjector(
+                        await this._extractDataTimeslot(this.timeslot.dataReferences))
+                    ;
+                }
+
                 let promise = new Promise( function(resolve, reject) {
                     let entryPoint = `${resource.location.path}${resource.location.name}`;
                     if (fs.existsSync(entryPoint)) {
@@ -323,6 +322,23 @@
                 element.width = this.width;
                 element.data = this.data;
                 return element;
+            }
+
+            /**
+             * @data  {Array} data
+             * @return {Object}
+             */
+            _computeDataInjector(data) {
+                let decodeData = {};
+                for (let cont = 0; data.length > cont; cont++) {
+
+                    for (let key in data[cont]) {
+                        if (data[cont].hasOwnProperty(key)) {
+                            decodeData[key] = data[cont][key];
+                        }
+                    }
+                }
+                return decodeData;
             }
 
             disconnectedCallback() {
@@ -366,20 +382,19 @@
 
             /**
              * @param {Array} dataReference
-             * @return {Object}
+             * @return {Promise}
              * @private
              */
             _extractDataTimeslot(dataReference) {
 
-                let data = {};
+                let promises = [];
 
                 for (let cont = 0; dataReference.length > cont;  cont++) {
                     let service = serviceManager.get('TimeslotDataInjectorService').get(dataReference[0].name);
-                    let tmpData = service.getTimeslotData(dataReference[cont].data);
-                    data = Object.assign(data, tmpData);
+                    promises.push(service.getTimeslotData(dataReference[cont].data));
                 }
 
-                return data;
+                return Promise.all(promises);
             }
 
             /**
