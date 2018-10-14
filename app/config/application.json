@@ -5,9 +5,16 @@
   "localoStorage": {
     "namespace": "Dsign"
   },
-  "tcpClient" : {
+  "tcpClient": {
     "port": 8002,
     "ip": "127.0.0.1"
+  },
+  "soccerApi": {
+    "path": "https://sportsop-soccer-sports-open-data-v1.p.mashape.com/v1/",
+    "headers": {
+      "X-Mashape-Key": "IbI4cMXMwKmshMzcSlBmv4HE9Q5Mp1nT28Wjsn4mkHEnIuuWWT",
+      "X-Mashape-Host": "sportsop-soccer-sports-open-data-v1.p.mashape.com"
+    }
   },
   "debug": true,
   "modules": [
@@ -103,7 +110,7 @@
     {
       "configFile": "config.js",
       "name": "player",
-      "autoloadWs" : [
+      "autoloadWs": [
         "element/player-timeslot/player-timeslot.html",
         "element/player-monitor/player-monitor.html",
         "element/player-monitor-manager/player-monitor-manager.html"
@@ -121,7 +128,7 @@
         "src/SidelineResourceGenerator.js",
         "src/ffmpg/SidelineMosaic.js"
       ],
-      "autoloadWs" : [],
+      "autoloadWs": [],
       "widgets": [],
       "icon": "app:sideline",
       "nameWc": "sideline-index"
@@ -151,6 +158,23 @@
         "src/model/Timer.js",
         "src/TimerService",
         "src/injector/TimerDataInjector"
+      ]
+    },
+    {
+      "icon": "app:soccer",
+      "nameWc": "soccer-index",
+      "label": "Soccer",
+      "plugin": true,
+      "customeStyle": {
+        "color": " green"
+      },
+      "name": "soccer",
+      "configFile": "config.js",
+      "autoloads": [
+        "src/model/MatchSoccer.js",
+        "src/model/PlayerSoccer.js",
+        "src/model/TeamSoccer.js",
+        "src/model/Goal.js"
       ]
     }
   ]

@@ -1,6 +1,8 @@
 {
   "name": "dsign",
   "description": "Dsign",
+  "repository": "git@github.com:visa4/thor.git",
+  "license": "BSD-3-Clause",
   "devDependencies": {
     "bower": "^1.8.4",
     "chai": "*",
@@ -33,7 +35,8 @@
     "easytimer.js": "git+ssh://git@github.com/albert-gonzalez/easytimer.js.git",
     "file-metadata": "^1.0.0",
     "fluent-ffmpeg": "^2.1.2",
-    "image-size": "^0.6.2"
+    "image-size": "^0.6.2",
+    "node-fetch": "^2.2.0"
   },
   "nyc": {
     "reporter": [

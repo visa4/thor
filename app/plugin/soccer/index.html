@@ -1,0 +1,77 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+
+<link rel="import" href="../../element/iconset/iconset.html">
+<link rel="import" href="../../css/global-layout.html">
+<link rel="import" href="../../css/global-styles.html">
+<link rel="import" href="element/view/list.html">
+<link rel="import" href="element/view/upsert.html">
+
+<dom-module id="soccer-index">
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
+            #ironPages {
+                padding: 16px;
+            }
+
+        </style>
+        <iron-pages id="ironPages" selected="{{selected}}">
+            <div id="list">
+                lista
+                <soccer-view-list selected="{{selected}}" resource-selected="{{match}}">
+                    <div slot="header" class="flex flex-horizontal flex-center flex-horizontal-space-between header">
+                        <div>Lista match</div>
+                        <paper-icon-button class="circle" on-tap="displayAddView" icon="app:create" title="Crea un match"></paper-icon-button>
+                    </div>
+                </soccer-view-list>
+            </div>
+            <div id="add">
+                <soccer-view-upsert>
+                    <div slot="header" class="flex flex-horizontal flex-vertical-center header">
+                        <paper-icon-button icon="app:back" on-tap="displayListView" title="Torna alla lista dei match"></paper-icon-button>
+                        <div>Aggiungi match</div>
+                    </div>
+                </soccer-view-upsert>
+            </div>
+            <div id="update">
+                <soccer-view-upsert resource="{{match}}">
+                    <div slot="header" class="flex flex-horizontal flex-vertical-center header">
+                        <paper-icon-button icon="app:back" on-tap="displayListView" title="Torna alla lista dei match"></paper-icon-button>
+                        <div>Modifica match</div>
+                    </div>
+                </soccer-view-upsert>
+            </div>
+        </iron-pages>
+    </template>
+    <script>
+        class ModuleSoccerIndex extends Polymer.Element {
+
+            static get is() {
+                return 'soccer-index';
+            }
+
+            static get properties() {
+                return {
+
+                    selected: {
+                        type: Number,
+                        value: 0
+                    }
+                }
+            }
+
+            displayAddView() {
+                this.selected = 1;
+            }
+
+            displayListView() {
+                this.selected = 0;
+            }
+        }
+
+        window.customElements.define(ModuleSoccerIndex.is, ModuleSoccerIndex);
+
+    </script>
+</dom-module>Resource

@@ -79,4 +79,11 @@ serviceManager.set(
             config.tcpClient ? config.tcpClient : {}
         );
     }
+).set(
+    'SoccerClient',
+    function(sm){
+        let config = sm.get('Config');
+
+        return new HttpClient(config.soccerApi.path, config.soccerApi.headers)
+    }
 );
