@@ -51,37 +51,9 @@ class SoccerConfig extends PluginConfig {
      */
     _loadHydrator() {
 
+        this._loadPlayerHydrator();
+
         let hydrator = new PropertyHydrator(
-            new PlayerSoccer(),
-            {
-                shirtNumber: new NumberStrategy(),
-            }
-        );
-
-        hydrator.enableExtractProperty('id')
-            .enableExtractProperty('name')
-            .enableExtractProperty('surname')
-            .enableExtractProperty('shirtName')
-            .enableExtractProperty('shirtNumber')
-            .enableExtractProperty('position')
-            .enableExtractProperty('nationality')
-            .enableExtractProperty('goals');
-
-        hydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('name')
-            .enableHydrateProperty('surname')
-            .enableHydrateProperty('shirtName')
-            .enableHydrateProperty('shirtNumber')
-            .enableHydrateProperty('position')
-            .enableHydrateProperty('nationality')
-            .enableHydrateProperty('goals');
-
-        this.serviceManager.get('HydratorPluginManager').set(
-            'playerSoccerHydrator',
-            hydrator
-        );
-
-        hydrator = new PropertyHydrator(
             new TeamSoccer(),
             {
                 shirtNumber: new NumberStrategy(),
@@ -173,6 +145,73 @@ class SoccerConfig extends PluginConfig {
                     );
                 }
             }
+        );
+    }
+
+    _loadPlayerHydrator() {
+
+        let hydrator = new PropertyHydrator(
+            new PlayerSoccer(),
+            {
+                shirtNumber: new NumberStrategy(),
+            }
+        );
+
+        hydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('surname')
+            .enableExtractProperty('shirtName')
+            .enableExtractProperty('shirtNumber')
+            .enableExtractProperty('position')
+            .enableExtractProperty('nationality')
+            .enableExtractProperty('goals');
+
+        hydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('surname')
+            .enableHydrateProperty('shirtName')
+            .enableHydrateProperty('position')
+            .enableHydrateProperty('number')
+            .enableHydrateProperty('nationality')
+            .enableHydrateProperty('goals');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'playerSoccerHydrator',
+            hydrator
+        );
+
+        hydrator = new PropertyHydrator(
+            new PlayerSoccer(),
+            {
+                shirtNumber: new NumberStrategy(),
+            },
+            {
+                number: "shirtNumber",
+                fullname: "surname"
+            }
+        );
+
+        hydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('surname')
+            .enableExtractProperty('shirtName')
+            .enableExtractProperty('shirtNumber')
+            .enableExtractProperty('position')
+            .enableExtractProperty('nationality')
+            .enableExtractProperty('goals');
+
+        hydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('fullname')
+            .enableHydrateProperty('shirtName')
+            .enableHydrateProperty('position')
+            .enableHydrateProperty('number')
+            .enableHydrateProperty('nationality')
+            .enableHydrateProperty('goals');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'playerSoccerApiHydrator',
+            hydrator
         );
     }
 }

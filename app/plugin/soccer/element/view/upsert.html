@@ -241,7 +241,10 @@
                     .then(json => {
 
                         console.log('Players', isHomeTeam, evt.detail.option, json.data.players);
-
+                        let pl = serviceManager.get('HydratorPluginManager').get('playerSoccerApiHydrator').hydrate(json.data.players[0])
+                        console.log('Hydrator', pl);
+                        console.log('extract', serviceManager.get('HydratorPluginManager').get('playerSoccerApiHydrator').extract(pl));
+                        console.log('extract', serviceManager.get('HydratorPluginManager').get('playerSoccerHydrator').extract(pl));
                     });
             }
 
