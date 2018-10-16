@@ -3,8 +3,9 @@
  */
 class AbstractHydrator {
 
-    constructor(strategies) {
+    constructor(strategies, nameStrategies) {
         this.strategies = strategies ? strategies : {};
+        this.nameStrategies = nameStrategies ? nameStrategies : {};
         this.referenceObject = null;
     }
 

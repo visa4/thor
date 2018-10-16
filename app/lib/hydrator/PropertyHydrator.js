@@ -16,10 +16,11 @@ class PropertyHydrator extends AbstractHydrator {
      * @constructor
      * @param {Object} objectPrototype
      * @param {Object} strategies
+     * @param {Object} nameStrategies
      * */
-    constructor(objectPrototype, strategies) {
+    constructor(objectPrototype, strategies, nameStrategies) {
 
-        super(strategies ? strategies : null);
+        super(strategies ? strategies : null, nameStrategies ? nameStrategies : null);
         this.objectPrototype = objectPrototype;
         this.enableHydratorProperty = null;
         this.enableExtractorProperty = null;
@@ -62,7 +63,7 @@ class PropertyHydrator extends AbstractHydrator {
                 continue;
             }
 
-            obj[property] = this._hydrateProperty(property, data[property]);
+            obj[this._hydratePropertyName(property)] = this._hydrateProperty(property, data[property]);
         }
 
         return obj;
@@ -96,6 +97,31 @@ class PropertyHydrator extends AbstractHydrator {
     }
 
     /**
+     * @param property
+     * @returns {*}
+     * @private
+     */
+    _hydratePropertyName(property) {
+        return this.nameStrategies[property] ? this.nameStrategies[property] : property;
+    }
+
+    /**
+     * @param property
+     * @returns {*}
+     * @private
+     */
+    _extractPropertyName(property) {
+        let computeProperty = property;
+        for (let prop in this.nameStrategies) {
+            if (this.nameStrategies.hasOwnProperty(prop) && this.nameStrategies[prop] === property) {
+                computeProperty = prop;
+                break;
+            }
+        }
+        return computeProperty;
+    }
+
+    /**
      * @param {Object} obj
      * @returns {Object}
      */
@@ -108,7 +134,7 @@ class PropertyHydrator extends AbstractHydrator {
                 continue;
             }
 
-            data[property] = (this.strategies[property]) ?
+            data[this._extractPropertyName(property)] = (this.strategies[property]) ?
                 this.strategies[property].extractStrategy(obj[property]) :
                 obj[property];
         }

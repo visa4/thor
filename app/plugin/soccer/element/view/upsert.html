@@ -157,7 +157,7 @@
                         type: Object,
                         notify: true,
                         value: new Timer(),
-                        observer: '_resourceChanged'
+           //             observer: '_resourceChanged'
                     },
 
                     labelAction: {
@@ -206,7 +206,7 @@
              * @private
              */
             _searchTeamChanged(evt) {
-                console.log('sssssssssssss',evt.detail.value);
+                console.log('sssssssssssss', evt.detail.value);
                 let listPath = "leagues/serie-a/seasons/18-19/teams";
 
                 serviceManager.get('SoccerClient')
@@ -214,7 +214,7 @@
                     .then(res => res.json())
                     .then(json => {
 
-                        console.log('Teams',json.data.teams);
+                        console.log('Teams', json.data.teams);
                         let filter = json.data.teams.filter(
                             element => {
                                 return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
@@ -225,27 +225,6 @@
                             filter
                         );
                     });
-                /*
-                serviceManager.get('StoragePluginManager')
-                    .get(TimeslotConfig.NAME_SERVICE)
-                    .getAll()
-                    .then((data) => {
-
-                        let filter = data.filter(
-                            element => {
-                                return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
-                            }
-                        );
-
-                        evt.detail.target.suggestions(
-                            filter
-                        );
-                    })
-                    .catch((err) => {
-                            console.log(err)
-                        }
-                    );
-                    */
             }
 
             /**
@@ -253,8 +232,17 @@
              * @private
              */
             _selectTeam(evt) {
+                let isHomeTeam = evt.target.getAttribute('home') === '';
+                let playersPath = `leagues/serie-a/seasons/18-19/teams/${evt.detail.option.team_slug}/players`;
 
-               console.log('SELELCT', evt)
+                serviceManager.get('SoccerClient')
+                    .get(playersPath)
+                    .then(res => res.json())
+                    .then(json => {
+
+                        console.log('Players', isHomeTeam, evt.detail.option, json.data.players);
+
+                    });
             }
 
 

@@ -13,7 +13,7 @@ class Team {
         this.logo = null;
 
         /**
-         * @type {null|String}
+         * @type {null|Array}
          */
         this.players = [];
 
@@ -21,6 +21,30 @@ class Team {
          * @type {null|String}
          */
         this.staff = [];
+    }
+
+    /**
+     * @param {Player} player
+     * @returns {Team}
+     */
+    addPlayer(player) {
+        this.players.push(player);
+        return this;
+    }
+
+    /**
+     * @param {Player} player
+     * @returns {Team}
+     */
+    removePlayer(player) {
+        let index = this.players.findIndex((element) => {
+            return element.id === player.id;
+        });
+
+        if (index > -1 ) {
+            this.players.splice(index, 1);
+        }
+        return this;
     }
 }
 

@@ -12,6 +12,24 @@ class PlayerSoccer extends Player {
     constructor() {
         super();
 
+        /**
+         * @type {null|String}
+         */
+        this.shirtName = null;
+
+        /**
+         * @type {null|Number}
+         */
+        this.shirtNumber = null;
+
+        /**
+         * @type {null|string}
+         */
+        this.position = null;
+
+        /**
+         * @type {Array}
+         */
         this.goals = [];
     }
 }
