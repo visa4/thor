@@ -7,6 +7,7 @@
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/pagination/pagination.html">
+<link rel="import" href="../../element/match/match.html">
 
 <dom-module id="soccer-view-list">
     <template>
@@ -22,7 +23,11 @@
         <slot name="header"></slot>
         <div hidden$="{{!hasResources}}">
             <template is="dom-repeat" items="[[resources]]" as="resource">
-                <timer-wc timer="{{resource}}" on-update-view="displayUpdateView" on-remove="remove"></timer-wc>
+                <match-wc
+                        match="{{resource}}"
+                        on-wrap-remove="remove"
+                        on-wrap-update="displayUpdateView">
+                </match-wc>
             </template>
             <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
         </div>
@@ -143,7 +148,7 @@
              * @param evt
              */
             displayUpdateView(evt) {
-                this.resourceSelected = evt.target.timer;
+                this.resourceSelected = evt.target.match;
                 this.selected = 2;
             }
         }

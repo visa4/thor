@@ -51,50 +51,39 @@ class SoccerConfig extends PluginConfig {
      */
     _loadHydrator() {
 
+        /**
+         *
+         */
         this._loadPlayerHydrator();
 
+        /**
+         *
+         */
+        this._loadTamHydrator();
+
         let hydrator = new PropertyHydrator(
-            new TeamSoccer(),
-            {
-                shirtNumber: new NumberStrategy(),
-            }
-        );
-
-
-
-        hydrator.enableExtractProperty('id')
-            .enableExtractProperty('name')
-            .enableExtractProperty('logo')
-            .enableExtractProperty('players')
-            .enableExtractProperty('staff');
-
-        hydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('name')
-            .enableHydrateProperty('logo')
-            .enableHydrateProperty('players')
-            .enableHydrateProperty('staff');
-
-        this.serviceManager.get('HydratorPluginManager').set(
-            'teamSoccerHydrator',
-            hydrator
-        );
-
-        hydrator = new PropertyHydrator(
             new MatchSoccer(),
             {
-
+                guestTeam : new HydratorStrategy(
+                    this.serviceManager.get('HydratorPluginManager').get('teamSoccerHydrator')
+                ),
+                homeTeam: new HydratorStrategy(
+                    this.serviceManager.get('HydratorPluginManager').get('teamSoccerHydrator')
+                )
             }
         );
 
         hydrator.enableExtractProperty('id')
             .enableExtractProperty('name')
             .enableExtractProperty('date')
-            .enableExtractProperty('teams');
+            .enableExtractProperty('guestTeam')
+            .enableExtractProperty('homeTeam');
 
         hydrator.enableHydrateProperty('id')
             .enableHydrateProperty('place')
             .enableHydrateProperty('date')
-            .enableHydrateProperty('teams');
+            .enableHydrateProperty('guestTeam')
+            .enableHydrateProperty('homeTeam');
 
         this.serviceManager.get('HydratorPluginManager').set(
             'matchSoccerHydrator',
@@ -211,6 +200,61 @@ class SoccerConfig extends PluginConfig {
 
         this.serviceManager.get('HydratorPluginManager').set(
             'playerSoccerApiHydrator',
+            hydrator
+        );
+    }
+
+    _loadTamHydrator() {
+
+        let hydrator = new PropertyHydrator(
+                new TeamSoccer(),
+                {
+                    'players' : new HydratorStrategy(
+                        this.serviceManager.get('HydratorPluginManager').get('playerSoccerHydrator')
+                    ),
+                }
+            );
+
+        hydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('logo')
+            .enableExtractProperty('players')
+            .enableExtractProperty('staff');
+
+        hydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('log')
+            .enableHydrateProperty('players')
+            .enableHydrateProperty('staff');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'teamSoccerHydrator',
+            hydrator
+        );
+
+        hydrator = new PropertyHydrator(
+            new TeamSoccer(),
+            {
+                'players' : new HydratorStrategy(
+                    this.serviceManager.get('HydratorPluginManager').get('playerSoccerApiHydrator')
+                ),
+            }
+        );
+
+        hydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('logo')
+            .enableExtractProperty('players')
+            .enableExtractProperty('staff');
+
+        hydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('log')
+            .enableHydrateProperty('players')
+            .enableHydrateProperty('staff');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'teamSoccerApiHydrator',
             hydrator
         );
     }

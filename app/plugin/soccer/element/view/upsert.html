@@ -56,87 +56,103 @@
         <div class="flex flex-horizontal">
             <iron-form id="formResource">
                 <form method="post">
-                    <div style="display: flex; height: 400px;">
+                    <div style="display: flex;">
                         <div style="flex-basis: 50%; padding-right: 8px;">
-                            <paper-autocomplete
-                                    id="homeTeam"
-                                    label="Squadra di casa"
-                                    text-property="name"
-                                    value-property="name"
-                                    remote-source
-                                    home
-                                    on-autocomplete-selected="_selectTeam"
-                                    on-autocomplete-change="_searchTeamChanged">
-                                <template slot="autocomplete-custom-template">
-                                    <style>
-                                        :host {
-                                            display: block;
-                                        }
+                            <div hidden$="[[hasHomeTeam]]">
+                                <paper-autocomplete
+                                        id="homeTeam"
+                                        label="Squadra di casa"
+                                        text-property="name"
+                                        value-property="name"
+                                        remote-source
+                                        home
+                                        on-autocomplete-selected="_selectTeam"
+                                        on-autocomplete-change="_searchTeamChanged">
+                                    <template slot="autocomplete-custom-template">
+                                        <style>
+                                            :host {
+                                                display: block;
+                                            }
 
-                                        paper-item.account-item {
-                                            padding: 8px 16px;
-                                        }
+                                            paper-item.account-item {
+                                                padding: 8px 16px;
+                                            }
 
-                                        .service-name {
-                                            color: #333;
-                                        }
+                                            .service-name {
+                                                color: #333;
+                                            }
 
-                                        .service-description {
-                                            margin-top: 4px;
-                                            color: #999;
-                                        }
-                                    </style>
-                                    <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
-                                        <div>
-                                            <div class="service-name">[[item.name]]</div>
-                                        </div>
-                                        <paper-ripple></paper-ripple>
-                                    </paper-item>
+                                            .service-description {
+                                                margin-top: 4px;
+                                                color: #999;
+                                            }
+                                        </style>
+                                        <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                                            <div>
+                                                <div class="service-name">[[item.name]]</div>
+                                            </div>
+                                            <paper-ripple></paper-ripple>
+                                        </paper-item>
+                                    </template>
+                                </paper-autocomplete>
+                            </div>
+                            <div hidden$="[[!hasHomeTeam]]">
+                                <div><paper-input value="{{resource.homeTeam.name}}"></paper-input></div>
+                                <template is="dom-repeat" items="[[resource.homeTeam.players]]" as="player">
+                                    <div>[[player.surname]]</div>
                                 </template>
-                            </paper-autocomplete>
+                            </div>
                         </div>
                         <div style="flex-basis: 50%;">
-                            <paper-autocomplete
-                                    id="guestTeam"
-                                    label="Squadra ospite"
-                                    text-property="name"
-                                    value-property="name"
-                                    remote-source
-                                    guest
-                                    on-autocomplete-selected="_selectTeam"
-                                    on-autocomplete-change="_searchTeamChanged">
-                                <template slot="autocomplete-custom-template">
-                                    <style>
-                                        :host {
-                                            display: block;
-                                        }
+                            <div hidden$="[[hasGuestTeam]]">
+                                <paper-autocomplete
+                                        id="guestTeam"
+                                        label="Squadra ospite"
+                                        text-property="name"
+                                        value-property="name"
+                                        remote-source
+                                        guest
+                                        on-autocomplete-selected="_selectTeam"
+                                        on-autocomplete-change="_searchTeamChanged">
+                                    <template slot="autocomplete-custom-template">
+                                        <style>
+                                            :host {
+                                                display: block;
+                                            }
 
-                                        paper-item.account-item {
-                                            padding: 8px 16px;
-                                        }
+                                            paper-item.account-item {
+                                                padding: 8px 16px;
+                                            }
 
-                                        .service-name {
-                                            color: #333;
-                                        }
+                                            .service-name {
+                                                color: #333;
+                                            }
 
-                                        .service-description {
-                                            margin-top: 4px;
-                                            color: #999;
-                                        }
-                                    </style>
-                                    <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
-                                        <div>
-                                            <div class="service-name">[[item.name]]</div>
-                                        </div>
-                                        <paper-ripple></paper-ripple>
-                                    </paper-item>
+                                            .service-description {
+                                                margin-top: 4px;
+                                                color: #999;
+                                            }
+                                        </style>
+                                        <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                                            <div>
+                                                <div class="service-name">[[item.name]]</div>
+                                            </div>
+                                            <paper-ripple></paper-ripple>
+                                        </paper-item>
+                                    </template>
+                                </paper-autocomplete>
+                            </div>
+                            <div hidden$="[[!hasGuestTeam]]">
+                                <div><paper-input value="{{resource.guestTeam.name}}"></paper-input></div>
+                                <template is="dom-repeat" items="[[resource.guestTeam.players]]" as="player">
+                                    <div>[[player.surname]]</div>
                                 </template>
-                            </paper-autocomplete>
+                            </div>
                         </div>
                     </div>
 
                     <div class="flex flex-horizontal-end">
-                        <paper-button on-tap="submitResourceButton">Add</paper-button>
+                        <paper-button on-tap="submitResourceButton">Save</paper-button>
                     </div>
                 </form>
             </iron-form>
@@ -153,17 +169,32 @@
             static get properties() {
                 return {
 
+                    /**
+                     * @param {MatchSoccer}
+                     */
                     resource: {
                         type: Object,
                         notify: true,
-                        value: new Timer(),
-           //             observer: '_resourceChanged'
+                        value: new MatchSoccer(),
+                        observer: '_resourceChanged'
                     },
 
                     labelAction: {
                         type: String,
                         value: 'Save'
-                    }
+                    },
+
+                    hasHomeTeam: {
+                        type: Boolean,
+                        notify: true,
+                        value: false
+                    },
+
+                    hasGuestTeam: {
+                        type: Boolean,
+                        notify: true,
+                        value: false
+                    },
                 }
             }
 
@@ -177,6 +208,18 @@
 
                 this.$.formResource.addEventListener('iron-form-presubmit', this.submitResource.bind(this));
                 */
+
+                this.$.formResource.addEventListener('iron-form-presubmit', this.submitResource.bind(this));
+            }
+
+            _resourceChanged(newValue, oldValue) {
+
+                if (!newValue) {
+                    return;
+                }
+
+                this.hasHomeTeam = newValue.hasHomeTeam();
+                this.hasGuestTeam = newValue.hasGuestTeam();
             }
 
             /**
@@ -185,20 +228,32 @@
             submitResource(evt) {
                 evt.preventDefault();
 
-                console.log(this.resource);
-
                 let method = this.resource.id ? 'update' : 'save';
-                this.resource.type = this.$.type.selectedItem.getAttribute('value');
+                console.log(this.resource);
 
                 serviceManager.get('StoragePluginManager')
                     .get(SoccerConfig.NAME_SERVICE)[method](this.resource)
                     .then((data) => {
-                        serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' timer');
+                        serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' match');
                     })
                     .catch((err) => {
                             console.log(err)
                         }
                     );
+
+            }
+
+            _hasTeam(team) {
+                let has = false;
+                switch (team) {
+                    case 'home':
+                        has = this.resource.hasHomeTeam();
+                        break;
+                    case 'guest':
+                        has = this.resource.hasGuestTeam();
+                        break;
+                }
+                return has;
             }
 
             /**
@@ -206,7 +261,6 @@
              * @private
              */
             _searchTeamChanged(evt) {
-                console.log('sssssssssssss', evt.detail.value);
                 let listPath = "leagues/serie-a/seasons/18-19/teams";
 
                 serviceManager.get('SoccerClient')
@@ -242,13 +296,30 @@
 
                         console.log('Players', isHomeTeam, evt.detail.option, json.data.players);
                         let pl = serviceManager.get('HydratorPluginManager').get('playerSoccerApiHydrator').hydrate(json.data.players[0])
-                        console.log('Hydrator', pl);
-                        console.log('extract', serviceManager.get('HydratorPluginManager').get('playerSoccerApiHydrator').extract(pl));
-                        console.log('extract', serviceManager.get('HydratorPluginManager').get('playerSoccerHydrator').extract(pl));
+
+                        evt.detail.option.players = json.data.players;
+                        let team =  serviceManager.get('HydratorPluginManager').get('teamSoccerApiHydrator').hydrate(evt.detail.option);
+
+                        if (isHomeTeam) {
+                            this.resource.homeTeam = team;
+                            this.hasHomeTeam = true;
+                            this.notifyPath('resource.homeTeam');
+                        } else {
+                            this.resource.guestTeam = team;
+                            this.hasGuestTeam = true;
+                            this.notifyPath('resource.guestTeam');
+                        }
+                        console.log('Hydrator', evt.detail.option);
+                        console.log('Team', team);
                     });
             }
 
-
+            /**
+             *
+             */
+            submitResourceButton(evt) {
+                this.$.formResource.submit();
+            }
             /**
              * @param method
              * @returns {boolean}

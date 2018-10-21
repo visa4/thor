@@ -11,8 +11,6 @@ class MatchSoccer extends Match {
 
     constructor() {
         super();
-
-        this.isHome = true;
     }
 }
 

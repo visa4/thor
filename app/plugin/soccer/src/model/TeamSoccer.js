@@ -11,8 +11,6 @@ class TeamSoccer extends Team {
 
     constructor() {
         super();
-
-        this.isHome = true;
     }
 }
 

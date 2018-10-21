@@ -2,7 +2,15 @@ class Match {
 
     constructor() {
 
-        this.teams = [];
+        /**
+         * @type {Team|Object}
+         */
+        this.homeTeam = {};
+
+        /**
+         * @type {Team|Object}
+         */
+        this.guestTeam = {};
 
         /**
          * @type {Date|null}
@@ -13,6 +21,20 @@ class Match {
          * @type {null}
          */
         this.place = null;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    hasHomeTeam() {
+        return Object.keys(this.homeTeam).length !== 0 && this.homeTeam.constructor !== Object;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    hasGuestTeam() {
+        return Object.keys(this.guestTeam).length !== 0 && this.guestTeam.constructor !== Object;
     }
 }
 
