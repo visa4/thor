@@ -11,6 +11,11 @@ class MatchSoccer extends Match {
 
     constructor() {
         super();
+
+        /**
+         * @type {number}
+         */
+        this.enable = 0;
     }
 }
 

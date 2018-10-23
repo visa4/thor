@@ -46,6 +46,13 @@ class Team {
         }
         return this;
     }
+
+    /**
+     * @returns {Array}
+     */
+    getPlayers() {
+        return this.players;
+    }
 }
 
 module.exports = Team;

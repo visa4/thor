@@ -74,14 +74,18 @@ class SoccerConfig extends PluginConfig {
         );
 
         hydrator.enableExtractProperty('id')
-            .enableExtractProperty('name')
+            .enableExtractProperty('place')
             .enableExtractProperty('date')
+            .enableExtractProperty('time')
+            .enableExtractProperty('enable')
             .enableExtractProperty('guestTeam')
             .enableExtractProperty('homeTeam');
 
         hydrator.enableHydrateProperty('id')
             .enableHydrateProperty('place')
             .enableHydrateProperty('date')
+            .enableHydrateProperty('time')
+            .enableHydrateProperty('enable')
             .enableHydrateProperty('guestTeam')
             .enableHydrateProperty('homeTeam');
 
@@ -106,7 +110,7 @@ class SoccerConfig extends PluginConfig {
                         {
                             "name": SoccerConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "place", "date", "teams"
+                                "++id", "place", "date", "homeTeam", "guestTeam", "enable"
                             ]
                         }
                     );
@@ -117,8 +121,10 @@ class SoccerConfig extends PluginConfig {
                     serviceManager.get('DexieManager').onReady(
                         function (evt) {
 
+                            let SoccerDexieCollection = require('../soccer/src/storage/indexed-db/dexie/SoccerDexieCollection');
+
                             let storage = new Storage(
-                                new DexieCollection(
+                                new SoccerDexieCollection(
                                     serviceManager.get('DexieManager'),
                                     SoccerConfig.NAME_COLLECTION
                                 ),
@@ -160,7 +166,7 @@ class SoccerConfig extends PluginConfig {
             .enableHydrateProperty('surname')
             .enableHydrateProperty('shirtName')
             .enableHydrateProperty('position')
-            .enableHydrateProperty('number')
+            .enableHydrateProperty('shirtNumber')
             .enableHydrateProperty('nationality')
             .enableHydrateProperty('goals');
 

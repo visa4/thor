@@ -4,6 +4,7 @@
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -65,25 +66,34 @@
                 opacity: 0.5;
             }
 
+            #rightSection {
+                background-image: url("img/calcio.jpg") !important;
+            }
+
+            .enableButtonContainer {
+                height: 40px;
+                width: 40px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .enableButtonContainer paper-radio-button {
+                width: 16px;
+            }
+
+
+
         </style>
         <paper-card id="design" class="setting">
             <div class="card-setting">
-                <paper-icon-button
-                        id="loopIcon"
-                        title="Send playlist in loop mode"
-                        item="{{timeslot}}"
-                        icon="playlist:loop"
-                        class$="{{_computeLoopIcon()}}"
-                        on-tap="_tapLoop">
-                </paper-icon-button>
-                <paper-icon-button
-                        id="overlayIcon"
-                        title="Send playlist in overlay mode"
-                        item="{{timeslot}}"
-                        icon="playlist:overlay"
-                        class$="{{_computeContexIcon()}}"
-                        on-tap="_tapOverlay">
-                </paper-icon-button>
+                <div class="enableButtonContainer">
+                    <paper-radio-button
+                            id="enableInput"
+                            on-change="_changeEnableMatch"
+                            title="Enable">
+                    </paper-radio-button>
+                </div>
             </div>
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-85 flex flex-vertical">
@@ -124,12 +134,40 @@
                 };
             }
 
+            static get observers() {
+                return [
+                    'matchEnableChange(match.enable)'
+                ]
+            }
+
+            /**
+             * @param {Number} enable
+             */
+            monitorEnableChange(enable) {
+                this.$.enableInput.disabled = !!enable;
+                this.$.enableInput.checked = !!enable;
+            }
+
+
             _remove(evt) {
                 this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.match}));
             }
 
             _update(evt) {
                 this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.match}));
+            }
+
+            _changeEnableMatch(evt) {
+                this.match.enable = evt.target.checked;
+                this.dispatchEvent(new CustomEvent('wrap-change-enable-match', {detail: this.match}));
+            }
+
+            /**
+             * @param enable
+             */
+            matchEnableChange(enable) {
+                this.$.enableInput.disabled = !!enable;
+                this.$.enableInput.checked = !!enable;
             }
         }
 

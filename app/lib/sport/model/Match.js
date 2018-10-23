@@ -15,6 +15,11 @@ class Match {
         /**
          * @type {Date|null}
          */
+        this.time = null;
+
+        /**
+         * @type {Date|null}
+         */
         this.date = null;
 
         /**
@@ -35,6 +40,22 @@ class Match {
      */
     hasGuestTeam() {
         return Object.keys(this.guestTeam).length !== 0 && this.guestTeam.constructor !== Object;
+    }
+
+    /**
+     * @returns {Match}
+     */
+    removeHomeTeam() {
+        this.homeTeam = {};
+        return this;
+    }
+
+    /**
+     * @returns {Match}
+     */
+    removeGuestTeam() {
+        this.guestTeam = {};
+        return this;
     }
 }
 

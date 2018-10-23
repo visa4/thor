@@ -26,7 +26,8 @@
                 <match-wc
                         match="{{resource}}"
                         on-wrap-remove="remove"
-                        on-wrap-update="displayUpdateView">
+                        on-wrap-update="displayUpdateView"
+                        on-wrap-change-enable-match="changeMatch">
                 </match-wc>
             </template>
             <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
@@ -150,6 +151,44 @@
             displayUpdateView(evt) {
                 this.resourceSelected = evt.target.match;
                 this.selected = 2;
+            }
+
+            /**
+             * @param evt
+             */
+            changeMatch(evt) {
+                console.log('CHANGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
+                let soccerStorage = serviceManager.get('StoragePluginManager').get(SoccerConfig.NAME_SERVICE);
+                let newEnableMatch =  evt.detail;
+
+                for (let cont = 0; this.resources.length > cont; cont++) {
+                    this.resources[cont].enable = 0
+                }
+
+                soccerStorage.getAll({enable: 1})
+                    .then((enableMatch) => {
+                        for (let cont = 0; enableMatch.length > cont; cont++) {
+
+                            enableMatch.enable = 0;
+                            soccerStorage.update(enableMatch[cont])
+                                .then((data) => {})
+                                .catch((err) => {
+                                        console.log(err)
+                                    }
+                                );
+                        }
+
+                        newEnableMatch.enable = 1;
+                        soccerStorage.update(evt.detail)
+                            .then((data) => {
+                                serviceManager.get('PaperToastNotification').notify(' Enable TODO');
+                            })
+                            .catch((err) => {
+                                    console.log(err)
+                                }
+                            );
+                    });
+
             }
         }
 

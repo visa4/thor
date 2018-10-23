@@ -60,21 +60,11 @@
     </style>
 
     <paper-tabs selected="{{selected}}" tabindex="0">
-      <paper-tab>Current Topology</paper-tab>
       <paper-tab>Configurations</paper-tab>
+      <paper-tab>Current Topology</paper-tab>
     </paper-tabs>
 
     <iron-pages id="ironPages" selected="{{selected}}">
-      <div id="current_settings" class="container">
-        <template is="dom-repeat" items="{{monitors}}">
-          <system-monitor-wc
-                  width="{{item.size.width}}"
-                  height="{{item.size.height}}"
-                  top="{{item.bounds.y}}"
-                  left="{{item.bounds.x}}">
-          </system-monitor-wc>
-        </template>
-      </div>
       <div id="virtual_monitor" class="flex-vertical">
         <iron-pages id="ironPagesView" selected="{{viewSelected}}">
           <div id="list">
@@ -117,6 +107,15 @@
           </div>
         </iron-pages>
       </div>
+      <div id="current_settings" class="container">
+        <template is="dom-repeat" items="{{monitors}}">
+          <system-monitor-wc
+                  width="{{item.size.width}}"
+                  height="{{item.size.height}}"
+                  top="{{item.bounds.y}}"
+                  left="{{item.bounds.x}}">
+          </system-monitor-wc>
+        </template>
       </div>
     </iron-pages>
   </template>
@@ -143,7 +142,7 @@
 
                   selected: {
                       type: Number,
-                      value: 1
+                      value: 0
                   },
 
                   viewSelected: {

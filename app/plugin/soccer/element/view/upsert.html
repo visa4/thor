@@ -10,6 +10,7 @@
 <link rel="import" href="../../../../bower_components/paper-checkbox/paper-checkbox.html">
 
 <link rel="import" href="../../../../element/file-upload/file-upload.html">
+<link rel="import" href="../../element/player/player.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -58,6 +59,7 @@
                 <form method="post">
                     <div style="display: flex;">
                         <div style="flex-basis: 50%; padding-right: 8px;">
+                            <div><paper-input type="date" value="{{resource.date}}" label="Date"></paper-input></div>
                             <div hidden$="[[hasHomeTeam]]">
                                 <paper-autocomplete
                                         id="homeTeam"
@@ -97,13 +99,17 @@
                                 </paper-autocomplete>
                             </div>
                             <div hidden$="[[!hasHomeTeam]]">
-                                <div><paper-input value="{{resource.homeTeam.name}}"></paper-input></div>
+                                <div class="flex flex-horizontal flex-horizontal-space-between">
+                                    <paper-input value="{{resource.homeTeam.name}}" class="flex-1"></paper-input>
+                                    <paper-button style="margin: 8px;" on-click="removeTeam" home>Reset team</paper-button>
+                                </div>
                                 <template is="dom-repeat" items="[[resource.homeTeam.players]]" as="player">
-                                    <div>[[player.surname]]</div>
+                                    <soccer-player-wc player="{{player}}" on-wrap-remove="_removePlayer" updated home></soccer-player-wc>
                                 </template>
                             </div>
                         </div>
                         <div style="flex-basis: 50%;">
+                            <div><paper-input type="time" value="{{resource.time}}" label="Time"></paper-input></div>
                             <div hidden$="[[hasGuestTeam]]">
                                 <paper-autocomplete
                                         id="guestTeam"
@@ -143,9 +149,12 @@
                                 </paper-autocomplete>
                             </div>
                             <div hidden$="[[!hasGuestTeam]]">
-                                <div><paper-input value="{{resource.guestTeam.name}}"></paper-input></div>
+                                <div class="flex flex-horizontal flex-horizontal-space-between">
+                                    <paper-input value="{{resource.guestTeam.name}}" class="flex-1"></paper-input>
+                                    <paper-button guest style="margin: 8px;" on-click="removeTeam">Reset team</paper-button>
+                                </div>
                                 <template is="dom-repeat" items="[[resource.guestTeam.players]]" as="player">
-                                    <div>[[player.surname]]</div>
+                                    <soccer-player-wc player="{{player}}" on-wrap-remove="_removePlayer" updated guest></soccer-player-wc>
                                 </template>
                             </div>
                         </div>
@@ -229,7 +238,6 @@
                 evt.preventDefault();
 
                 let method = this.resource.id ? 'update' : 'save';
-                console.log(this.resource);
 
                 serviceManager.get('StoragePluginManager')
                     .get(SoccerConfig.NAME_SERVICE)[method](this.resource)
@@ -268,7 +276,6 @@
                     .then(res => res.json())
                     .then(json => {
 
-                        console.log('Teams', json.data.teams);
                         let filter = json.data.teams.filter(
                             element => {
                                 return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
@@ -294,7 +301,6 @@
                     .then(res => res.json())
                     .then(json => {
 
-                        console.log('Players', isHomeTeam, evt.detail.option, json.data.players);
                         let pl = serviceManager.get('HydratorPluginManager').get('playerSoccerApiHydrator').hydrate(json.data.players[0])
 
                         evt.detail.option.players = json.data.players;
@@ -309,9 +315,37 @@
                             this.hasGuestTeam = true;
                             this.notifyPath('resource.guestTeam');
                         }
-                        console.log('Hydrator', evt.detail.option);
-                        console.log('Team', team);
                     });
+            }
+
+            /**
+             * @param evt
+             */
+            _removePlayer(evt) {
+                let team = evt.target.getAttribute('home') === '' ? 'homeTeam' : 'guestTeam';
+
+                let index = this.resource[team].getPlayers().findIndex((element) => {
+                   return element.id === evt.detail.id;
+                });
+
+                this.splice(`resource.${team}.players`, index, 1);
+                this.resource[team].removePlayer(evt.detail);
+            }
+
+            /**
+             * @param evt
+             */
+            removeTeam(evt) {
+
+                if (evt.target.getAttribute('home') === '') {
+                    this.resource.removeHomeTeam();
+                    this.hasHomeTeam = false;
+                    this.notifyPath('resource.homeTeam');
+                } else {
+                    this.resource.removeGuestTeam();
+                    this.hasGuestTeam = false;
+                    this.notifyPath('resource.guestTeam');
+                }
             }
 
             /**
