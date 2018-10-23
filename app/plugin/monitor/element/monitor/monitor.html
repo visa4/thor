@@ -68,7 +68,7 @@
                     <paper-radio-button
                             id="enableInput"
                             class="monitor-configuration"
-                            on-click="_changeEnableMonitor"
+                            on-change="_changeEnableMonitor"
                             title="Enable">
                     </paper-radio-button>
                 </div>
@@ -145,6 +145,7 @@
              * @private
              */
             _changeEnableMonitor(evt) {
+                this.monitor.enable = evt.target.checked;
                 this.dispatchEvent(new CustomEvent('wrap-change-enable-monitor', {detail: this.monitor}));
             }
 

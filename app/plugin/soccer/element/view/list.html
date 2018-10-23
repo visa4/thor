@@ -33,7 +33,7 @@
             <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
         </div>
         <div hidden$="{{hasResources}}">
-            Non sono presenti file
+            Non sono presenti match
         </div>
     </template>
 
@@ -157,19 +157,17 @@
              * @param evt
              */
             changeMatch(evt) {
-                console.log('CHANGEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE');
-                let soccerStorage = serviceManager.get('StoragePluginManager').get(SoccerConfig.NAME_SERVICE);
-                let newEnableMatch =  evt.detail;
 
                 for (let cont = 0; this.resources.length > cont; cont++) {
                     this.resources[cont].enable = 0
                 }
 
+                let soccerStorage = serviceManager.get('StoragePluginManager').get(SoccerConfig.NAME_SERVICE);
                 soccerStorage.getAll({enable: 1})
                     .then((enableMatch) => {
                         for (let cont = 0; enableMatch.length > cont; cont++) {
 
-                            enableMatch.enable = 0;
+                            enableMatch[cont].enable = 0;
                             soccerStorage.update(enableMatch[cont])
                                 .then((data) => {})
                                 .catch((err) => {
@@ -178,7 +176,7 @@
                                 );
                         }
 
-                        newEnableMatch.enable = 1;
+                        evt.detail.enable = 1;
                         soccerStorage.update(evt.detail)
                             .then((data) => {
                                 serviceManager.get('PaperToastNotification').notify(' Enable TODO');

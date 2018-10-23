@@ -139,10 +139,11 @@
            */
           changeEnableMonior(evt) {
 
+              for (let cont = 0; this.monitors.length > cont; cont++) {
+                  this.monitors[cont].enable = 0
+              }
 
               let monitorStorage = serviceManager.get('StoragePluginManager').get(MonitorConfig.NAME_SERVICE);
-              let newEnableMonitor =  evt.detail;
-
               monitorStorage.getAll({enable: 1})
                   .then((enableMonitors) => {
                       for (let cont = 0; enableMonitors.length > cont; cont++) {
@@ -156,7 +157,7 @@
                               );
                       }
 
-                      newEnableMonitor.enable = 1;
+                      evt.detail.enable = 1;
                       monitorStorage.update(evt.detail)
                           .then((data) => {
                               serviceManager.get('PaperToastNotification').notify(' Enable ' + evt.detail.name);

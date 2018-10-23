@@ -209,14 +209,11 @@
 
             ready() {
                 super.ready();
-/*
+
                 serviceManager.get('StoragePluginManager')
                     .get(SoccerConfig.NAME_SERVICE)
                     .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearResource.bind(this)
                 );
-
-                this.$.formResource.addEventListener('iron-form-presubmit', this.submitResource.bind(this));
-                */
 
                 this.$.formResource.addEventListener('iron-form-presubmit', this.submitResource.bind(this));
             }
@@ -320,6 +317,7 @@
 
             /**
              * @param evt
+             * @private
              */
             _removePlayer(evt) {
                 let team = evt.target.getAttribute('home') === '' ? 'homeTeam' : 'guestTeam';
@@ -330,6 +328,33 @@
 
                 this.splice(`resource.${team}.players`, index, 1);
                 this.resource[team].removePlayer(evt.detail);
+            }
+
+            /**
+             * @param method
+             * @returns {boolean}
+             * @private
+             */
+            _isMethod(method) {
+                let isMethod = false;
+                switch (true) {
+                    case method === 'update' && this.resource.id !== undefined:
+                        isMethod = true;
+                        break;
+                    case method === 'save' && this.resource.id === undefined:
+                        isMethod = true;
+                        break;
+                }
+
+                return isMethod;
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _clearResource(evt) {
+                this.resource = new MatchSoccer();
             }
 
             /**
@@ -353,24 +378,6 @@
              */
             submitResourceButton(evt) {
                 this.$.formResource.submit();
-            }
-            /**
-             * @param method
-             * @returns {boolean}
-             * @private
-             */
-            _isMethod(method) {
-                let isMethod = false;
-                switch (true) {
-                    case method === 'update' && this.resource.id !== undefined:
-                        isMethod = true;
-                        break;
-                    case method === 'save' && this.resource.id === undefined:
-                        isMethod = true;
-                        break;
-                }
-
-                return isMethod;
             }
         }
 
