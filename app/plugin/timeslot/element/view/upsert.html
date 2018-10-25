@@ -190,12 +190,6 @@
                         observer: '_timeslotChanged'
                     },
 
-                    monitors: {
-                        type: Array,
-                        notify: true,
-                        value: []
-                    },
-
                     resources: {
                         type: Array,
                         value: []
@@ -228,31 +222,6 @@
                     .getAll()
                     .then((data) => {
                         this.binds = data;
-                    });
-            }
-
-            connectedCallback() {
-                super.connectedCallback();
-                let virtualMonitors = [];
-                let monitors = [];
-
-                serviceManager.get('StoragePluginManager')
-                    .get(MonitorConfig.NAME_SERVICE)
-                    .getAll()
-                    .then((data) => {
-                        virtualMonitors = data;
-
-                        for (let cont = 0; virtualMonitors.length > cont; cont++) {
-                            let internaMonitor = virtualMonitors[cont].getMonitors({nested: true});
-                            for (let index = 0; internaMonitor.length > index; index++) {
-                                monitors.push({
-                                    monitor: internaMonitor[index],
-                                    config: virtualMonitors[cont],
-                                    name: internaMonitor[index].name
-                                });
-                            }
-                        }
-                        this.monitors = monitors;
                     });
             }
 
@@ -369,15 +338,35 @@
              */
             _searcMonitorChanged(evt) {
 
-                let filter = this.monitors.filter(
-                    element => {
-                        return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
-                    }
-                );
+                serviceManager.get('StoragePluginManager')
+                    .get(MonitorConfig.NAME_SERVICE)
+                    .getAll()
+                    .then((virtualMonitors) => {
 
-                evt.detail.target.suggestions(
-                    filter
-                );
+                        let monitors = [];
+                        for (let cont = 0; virtualMonitors.length > cont; cont++) {
+                            let internaMonitor = virtualMonitors[cont].getMonitors({nested: true});
+                            for (let index = 0; internaMonitor.length > index; index++) {
+                                monitors.push({
+                                    monitor: internaMonitor[index],
+                                    config: virtualMonitors[cont],
+                                    name: internaMonitor[index].name
+                                });
+                            }
+                        }
+
+                        let filter = monitors.filter(
+                            element => {
+                                return element.name.search(new RegExp(evt.detail.value, 'i')) > -1;
+                            }
+                        );
+
+                        evt.detail.target.suggestions(
+                            filter
+                        );
+                    });
+
+
             }
 
             /**
