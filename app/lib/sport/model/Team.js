@@ -25,10 +25,17 @@ class Team {
 
     /**
      * @param {Player} player
+     * @param {Object} options
      * @returns {Team}
      */
-    addPlayer(player) {
-        this.players.push(player);
+    addPlayer(player, options) {
+
+        if (options && options['prepend'] === true) {
+            this.players.unshift(player);
+        } else {
+            this.players.push(player);
+        }
+
         return this;
     }
 

@@ -136,6 +136,13 @@ class SoccerConfig extends PluginConfig {
                                 storage
                             );
 
+                            serviceManager.set(
+                                'SoccerService',
+                                new SoccerService(storage)
+                            );
+
+
+
                         }.bind(this)
                     );
                 }

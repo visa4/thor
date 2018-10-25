@@ -9,6 +9,7 @@
     "src/model/MatchSoccer.js",
     "src/model/PlayerSoccer.js",
     "src/model/TeamSoccer.js",
-    "src/model/Gaol.js"
+    "src/model/Gaol.js",
+    "src/SoccerService.js"
   ]
 }

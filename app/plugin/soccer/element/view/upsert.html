@@ -102,8 +102,9 @@
                                 <div class="flex flex-horizontal flex-horizontal-space-between">
                                     <paper-input value="{{resource.homeTeam.name}}" class="flex-1"></paper-input>
                                     <paper-button style="margin: 8px;" on-click="removeTeam" home>Reset team</paper-button>
+                                    <paper-button style="margin: 8px;" on-click="addPlayer" home>Add player</paper-button>
                                 </div>
-                                <template is="dom-repeat" items="[[resource.homeTeam.players]]" as="player">
+                                <template id="homeTeamPlayers" is="dom-repeat" items="[[resource.homeTeam.players]]" as="player">
                                     <soccer-player-wc player="{{player}}" on-wrap-remove="_removePlayer" updated home></soccer-player-wc>
                                 </template>
                             </div>
@@ -151,9 +152,10 @@
                             <div hidden$="[[!hasGuestTeam]]">
                                 <div class="flex flex-horizontal flex-horizontal-space-between">
                                     <paper-input value="{{resource.guestTeam.name}}" class="flex-1"></paper-input>
-                                    <paper-button guest style="margin: 8px;" on-click="removeTeam">Reset team</paper-button>
+                                    <paper-button style="margin: 8px;" on-click="removeTeam" guest>Reset team</paper-button>
+                                    <paper-button style="margin: 8px;" on-click="addPlayer" guest>Add player</paper-button>
                                 </div>
-                                <template is="dom-repeat" items="[[resource.guestTeam.players]]" as="player">
+                                <template id="guestTeamPlayers" is="dom-repeat" items="[[resource.guestTeam.players]]" as="player">
                                     <soccer-player-wc player="{{player}}" on-wrap-remove="_removePlayer" updated guest></soccer-player-wc>
                                 </template>
                             </div>
@@ -371,6 +373,12 @@
                     this.hasGuestTeam = false;
                     this.notifyPath('resource.guestTeam');
                 }
+            }
+
+            addPlayer(evt) {
+                let team = evt.target.getAttribute('home') === '' ? 'homeTeam' : 'guestTeam';
+                this.resource[team].addPlayer(new PlayerSoccer(), {prepend:true});
+                this.$[`${team}Players`].render();
             }
 
             /**

@@ -1,5 +1,7 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tab.html">
+<link rel="import" href="../../bower_components/paper-tabs/paper-tabs.html">
 
 <link rel="import" href="../../element/iconset/iconset.html">
 <link rel="import" href="../../css/global-layout.html">
@@ -16,33 +18,52 @@
                 padding: 16px;
             }
 
+            paper-tabs {
+                max-width: 400px;
+                margin: 16px 16px 0 16px;
+            }
+
         </style>
+
+        <paper-tabs selected="{{selected}}" tabindex="0">
+            <paper-tab>Manage data</paper-tab>
+            <paper-tab>Scoreboard</paper-tab>
+        </paper-tabs>
         <iron-pages id="ironPages" selected="{{selected}}">
-            <div id="list">
-                <soccer-view-list selected="{{selected}}" resource-selected="{{match}}">
-                    <div slot="header" class="flex flex-horizontal flex-center flex-horizontal-space-between header">
-                        <div>Lista match</div>
-                        <paper-icon-button class="circle" on-tap="displayAddView" icon="app:create" title="Crea un match"></paper-icon-button>
+            <div>
+                <iron-pages id="ironPagesView" selected="{{selected}}">
+                    <div id="list">
+                        <soccer-view-list selected="{{selected}}" resource-selected="{{match}}">
+                            <div slot="header"
+                                 class="flex flex-horizontal flex-center flex-horizontal-space-between header">
+                                <div>Lista match</div>
+                                <paper-icon-button class="circle" on-tap="displayAddView" icon="app:create" title="Crea un match"></paper-icon-button>
+                            </div>
+                        </soccer-view-list>
                     </div>
-                </soccer-view-list>
+                    <div id="add">
+                        <soccer-view-upsert>
+                            <div slot="header" class="flex flex-horizontal flex-vertical-center header">
+                                <paper-icon-button icon="app:back" on-tap="displayListView" title="Torna alla lista dei match"></paper-icon-button>
+                                <div>Aggiungi match</div>
+                            </div>
+                        </soccer-view-upsert>
+                    </div>
+                    <div id="update">
+                        <soccer-view-upsert resource="{{match}}">
+                            <div slot="header" class="flex flex-horizontal flex-vertical-center header">
+                                <paper-icon-button icon="app:back" on-tap="displayListView" title="Torna alla lista dei match"></paper-icon-button>
+                                <div>Modifica match</div>
+                            </div>
+                        </soccer-view-upsert>
+                    </div>
+                </iron-pages>
             </div>
-            <div id="add">
-                <soccer-view-upsert>
-                    <div slot="header" class="flex flex-horizontal flex-vertical-center header">
-                        <paper-icon-button icon="app:back" on-tap="displayListView" title="Torna alla lista dei match"></paper-icon-button>
-                        <div>Aggiungi match</div>
-                    </div>
-                </soccer-view-upsert>
-            </div>
-            <div id="update">
-                <soccer-view-upsert resource="{{match}}">
-                    <div slot="header" class="flex flex-horizontal flex-vertical-center header">
-                        <paper-icon-button icon="app:back" on-tap="displayListView" title="Torna alla lista dei match"></paper-icon-button>
-                        <div>Modifica match</div>
-                    </div>
-                </soccer-view-upsert>
+            <div>
+                scorboard
             </div>
         </iron-pages>
+
     </template>
     <script>
         class ModuleSoccerIndex extends Polymer.Element {
@@ -57,16 +78,21 @@
                     selected: {
                         type: Number,
                         value: 0
-                    }
+                    },
+
+                    viewSelected: {
+                        type: Number,
+                        value: 0
+                    },
                 }
             }
 
             displayAddView() {
-                this.selected = 1;
+                this.viewSelected = 1;
             }
 
             displayListView() {
-                this.selected = 0;
+                this.viewSelected = 0;
             }
         }
 

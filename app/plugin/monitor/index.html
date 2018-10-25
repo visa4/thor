@@ -24,7 +24,6 @@
       :host {
         display: flex;
         flex-direction: column;
-        padding: 16px;
       }
 
       .title {
@@ -46,6 +45,7 @@
 
       paper-tabs {
         max-width: 400px;
+        margin: 16px 16px 0 16px;
       }
 
       .debug {
@@ -60,8 +60,8 @@
     </style>
 
     <paper-tabs selected="{{selected}}" tabindex="0">
-      <paper-tab>Configurations</paper-tab>
-      <paper-tab>Current Topology</paper-tab>
+      <paper-tab>Manage data</paper-tab>
+      <paper-tab>Topology</paper-tab>
     </paper-tabs>
 
     <iron-pages id="ironPages" selected="{{selected}}">
