@@ -1,0 +1,88 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="scoreboard-player.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+
+<dom-module id="soccer-scoreboard-wc">
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
+
+            .padding-left-6 {
+                padding-left: 4px;
+            }
+
+            .padding-right-6 {
+                padding-right: 6px;
+            }
+
+
+            .debug1 {
+                background-color: red;
+            }
+            .debug2 {
+                background-color: blue;
+            }
+        </style>
+
+        <div class="flex flex-horizontal">
+            <div class="home flex-basis-50 flex flex-horizontal padding-right-6" style="height: 400px;">
+                <div class="flex-basis-30 debug1"></div>
+                <div class="flex-basis-70 debug2">
+                    <div class="flex flex-horizontal-end">{{match.homeTeam.name}}</div>
+                </div>
+
+            </div>
+            <div class="guest flex-basis-50 flex flex-horizontal padding-left-6" style="height: 400px;">
+                <div class="flex-basis-70 debug1">
+                    <div>{{match.guestTeam.name}}</div>
+                </div>
+                <div class="flex-basis-30 debug2">
+                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player">
+                        <soccer-scoreboar-player-wc player="{{player}}"></soccer-scoreboar-player-wc>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </template>
+
+    <script>
+        class ElementSoccerScoreboard extends Polymer.Element {
+
+            static get is() {
+                return 'soccer-scoreboard-wc';
+            }
+
+            static get properties() {
+                return {
+
+                    match: {
+                        type: new MatchSoccer(),
+                        notify:true
+                    }
+                };
+            }
+
+            ready() {
+                super.ready();
+
+                this.match = serviceManager.get('SoccerService').getCurrentMatch();
+                serviceManager.get('SoccerService').eventManager.on(SoccerService.UPDATE_CURRENT_MATCH, this._updateMatch.bind(this))
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _updateMatch(evt) {
+
+                this.match = evt.data;
+            }
+        }
+
+        window.customElements.define(ElementSoccerScoreboard.is, ElementSoccerScoreboard);
+    </script>
+</dom-module>

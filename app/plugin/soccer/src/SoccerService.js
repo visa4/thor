@@ -3,6 +3,8 @@
  */
 class SoccerService {
 
+    static get UPDATE_CURRENT_MATCH() { return 'update-current-match' };
+
     constructor(storage) {
 
         /**
@@ -25,9 +27,13 @@ class SoccerService {
                     break;
                 case 1:
                     this.match = enableMatchs[0];
+                    this.match.guestTeam.getPlayers({sort:'position'});
+                    this.match.homeTeam.getPlayers({sort:'position'});
                     break;
             }
         });
+
+        this.eventManager = new EvtManager();
     }
 
     /**
@@ -41,6 +47,16 @@ class SoccerService {
         }
 
         this.match = evt.data;
+        this.match.guestTeam.getPlayers({sort:'position'});
+        this.match.homeTeam.getPlayers({sort:'position'});
+        this.eventManager.fire(SoccerService.UPDATE_CURRENT_MATCH, this.match);
+    }
+
+    /**
+     * @returns {MatchSoccer}
+     */
+    getCurrentMatch() {
+        return this.match;
     }
 }
 

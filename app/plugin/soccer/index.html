@@ -8,6 +8,7 @@
 <link rel="import" href="../../css/global-styles.html">
 <link rel="import" href="element/view/list.html">
 <link rel="import" href="element/view/upsert.html">
+<link rel="import" href="element/scoreboard/scoreboard.html">
 
 <dom-module id="soccer-index">
     <template>
@@ -31,9 +32,9 @@
         </paper-tabs>
         <iron-pages id="ironPages" selected="{{selected}}">
             <div>
-                <iron-pages id="ironPagesView" selected="{{selected}}">
+                <iron-pages id="ironPagesView" selected="{{viewSelected}}">
                     <div id="list">
-                        <soccer-view-list selected="{{selected}}" resource-selected="{{match}}">
+                        <soccer-view-list selected="{{viewSelected}}" resource-selected="{{match}}">
                             <div slot="header"
                                  class="flex flex-horizontal flex-center flex-horizontal-space-between header">
                                 <div>Lista match</div>
@@ -60,7 +61,7 @@
                 </iron-pages>
             </div>
             <div>
-                scorboard
+                <soccer-scoreboard-wc></soccer-scoreboard-wc>
             </div>
         </iron-pages>
 
@@ -77,7 +78,7 @@
 
                     selected: {
                         type: Number,
-                        value: 0
+                        value: 1
                     },
 
                     viewSelected: {

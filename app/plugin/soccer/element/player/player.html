@@ -100,7 +100,7 @@
                                 <paper-input value="{{player.shirtName}}" label="Shirt name" class="padding-right-6"></paper-input>
                                 <paper-dropdown-menu id="position" label="Position">
                                     <paper-listbox id="listBoxPosition" slot="dropdown-content" class="dropdown-content" on-iron-select="_positionSelected">
-                                        <template is="dom-repeat" items="[[listPosition]]" as="positionObj">
+                                        <template is="ùdom-repeat" items="[[listPosition]]" as="positionObj">
                                             <paper-item value="{{positionObj.key}}">{{positionObj.value}}</paper-item>
                                         </template>
                                     </paper-listbox>

@@ -9,6 +9,14 @@ catch(err) {
 
 class PlayerSoccer extends Player {
 
+    static get POSITION_GAOLKEEPER() { return 'portiere'};
+
+    static get POSITION_DEFENDER() { return 'difensore'};
+
+    static get POSITION_MIDFIELDER() { return 'centrocampista'};
+
+    static get POSITION_STRIKER() { return 'attaccante'};
+
     constructor() {
         super();
 

@@ -59,7 +59,7 @@
                 <form method="post">
                     <div style="display: flex;">
                         <div style="flex-basis: 50%; padding-right: 8px;">
-                            <div><paper-input type="date" value="{{resource.date}}" label="Date"></paper-input></div>
+                            <div><paper-input type="date" value="{{resource.date}}" label="Date" tabindex="1"></paper-input></div>
                             <div hidden$="[[hasHomeTeam]]">
                                 <paper-autocomplete
                                         id="homeTeam"
@@ -110,7 +110,7 @@
                             </div>
                         </div>
                         <div style="flex-basis: 50%;">
-                            <div><paper-input type="time" value="{{resource.time}}" label="Time"></paper-input></div>
+                            <div><paper-input type="time" tabindex="2" value="{{resource.time}}" label="Time"></paper-input></div>
                             <div hidden$="[[hasGuestTeam]]">
                                 <paper-autocomplete
                                         id="guestTeam"
