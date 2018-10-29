@@ -13,6 +13,13 @@
         <style include="global-style"></style>
         <style>
 
+            soccer-scoreboar-match-result-wc {
+                --soccer-scoreboar-match-result-data: {
+                    font-size: 30px;
+                    height: 46px;
+                }
+            }
+
             .padding-left-6 {
                 padding-left: 4px;
             }
@@ -23,6 +30,13 @@
 
             .team-title {
                 font-size: 24px;
+            }
+
+            .teamRose {
+                font-size: 20px;
+                text-align: center;
+                height: 40px;
+                margin-bottom: 6px;
             }
 
             .debug1 {
@@ -36,35 +50,41 @@
         <div class="flex flex-horizontal">
             <div class="home flex-basis-50 flex flex-horizontal padding-right-6">
                 <div class="flex-basis-30">
-                    <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isBenchPlayer" home>
-                        <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
-                    </template>
+                    <div class="teamRose">Rosa</div>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isRostrumPlayer" home>
-                        <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" home></soccer-scoreboar-player-wc>
                     </template>
                 </div>
                 <div class="flex-basis-70 padding-left-6">
                     <soccer-scoreboar-match-result-wc team="{{match.homeTeam}}" left></soccer-scoreboar-match-result-wc>
+                    <div class="teamRose">Titolari</div>
                     <div>
-                        <template id="homeHolderPlayers" is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
-                            <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                        <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
+                            <soccer-scoreboar-player-wc player="{{player}}" home left></soccer-scoreboar-player-wc>
                         </template>
                     </div>
+                    <div class="teamRose">Panchina</div>
+                    <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isBenchPlayer" home>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" home left></soccer-scoreboar-player-wc>
+                    </template>
                 </div>
             </div>
             <div class="guest flex-basis-50 flex flex-horizontal padding-left-6">
                 <div class="flex-basis-70 padding-right-6">
                     <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}"></soccer-scoreboar-match-result-wc>
-                    <template id="guestHolderPlayers" is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" guest>
+                    <div class="teamRose">Titolari</div>
+                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isHolderPlayer" guest>
                         <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                    </template>
+                    <div class="teamRose">Panchina</div>
+                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest></soccer-scoreboar-player-wc>
                     </template>
                 </div>
                 <div class="flex-basis-30">
-                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
-                        <soccer-scoreboar-player-wc player="{{player}}" guest></soccer-scoreboar-player-wc>
-                    </template>
+                    <div class="teamRose">Rosa</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isRostrumPlayer" guest>
-                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest></soccer-scoreboar-player-wc>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest left></soccer-scoreboar-player-wc>
                     </template>
                 </div>
             </div>
@@ -140,17 +160,31 @@
                         this.match[team].setStatusPlayer(evt.detail.id, PlayerSoccer.STATUS_BENCH);
                         break;
                     case PlayerSoccer.STATUS_BENCH:
-                        this.$.status.icon = 'soccer:holder';
+                        this.match[team].setStatusPlayer(evt.detail.id, PlayerSoccer.STATUS_HOLDER);
                         break;
                     case PlayerSoccer.STATUS_HOLDER:
-                        this.$.status.icon = 'soccer:rostrum';
+                        this.match[team].setStatusPlayer(evt.detail.id, PlayerSoccer.STATUS_ROSTRUM);
                         break;
                 }
+
+                this._renderData(team === 'homeTeam' ? 'home' : 'guest');
             }
 
             _renderData(type) {
 
-                console.log('testtttttttt');
+                let listDomRepeat = [];
+                switch (type) {
+                    case 'home':
+                        listDomRepeat = this.shadowRoot.querySelectorAll('dom-repeat[home]');
+                        break;
+                    case 'guest':
+                        listDomRepeat = this.shadowRoot.querySelectorAll('dom-repeat[guest]');
+                        break;
+                }
+
+                for (let cont = 0; listDomRepeat.length > cont; cont++) {
+                    listDomRepeat[cont].render();
+                }
             }
         }
 

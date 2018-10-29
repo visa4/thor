@@ -33,7 +33,7 @@ class TeamSoccer extends Team {
 
 
         if (status === PlayerSoccer.STATUS_HOLDER) {
-            if(this.countPlayer(PlayerSoccer.STATUS_HOLDER) < TeamSoccer.NUMBER_HOLDER) {
+            if(this.countPlayer({status:PlayerSoccer.STATUS_HOLDER}) < TeamSoccer.NUMBER_HOLDER) {
 
                 if (searchPlayer) {
                     player = searchPlayer;
@@ -53,16 +53,16 @@ class TeamSoccer extends Team {
      */
     countPlayer(options) {
         let count = 0;
-        for (let cont = 0; this.players.length < cont; cont++) {
+        for (let cont = 0; this.players.length > cont; cont++) {
             switch (true) {
-                case typeof options === 'object' && options.status === PlayerSoccer.STATUS_HOLDER:
+                case typeof options === 'object' && options.status === PlayerSoccer.STATUS_HOLDER && this.players[cont].status === PlayerSoccer.STATUS_HOLDER :
+                    console.log('suca', this.players[cont].status);
                     count++;
                     break;
                     // TODO other count
-                default:
+                case typeof options === 'undefined':
                     count++;
             }
-            count =+ this.players[count].status === PlayerSoccer.STATUS_HOLDER ? 1 : 0;
         }
 
         return count;

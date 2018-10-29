@@ -14,12 +14,16 @@
                 padding-right: 6px;
             }
 
+            .custom-style {
+
+                @apply --soccer-scoreboar-match-result-data;
+            }
+
             .left {
                 flex-direction: row-reverse;
-                align-items: flex-end;
             }
         </style>
-        <div id="data" class="flex flex-horizontal">
+        <div id="data" class="flex flex-horizontal custom-style">
             <div>{{team.name}}</div>
             <div class="result">{{result}}</div>
         </div>

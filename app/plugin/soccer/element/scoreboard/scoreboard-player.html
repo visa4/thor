@@ -83,19 +83,42 @@
                 opacity: 0.5;
             }
 
+            .number {
+                padding-right: 6px;
+                padding-left: 6px;
+            }
+
             paper-dropdown-menu {
                 top: -2px;
+            }
+
+            .reverse {
+                flex-direction: row-reverse;
+            }
+
+            .flex-end {
+                align-items: flex-end;
+
             }
 
         </style>
         <paper-card id="design">
             <div id="card-container" class="card-content flex flex-horizontal">
-                <div class="data flex-basis-85 flex flex-vertical">
-                    <div class="dataWrapper">
-                        <div>{{player.shirtNumber}} {{player.shirtName}} {{player.surname}}</div>
+                <div id="player-data" class="data flex-basis-85 flex flex-vertical">
+                    <div id="metadata" class="dataWrapper flex flex-horizontal">
+                        <div class="number">{{player.shirtNumber}}</div>
+                        <div>{{player.shirtName}} {{player.surname}}</div>
                     </div>
                 </div>
-                <div class="data flex-basis-15 flex flex-vertical">
+                <div id="action" class="data flex-basis-15 flex flex-horizontal-end">
+                    <template is="dom-if" if="{{_canGoal()}}">
+                        <paper-icon-button id="goal" icon="soccer:ball" title="Assegna un goal (fake)"></paper-icon-button>
+                    </template>
+                    <template is="dom-if" if="{{_canCard()}}">
+                        <paper-icon-button id="yellow-card" icon="soccer:yellow-card" title="Giallo (fake)"></paper-icon-button>
+                        <paper-icon-button id="double-yellow-card" icon="soccer:double-yellow-card"  title="Doppio giallo (fake)"></paper-icon-button>
+                        <paper-icon-button id="red-card" icon="soccer:red-card" title="Rosso (fake)"></paper-icon-button>
+                    </template>
                     <paper-icon-button id="status" icon="soccer:rostrum" on-tap="changeStatus"></paper-icon-button>
                 </div>
             </div>
@@ -115,8 +138,20 @@
                     player: {
                         type: new PlayerSoccer(),
                         notify:true
+                    },
+
+                    left: {
+                        type: Boolean,
+                        value: false,
+                        observer: '_leftChanged'
                     }
                 };
+            }
+
+            static get observers() {
+                return [
+                    '_changeStatus(player.status)'
+                ]
             }
 
             /**
@@ -126,22 +161,74 @@
                 this.dispatchEvent(new CustomEvent('wrap-change-status', {detail: this.player}));
             }
 
-            _chagePlayer(newValue) {
-                if (!newValue) {
+            _changeStatus(status) {
+
+                if (!status) {
                     return;
                 }
 
-                switch (newValue.status) {
+                switch (status) {
                     case PlayerSoccer.STATUS_ROSTRUM:
-                        this.$.status.icon = 'soccer:bench-left';
+                        this.$.status.icon = 'soccer:holder';
+                        this.$.status.title = 'Sposta nei giocatori in panchina';
                         break;
                     case PlayerSoccer.STATUS_BENCH:
-                        this.$.status.icon = 'soccer:holder';
+                        this.$.status.icon = 'soccer:bench-left';
+                        this.$.status.title = 'Sposta nei giocatori titolari';
+                        this.$['player-data'].classList.remove("flex-basis-85");
+                        this.$['player-data'].classList.add("flex-basis-70");
+                        this.$['action'].classList.remove("flex-basis-15");
+                        this.$['action'].classList.add("flex-basis-30");
                         break;
                     case PlayerSoccer.STATUS_HOLDER:
                         this.$.status.icon = 'soccer:rostrum';
+                        this.$.status.title = 'Sposta nei giocatori in rosa';
+                        this.$['player-data'].classList.remove("flex-basis-85");
+                        this.$['player-data'].classList.add("flex-basis-70");
+                        this.$['action'].classList.remove("flex-basis-15");
+                        this.$['action'].classList.add("flex-basis-30");
                         break;
                 }
+            }
+
+            /**
+             * @param newValue
+             * @private
+             */
+            _leftChanged(newValue) {
+
+                if (newValue === true) {
+                    this.$['card-container'].classList.add("reverse");
+                    this.$['player-data'].classList.add("flex-end");
+                    this.$.metadata.classList.add("reverse");
+                    this.$.action.classList.remove("flex-horizontal-end");
+                    this.$.action.classList.add("reverse");
+                }
+
+                if (newValue === false) {
+                    this.$['card-container'].classList.remove("reverse");
+                    this.$['player-data'].classList.remove("flex-end");
+                    this.$.metadata.classList.remove("reverse");
+                    this.$.action.classList.add("flex-horizontal-end");
+                    this.$.action.classList.remove("reverse");
+
+                }
+            }
+
+            /**
+             * @returns {boolean}
+             * @private
+             */
+            _canGoal() {
+                return this.player.status === PlayerSoccer.STATUS_HOLDER;
+            }
+
+            /**
+             * @returns {boolean}
+             * @private
+             */
+            _canCard() {
+                return this.player.status === PlayerSoccer.STATUS_HOLDER || this.player.status === PlayerSoccer.STATUS_BENCH;
             }
         }
 
