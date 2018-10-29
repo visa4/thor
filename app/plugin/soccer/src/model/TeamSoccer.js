@@ -9,8 +9,63 @@ catch(err) {
 
 class TeamSoccer extends Team {
 
+    static get NUMBER_HOLDER() { return 11; };
+
     constructor() {
         super();
+    }
+
+    /**
+     * @param playerId
+     * @param status
+     * @return {PlayerSoccer}|null
+     */
+    setStatusPlayer(playerId, status) {
+
+        let player = null;
+        let searchPlayer = this.players.find((ele) => {
+            return ele.id === playerId;
+        });
+
+        if (!searchPlayer) {
+            return player;
+        }
+
+
+        if (status === PlayerSoccer.STATUS_HOLDER) {
+            if(this.countPlayer(PlayerSoccer.STATUS_HOLDER) < TeamSoccer.NUMBER_HOLDER) {
+
+                if (searchPlayer) {
+                    player = searchPlayer;
+                    player.status = status;
+                }
+            }
+        } else {
+            player = searchPlayer;
+            player.status = status;
+        }
+
+        return player;
+    }
+
+    /**
+     * @return {number}
+     */
+    countPlayer(options) {
+        let count = 0;
+        for (let cont = 0; this.players.length < cont; cont++) {
+            switch (true) {
+                case typeof options === 'object' && options.status === PlayerSoccer.STATUS_HOLDER:
+                    count++;
+                    break;
+                    // TODO other count
+                default:
+                    count++;
+            }
+            count =+ this.players[count].status === PlayerSoccer.STATUS_HOLDER ? 1 : 0;
+        }
+
+        return count;
     }
 
     getPlayers(options) {
@@ -63,6 +118,13 @@ class TeamSoccer extends Team {
         }
 
         return super.getPlayers();
+    }
+
+    /**
+     * @return {number}
+     */
+    getResult() {
+        return 0;
     }
 }
 

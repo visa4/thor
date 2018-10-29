@@ -110,7 +110,7 @@ class SoccerConfig extends PluginConfig {
                         {
                             "name": SoccerConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "place", "date", "homeTeam", "guestTeam", "enable"
+                                "++id", "place", "date", "homeTeam", "guestTeam", "enable", "status"
                             ]
                         }
                     );
@@ -166,7 +166,8 @@ class SoccerConfig extends PluginConfig {
             .enableExtractProperty('shirtNumber')
             .enableExtractProperty('position')
             .enableExtractProperty('nationality')
-            .enableExtractProperty('goals');
+            .enableExtractProperty('goals')
+            .enableExtractProperty('status');
 
         hydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
@@ -175,7 +176,9 @@ class SoccerConfig extends PluginConfig {
             .enableHydrateProperty('position')
             .enableHydrateProperty('shirtNumber')
             .enableHydrateProperty('nationality')
-            .enableHydrateProperty('goals');
+            .enableHydrateProperty('goals')
+            .enableHydrateProperty('status')
+        ;
 
         this.serviceManager.get('HydratorPluginManager').set(
             'playerSoccerHydrator',
@@ -188,12 +191,13 @@ class SoccerConfig extends PluginConfig {
                 shirtNumber: new NumberStrategy(),
             },
             {
+                identifier : 'id',
                 number: "shirtNumber",
                 fullname: "surname"
             }
         );
 
-        hydrator.enableExtractProperty('id')
+        hydrator.enableExtractProperty('identifier')
             .enableExtractProperty('name')
             .enableExtractProperty('surname')
             .enableExtractProperty('shirtName')
@@ -202,7 +206,7 @@ class SoccerConfig extends PluginConfig {
             .enableExtractProperty('nationality')
             .enableExtractProperty('goals');
 
-        hydrator.enableHydrateProperty('id')
+        hydrator.enableHydrateProperty('identifier')
             .enableHydrateProperty('name')
             .enableHydrateProperty('fullname')
             .enableHydrateProperty('shirtName')

@@ -163,7 +163,7 @@
                     </div>
 
                     <div class="flex flex-horizontal-end">
-                        <paper-button on-tap="submitResourceButton">Save</paper-button>
+                        <paper-button on-tap="submitResourceButton">{{labelAction}}</paper-button>
                     </div>
                 </form>
             </iron-form>
@@ -205,7 +205,7 @@
                         type: Boolean,
                         notify: true,
                         value: false
-                    },
+                    }
                 }
             }
 
@@ -228,6 +228,8 @@
 
                 this.hasHomeTeam = newValue.hasHomeTeam();
                 this.hasGuestTeam = newValue.hasGuestTeam();
+
+                this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
             }
 
             /**

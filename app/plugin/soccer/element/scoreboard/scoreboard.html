@@ -1,6 +1,8 @@
 <link rel="import" href="../../../../bower_components/polymer/polymer.html">
 
 <link rel="import" href="scoreboard-player.html">
+<link rel="import" href="scoreboard-match-result.html">
+<link rel="import" href="../iconset/iconset.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -19,6 +21,9 @@
                 padding-right: 6px;
             }
 
+            .team-title {
+                font-size: 24px;
+            }
 
             .debug1 {
                 background-color: red;
@@ -29,20 +34,37 @@
         </style>
 
         <div class="flex flex-horizontal">
-            <div class="home flex-basis-50 flex flex-horizontal padding-right-6" style="height: 400px;">
-                <div class="flex-basis-30 debug1"></div>
-                <div class="flex-basis-70 debug2">
-                    <div class="flex flex-horizontal-end">{{match.homeTeam.name}}</div>
+            <div class="home flex-basis-50 flex flex-horizontal padding-right-6">
+                <div class="flex-basis-30">
+                    <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isBenchPlayer" home>
+                        <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                    </template>
+                    <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isRostrumPlayer" home>
+                        <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                    </template>
                 </div>
-
+                <div class="flex-basis-70 padding-left-6">
+                    <soccer-scoreboar-match-result-wc team="{{match.homeTeam}}" left></soccer-scoreboar-match-result-wc>
+                    <div>
+                        <template id="homeHolderPlayers" is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
+                            <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                        </template>
+                    </div>
+                </div>
             </div>
-            <div class="guest flex-basis-50 flex flex-horizontal padding-left-6" style="height: 400px;">
-                <div class="flex-basis-70 debug1">
-                    <div>{{match.guestTeam.name}}</div>
+            <div class="guest flex-basis-50 flex flex-horizontal padding-left-6">
+                <div class="flex-basis-70 padding-right-6">
+                    <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}"></soccer-scoreboar-match-result-wc>
+                    <template id="guestHolderPlayers" is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" guest>
+                        <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                    </template>
                 </div>
-                <div class="flex-basis-30 debug2">
-                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player">
-                        <soccer-scoreboar-player-wc player="{{player}}"></soccer-scoreboar-player-wc>
+                <div class="flex-basis-30">
+                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
+                        <soccer-scoreboar-player-wc player="{{player}}" guest></soccer-scoreboar-player-wc>
+                    </template>
+                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isRostrumPlayer" guest>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest></soccer-scoreboar-player-wc>
                     </template>
                 </div>
             </div>
@@ -80,6 +102,55 @@
             _updateMatch(evt) {
 
                 this.match = evt.data;
+            }
+
+            /**
+             * @param {PlayerSoccer} player
+             * @private
+             */
+            _isHolderPlayer(player) {
+                return player.status === PlayerSoccer.STATUS_HOLDER;
+            }
+
+            /**
+             * @param {PlayerSoccer} player
+             * @private
+             */
+            _isBenchPlayer(player) {
+                return player.status === PlayerSoccer.STATUS_BENCH;
+            }
+
+            /**
+             * @param {PlayerSoccer} player
+             * @private
+             */
+            _isRostrumPlayer(player) {
+                return player.status === PlayerSoccer.STATUS_ROSTRUM;
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _changeStatus(evt) {
+
+                let team = evt.target.getAttribute('guest') === "" ? 'guestTeam' : 'homeTeam';
+                switch (evt.detail.status) {
+                    case PlayerSoccer.STATUS_ROSTRUM:
+                        this.match[team].setStatusPlayer(evt.detail.id, PlayerSoccer.STATUS_BENCH);
+                        break;
+                    case PlayerSoccer.STATUS_BENCH:
+                        this.$.status.icon = 'soccer:holder';
+                        break;
+                    case PlayerSoccer.STATUS_HOLDER:
+                        this.$.status.icon = 'soccer:rostrum';
+                        break;
+                }
+            }
+
+            _renderData(type) {
+
+                console.log('testtttttttt');
             }
         }
 

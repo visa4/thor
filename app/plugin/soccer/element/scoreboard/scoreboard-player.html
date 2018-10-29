@@ -19,17 +19,16 @@
             .card-actions {
                 padding: 0;
                 min-height: initial !important;
-                background-color: #0b97c4;
+                min-width: inherit !important;
+                margin-left: 0 !important;
             }
 
             paper-card {
                 width: 100%;
                 min-height: initial;
+                min-width: inherit;
             }
 
-            .small {
-                min-height: initial !important;
-            }
 
             .data {
                 overflow: hidden;
@@ -37,6 +36,10 @@
 
             .dataWrapper {
                 margin: 6px;
+            }
+
+            #card-container {
+                padding-right: 8px;
             }
 
             paper-menu-button {
@@ -80,10 +83,6 @@
                 opacity: 0.5;
             }
 
-            #rightSection {
-                background-image: url("img/player.jpg") !important;
-            }
-
             paper-dropdown-menu {
                 top: -2px;
             }
@@ -93,12 +92,13 @@
             <div id="card-container" class="card-content flex flex-horizontal">
                 <div class="data flex-basis-85 flex flex-vertical">
                     <div class="dataWrapper">
-                        <div>{{player.name}} {{player.surname}}</div>
-                        <div>{{player.shirtNumber}} {{player.shirtName}} {{player.position}}</div>
+                        <div>{{player.shirtNumber}} {{player.shirtName}} {{player.surname}}</div>
                     </div>
                 </div>
+                <div class="data flex-basis-15 flex flex-vertical">
+                    <paper-icon-button id="status" icon="soccer:rostrum" on-tap="changeStatus"></paper-icon-button>
+                </div>
             </div>
-            <div id="rightSection" class="rate-image"></div>
         </paper-card>
     </template>
 
@@ -115,14 +115,33 @@
                     player: {
                         type: new PlayerSoccer(),
                         notify:true
-                    },
-
-                    small: {
-                        type: Boolean,
-                        value: true,
-                        observer: '_smallChanged'
                     }
                 };
+            }
+
+            /**
+             * @param evt
+             */
+            changeStatus(evt) {
+                this.dispatchEvent(new CustomEvent('wrap-change-status', {detail: this.player}));
+            }
+
+            _chagePlayer(newValue) {
+                if (!newValue) {
+                    return;
+                }
+
+                switch (newValue.status) {
+                    case PlayerSoccer.STATUS_ROSTRUM:
+                        this.$.status.icon = 'soccer:bench-left';
+                        break;
+                    case PlayerSoccer.STATUS_BENCH:
+                        this.$.status.icon = 'soccer:holder';
+                        break;
+                    case PlayerSoccer.STATUS_HOLDER:
+                        this.$.status.icon = 'soccer:rostrum';
+                        break;
+                }
             }
         }
 

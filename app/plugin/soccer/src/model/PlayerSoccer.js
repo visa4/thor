@@ -9,13 +9,19 @@ catch(err) {
 
 class PlayerSoccer extends Player {
 
-    static get POSITION_GAOLKEEPER() { return 'portiere'};
+    static get POSITION_GAOLKEEPER() { return 'portiere'; };
 
-    static get POSITION_DEFENDER() { return 'difensore'};
+    static get POSITION_DEFENDER() { return 'difensore'; };
 
-    static get POSITION_MIDFIELDER() { return 'centrocampista'};
+    static get POSITION_MIDFIELDER() { return 'centrocampista'; };
 
-    static get POSITION_STRIKER() { return 'attaccante'};
+    static get POSITION_STRIKER() { return 'attaccante'; };
+
+    static get STATUS_ROSTRUM() { return 'rostrum'; };
+
+    static get STATUS_BENCH() { return 'bench'; };
+
+    static get STATUS_HOLDER() { return 'holder'; };
 
     constructor() {
         super();
@@ -39,6 +45,12 @@ class PlayerSoccer extends Player {
          * @type {Array}
          */
         this.goals = [];
+
+        /**
+         * @type {String}
+         */
+        this.status = PlayerSoccer.STATUS_ROSTRUM;
+
     }
 }
 
