@@ -1,0 +1,191 @@
+<link rel="import" href="../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/neon-animation/neon-animation.html">
+
+<link rel="import" href="../../../../css/global-layout.html">
+<link rel="import" href="../../../../css/global-styles.html">
+<link rel="import" href="../../../../element/iconset/iconset.html">
+
+<dom-module id="soccer-scoreboar-bench-wc">
+    <template>
+        <style include="global-layout"></style>
+        <style include="global-style"></style>
+        <style>
+
+            .card-content,
+            .card-actions {
+                padding: 0;
+                min-height: initial !important;
+                min-width: inherit !important;
+                margin-left: 0 !important;
+            }
+
+            paper-card {
+                width: 100%;
+                min-height: initial;
+                min-width: inherit;
+            }
+
+            .data {
+                overflow: hidden;
+            }
+
+            .dataWrapper {
+                margin: 6px;
+            }
+
+            #card-container {
+                padding-right: 8px;
+            }
+
+            paper-menu-button {
+                padding: 0;
+            }
+
+            paper-listbox {
+                min-width: 0;
+            }
+
+
+            paper-icon-button[aria-disabled="true"].action {
+                background-color: grey;
+                opacity: 0.5;
+            }
+
+            .number {
+                padding-right: 6px;
+                padding-left: 6px;
+            }
+
+            paper-dropdown-menu {
+                top: -2px;
+            }
+
+            .reverse {
+                flex-direction: row-reverse;
+            }
+
+            .flex-end {
+                align-items: flex-end;
+
+            }
+
+            #card {
+                margin: 0;
+                margin-top: 18px;
+                width: 150px;
+                height: 220px;
+            }
+
+            #card .button {
+                background-color: black;
+                color: white;
+                width: 100px;
+                min-width: 100px;
+                height: 40px;
+            }
+
+            .dialog-content {
+                height: 100%;
+                margin: 0;
+            }
+
+
+        </style>
+        <paper-card id="design">
+            <div id="card-container" class="card-content flex flex-horizontal">
+                <div id="player-data" class="data flex-basis-85 flex flex-vertical">
+                    <div id="metadata" class="dataWrapper flex flex-horizontal">
+                        <div class="number">{{player.shirtNumber}}</div>
+                        <div>{{player.shirtName}} {{player.surname}}</div>
+                    </div>
+                </div>
+                <div id="action" class="data flex-basis-15 flex flex-horizontal-end">
+                </div>
+            </div>
+        </paper-card>
+        <paper-dialog id="card" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+            <iron-form id="cardForm" style="height: 100%; margin: 0;">
+                <form method="post" style="height: 100%; margin: 0;">
+                    <div class="dialog-content flex flex-vertical">
+                        <div class="flex-basis-77">
+                            <paper-input id="time" label="Time" type="number" required></paper-input>
+                        </div>
+                        <div class="flex-basis-23 flex flex-horizontal-center">
+                            <paper-button class="button" on-tap="submitCardButton">{{labelCard}}</paper-button>
+                        </div>
+                    </div>
+                </form>
+            </iron-form>
+        </paper-dialog>
+    </template>
+
+    <script>
+        class ElementSoccerScoreboardBench extends Polymer.Element {
+
+            static get is() {
+                return 'soccer-scoreboar-bench-wc';
+            }
+
+            static get properties() {
+                return {
+
+                    player: {
+                        type: new PlayerSoccer(),
+                        notify:true
+                    },
+
+                    left: {
+                        type: Boolean,
+                        value: false,
+                        observer: '_leftChanged'
+                    },
+
+                    labelCard: {
+                        type: String,
+                        notify:true
+                    }
+                };
+            }
+
+            ready() {
+                super.ready();
+
+                this.$.cardForm.addEventListener('iron-form-presubmit', this.submitCard.bind(this));
+            }
+
+            /**
+             * @param evt
+             */
+            submitCardButton(evt) {
+                this.$.cardForm.submit();
+            }
+
+            /**
+             * @param evt
+             */
+            submitCard(evt) {
+                evt.preventDefault();
+                let type = this.$.card.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED;
+                let card = new Card(type, this.$.time.value);
+                this.player.addCard(card);
+
+                this.dispatchEvent(new CustomEvent('wrap-add-card', {detail: {player : this.player, card : card}}));
+                this.notifyPath('player.cards');
+
+                this.$.cardForm.reset();
+                this.$.card.close();
+            }
+        }
+
+        window.customElements.define(ElementSoccerScoreboardBench.is, ElementSoccerScoreboardBench);
+
+    </script>
+</dom-module>

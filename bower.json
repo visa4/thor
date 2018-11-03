@@ -1,5 +1,5 @@
 {
-  "name": "Thor",
+  "name": "thor",
   "authors": [
     "Thor"
   ],
@@ -13,6 +13,8 @@
     "paper-input": "PolymerElements/paper-input#2.2.0",
     "iron-validator-behavior": "PolymerElements/iron-validator-behavior#2.1.0",
 
+    "polymer": "polymer/polymer#^2.6.0",
+
     "paper-card": "PolymerElements/paper-card#^2.0.0",
     "paper-radio-button": "PolymerElements/paper-radio-button#^2.0.0",
     "paper-tabs": "PolymerElements/paper-tabs#^2.0.0",
@@ -25,6 +27,8 @@
     "paper-slider" : "git@github.com:PolymerElements/paper-slider.git#^2.0.7",
     "paper-progress" : "git@github.com:PolymerElements/paper-progress.git#^2.1.1",
     "paper-checkbox" : "git@github.com:PolymerElements/paper-checkbox.git#^2.0.4",
+    "paper-dialog" : "git@github.com:PolymerElements/paper-dialog.git#^2.1.1",
+    "paper-toggle-button" : "git@github.com:PolymerElements/paper-toggle-button.git#^2.1.1",
 
     "iron-flex-layout": "PolymerElements/iron-flex-layout#~2.0.0",
     "iron-form": "PolymerElements/iron-form#^2.0.0",

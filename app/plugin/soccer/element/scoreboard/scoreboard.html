@@ -39,6 +39,10 @@
                 margin-bottom: 6px;
             }
 
+            .margin-bottom-200 {
+                margin-bottom: 300px;
+            }
+
             .debug1 {
                 background-color: red;
             }
@@ -47,7 +51,7 @@
             }
         </style>
 
-        <div class="flex flex-horizontal">
+        <div class="flex flex-horizontal margin-bottom-200">
             <div class="home flex-basis-50 flex flex-horizontal padding-right-6">
                 <div class="flex-basis-30">
                     <div class="teamRose">Rosa</div>
@@ -60,13 +64,22 @@
                     <div class="teamRose">Titolari</div>
                     <div>
                         <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
-                            <soccer-scoreboar-player-wc player="{{player}}" home left></soccer-scoreboar-player-wc>
+                            <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus"  on-wrap-add-card="_addCard" home left></soccer-scoreboar-player-wc>
                         </template>
                     </div>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isBenchPlayer" home>
-                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" home left></soccer-scoreboar-player-wc>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-statu on-wrap-change-status="_changeStatus"s="_changeStatus" home left></soccer-scoreboar-player-wc>
                     </template>
+                    <div class="flex flex-horizontal">
+                        <div class="flex-basis-50 teamRose">
+                            <div class="teamRose">Cartellini</div>
+                            <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hadCard" home>
+                                <soccer-scoreboar-player-wc player="{{player}}" home left></soccer-scoreboar-player-wc>
+                            </template>
+                        </div>
+                        <div class="flex-basis-50 teamRose">Sostituzioni</div>
+                    </div>
                 </div>
             </div>
             <div class="guest flex-basis-50 flex flex-horizontal padding-left-6">
@@ -74,12 +87,21 @@
                     <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}"></soccer-scoreboar-match-result-wc>
                     <div class="teamRose">Titolari</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isHolderPlayer" guest>
-                        <soccer-scoreboar-player-wc player="{{player}}" home></soccer-scoreboar-player-wc>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_addCard" guest></soccer-scoreboar-player-wc>
                     </template>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
                         <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest></soccer-scoreboar-player-wc>
                     </template>
+                    <div class="flex flex-horizontal">
+                        <div class="flex-basis-50 teamRose">Sostituzioni</div>
+                        <div class="flex-basis-50 teamRose">
+                            <div class="teamRose">Cartellini</div>
+                            <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_hadCard" guest>
+                                <soccer-scoreboar-player-wc player="{{player}}" guest></soccer-scoreboar-player-wc>
+                            </template>
+                        </div>
+                    </div>
                 </div>
                 <div class="flex-basis-30">
                     <div class="teamRose">Rosa</div>
@@ -141,11 +163,26 @@
             }
 
             /**
+             * TODO
+             * @param {PlayerSoccer} item1
+             * @param {PlayerSoccer} item2
+
+            _sortCard(item1, item2) {
+
+            }
+
+             */
+
+            /**
              * @param {PlayerSoccer} player
              * @private
              */
             _isRostrumPlayer(player) {
                 return player.status === PlayerSoccer.STATUS_ROSTRUM;
+            }
+
+            _hadCard(player) {
+                return player.cards.length > 0;
             }
 
             /**
@@ -167,7 +204,29 @@
                         break;
                 }
 
+                this._updateData(team);
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _addCard(evt) {
+                let team = evt.target.getAttribute('guest') === "" ? 'guestTeam' : 'homeTeam';
+                this._updateData(team);
+            }
+
+            /**
+             * @private
+             */
+            _updateData(team) {
+
                 this._renderData(team === 'homeTeam' ? 'home' : 'guest');
+                serviceManager.get('StoragePluginManager')
+                    .get(SoccerConfig.NAME_SERVICE)
+                    .update(this.match)
+                    .then((data)=> {console.log('update')})
+                    .catch((error) => {console.error(error)});
             }
 
             _renderData(type) {

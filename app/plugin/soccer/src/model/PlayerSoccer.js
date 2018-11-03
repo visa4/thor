@@ -47,10 +47,68 @@ class PlayerSoccer extends Player {
         this.goals = [];
 
         /**
+         * @type {Array}
+         */
+        this.cards = [];
+
+        /**
          * @type {String}
          */
         this.status = PlayerSoccer.STATUS_ROSTRUM;
 
+    }
+
+    /**
+     * @param {Card} card
+     */
+    addCard(card) {
+
+        if (this.isExpelled()) {
+            return;
+        }
+
+        this.cards.push(card);
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    hasNoCard() {
+        return this.cards.length === 0;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isWarning() {
+
+        let yellowCount = 0;
+        for (let cont = 0; this.cards.length > cont; cont++) {
+            if (this.cards[cont].type === Card.TYPE_YELLOW ) {
+                yellowCount++;
+            }
+        }
+        return yellowCount === 1;
+    }
+
+    /**
+     * @returns {boolean}
+     */
+    isExpelled() {
+
+
+        let yellowCount = 0;
+        for (let cont = 0; this.cards.length > cont; cont++) {
+            if (this.cards[cont].type === Card.TYPE_YELLOW ) {
+                yellowCount++;
+            }
+        }
+
+        let red = !!this.cards.find((elem) => {
+            return elem.type === Card.TYPE_RED;
+        });
+
+        return red || yellowCount >= 2;
     }
 }
 

@@ -2,8 +2,12 @@
 <link rel="import" href="../../../../bower_components/polymer/lib/elements/dom-if.html">
 <link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/neon-animation/neon-animation.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -29,6 +33,9 @@
                 min-width: inherit;
             }
 
+            .hidden {
+                display: none;
+            }
 
             .data {
                 overflow: hidden;
@@ -101,6 +108,39 @@
 
             }
 
+            #card {
+                margin: 0;
+                margin-top: 18px;
+                width: 150px;
+                height: 220px;
+            }
+
+            #card .button {
+                background-color: black;
+                color: white;
+                width: 100px;
+                min-width: 100px;
+                height: 40px;
+            }
+
+            .dialog-content {
+                height: 100%;
+                margin: 0;
+            }
+
+            paper-icon-button#yellow,
+            paper-icon-button#double-yellow {
+                color: yellow;
+            }
+
+            paper-icon-button#red {
+                color: red;
+            }
+
+            paper-icon-button[aria-disabled="true"] {
+                color: grey !important;
+            }
+
         </style>
         <paper-card id="design">
             <div id="card-container" class="card-content flex flex-horizontal">
@@ -115,14 +155,28 @@
                         <paper-icon-button id="goal" icon="soccer:ball" title="Assegna un goal (fake)"></paper-icon-button>
                     </template>
                     <template is="dom-if" if="{{_canCard()}}">
-                        <paper-icon-button id="yellow-card" icon="soccer:yellow-card" title="Giallo (fake)"></paper-icon-button>
-                        <paper-icon-button id="double-yellow-card" icon="soccer:double-yellow-card"  title="Doppio giallo (fake)"></paper-icon-button>
-                        <paper-icon-button id="red-card" icon="soccer:red-card" title="Rosso (fake)"></paper-icon-button>
+                        <paper-icon-button id="yellow" icon="soccer:yellow-card" title="Giallo" on-tap="tapCard"></paper-icon-button>
+                        <paper-icon-button id="double-yellow" icon="soccer:double-yellow-card"  title="Doppio giallo" on-tap="tapCard"></paper-icon-button>
+                        <paper-icon-button id="red" icon="soccer:red-card" title="Rosso" on-tap="tapCard"></paper-icon-button>
                     </template>
                     <paper-icon-button id="status" icon="soccer:rostrum" on-tap="changeStatus"></paper-icon-button>
                 </div>
             </div>
         </paper-card>
+        <paper-dialog id="card" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+            <iron-form id="cardForm" style="height: 100%; margin: 0;">
+                <form method="post" style="height: 100%; margin: 0;">
+                    <div class="dialog-content flex flex-vertical">
+                        <div class="flex-basis-77">
+                            <paper-input id="time" label="Time" type="number" required></paper-input>
+                        </div>
+                        <div class="flex-basis-23 flex flex-horizontal-center">
+                            <paper-button class="button" on-tap="submitCardButton">{{labelCard}}</paper-button>
+                        </div>
+                    </div>
+                </form>
+            </iron-form>
+        </paper-dialog>
     </template>
 
     <script>
@@ -144,15 +198,28 @@
                         type: Boolean,
                         value: false,
                         observer: '_leftChanged'
+                    },
+
+                    labelCard: {
+                        type: String,
+                        notify:true
                     }
                 };
             }
 
             static get observers() {
                 return [
-                    '_changeStatus(player.status)'
+                    '_changeStatus(player.status)',
+                    '_changeCards(player.cards)'
                 ]
             }
+
+            ready() {
+                super.ready();
+
+                this.$.cardForm.addEventListener('iron-form-presubmit', this.submitCard.bind(this));
+            }
+
 
             /**
              * @param evt
@@ -192,6 +259,93 @@
             }
 
             /**
+             * @param {Array} cards
+             */
+            _changeCards(cards) {
+
+                if(!this._canCard()) {
+                    return;
+                }
+
+                setTimeout(
+                    () => { this._changeVisibilityCard(); },
+                    300
+                );
+            }
+
+            /**
+             *
+             */
+            _changeVisibilityCard() {
+
+                let elements = this.shadowRoot.querySelectorAll('#yellow,#double-yellow,#red');
+                if (!elements) {
+                    return;
+                }
+
+                for (let cont = 0; elements.length > cont; cont++) {
+
+                    switch (true) {
+                        case elements[cont].id === 'yellow':
+                            switch (true) {
+                                case this.player.isExpelled() === true:
+                                    elements[cont].disabled = true;
+                                    if (this.player.isWarning() === true) {
+                                        elements[cont].classList.add('hidden');
+                                    } else {
+                                        elements[cont].classList.remove('hidden');
+                                    }
+                                    break;
+                                case this.player.isWarning() === true:
+                                    elements[cont].classList.add('hidden');
+                                    elements[cont].disabled = true;
+                                    break;
+                                case this.player.hasNoCard() === true:
+                                    elements[cont].classList.remove('hidden');
+                                    elements[cont].disabled = false;
+                                    break;
+                            }
+                            break;
+                        case elements[cont].id === 'double-yellow':
+                            switch (true) {
+                                case this.player.isExpelled() === true:
+                                    elements[cont].disabled = true;
+                                    if (this.player.isWarning() === true) {
+                                        elements[cont].classList.remove('hidden');
+                                    } else {
+                                        elements[cont].classList.add('hidden');
+                                    }
+                                    break;
+                                case this.player.isWarning() === true:
+                                    elements[cont].classList.remove('hidden');
+                                    elements[cont].disabled = false;
+                                    break;
+                                case this.player.hasNoCard() === true:
+                                    elements[cont].classList.add('hidden');
+                                    elements[cont].disabled = true;
+                                    break;
+                            }
+                            break;
+                        case elements[cont].id === 'red':
+                            switch (true) {
+                                case this.player.isExpelled() === true:
+                                    elements[cont].disabled = true;
+                                    break;
+                                case this.player.isWarning() === true:
+                                    elements[cont].classList.remove('hidden');
+                                    elements[cont].disabled = false;
+                                    break;
+                                case this.player.hasNoCard() === true:
+                                    elements[cont].classList.remove('hidden');
+                                    elements[cont].disabled = false;
+                                    break;
+                            }
+                            break;
+                    }
+                }
+            }
+
+            /**
              * @param newValue
              * @private
              */
@@ -201,7 +355,7 @@
                     this.$['card-container'].classList.add("reverse");
                     this.$['player-data'].classList.add("flex-end");
                     this.$.metadata.classList.add("reverse");
-                    this.$.action.classList.remove("flex-horizontal-end");
+                    this.$.action.classList.remove("flex-vertical-end");
                     this.$.action.classList.add("reverse");
                 }
 
@@ -209,7 +363,7 @@
                     this.$['card-container'].classList.remove("reverse");
                     this.$['player-data'].classList.remove("flex-end");
                     this.$.metadata.classList.remove("reverse");
-                    this.$.action.classList.add("flex-horizontal-end");
+                    this.$.action.classList.add("flex-vertical-end");
                     this.$.action.classList.remove("reverse");
 
                 }
@@ -230,7 +384,60 @@
             _canCard() {
                 return this.player.status === PlayerSoccer.STATUS_HOLDER || this.player.status === PlayerSoccer.STATUS_BENCH;
             }
+
+            /**
+             * @param evt
+             */
+            tapCard(evt) {
+
+                if (this.left) {
+                    this.$.card.horizontalAlign = 'right';
+                } else {
+                    this.$.card.horizontalAlign = 'left';
+                }
+
+                switch (evt.target.id) {
+                    case 'yellow':
+                    case 'double-yellow':
+                        this.$.card.style.backgroundColor = 'yellow';
+                        this.labelCard = 'Ammonisci';
+                        this.$.card.card = 'yellow';
+                        break;
+                    case 'red':
+                        this.$.card.style.backgroundColor = 'red';
+                        this.labelCard = 'Espelli';
+                        this.$.card.card = 'red';
+                        break;
+                }
+
+                this.$.card.open();
+            }
+
+            /**
+             * @param evt
+             */
+            submitCardButton(evt) {
+                this.$.cardForm.submit();
+            }
+
+            /**
+             * @param evt
+             */
+            submitCard(evt) {
+                evt.preventDefault();
+                let type = this.$.card.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED;
+                let card = new Card(type, this.$.time.value);
+                this.player.addCard(card);
+
+                this.dispatchEvent(new CustomEvent('wrap-add-card', {detail: {player : this.player, card : card}}));
+                this.notifyPath('player.cards');
+
+                this.$.cardForm.reset();
+                this.$.card.close();
+            }
         }
+
+
 
         window.customElements.define(ElementSoccerScoreboardPlayer.is, ElementSoccerScoreboardPlayer);
 

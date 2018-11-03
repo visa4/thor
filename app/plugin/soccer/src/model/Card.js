@@ -4,13 +4,11 @@ class Card {
 
     static get TYPE_YELLOW() { return 'yellow' };
 
-    static get TYPE_DOUBLE_YELLOW() { return 'double-yellow' };
+    constructor(type = null, time = null) {
 
-    constructor() {
+        this.type = type;
 
-        this.type = Goal.TYPE_YELLOW;
-
-        this.time = null;
+        this.time = time;
     }
 }
 

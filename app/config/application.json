@@ -175,6 +175,7 @@
         "src/model/PlayerSoccer.js",
         "src/model/TeamSoccer.js",
         "src/model/Goal.js",
+        "src/model/Card.js",
         "src/SoccerService.js"
       ]
     }
