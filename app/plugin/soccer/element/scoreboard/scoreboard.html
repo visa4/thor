@@ -2,6 +2,7 @@
 
 <link rel="import" href="scoreboard-player.html">
 <link rel="import" href="scoreboard-match-result.html">
+<link rel="import" href="scoreboard-bench.html">
 <link rel="import" href="../iconset/iconset.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
@@ -60,22 +61,22 @@
                     </template>
                 </div>
                 <div class="flex-basis-70 padding-left-6">
-                    <soccer-scoreboar-match-result-wc team="{{match.homeTeam}}" left></soccer-scoreboar-match-result-wc>
+                    <soccer-scoreboar-match-result-wc team="{{match.homeTeam}}" result="{{homeResult}}" left></soccer-scoreboar-match-result-wc>
                     <div class="teamRose">Titolari</div>
                     <div>
                         <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
-                            <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus"  on-wrap-add-card="_addCard" home left></soccer-scoreboar-player-wc>
+                            <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_updateAndRender" on-wrap-add-goal="_addGoal" home left></soccer-scoreboar-player-wc>
                         </template>
                     </div>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isBenchPlayer" home>
-                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-statu on-wrap-change-status="_changeStatus"s="_changeStatus" home left></soccer-scoreboar-player-wc>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_updateAndRender" home left></soccer-scoreboar-player-wc>
                     </template>
                     <div class="flex flex-horizontal">
                         <div class="flex-basis-50 teamRose">
                             <div class="teamRose">Cartellini</div>
-                            <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hadCard" home>
-                                <soccer-scoreboar-player-wc player="{{player}}" home left></soccer-scoreboar-player-wc>
+                            <template id="teste" is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hadCard" home>
+                                <soccer-scoreboar-bench-wc player="{{player}}" on-wrap-remove-card="_updateAndRender" on-wrap-modify-card="_updateAndRender" home left></soccer-scoreboar-bench-wc>
                             </template>
                         </div>
                         <div class="flex-basis-50 teamRose">Sostituzioni</div>
@@ -84,21 +85,21 @@
             </div>
             <div class="guest flex-basis-50 flex flex-horizontal padding-left-6">
                 <div class="flex-basis-70 padding-right-6">
-                    <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}"></soccer-scoreboar-match-result-wc>
+                    <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}" result="{{guestResult}}"></soccer-scoreboar-match-result-wc>
                     <div class="teamRose">Titolari</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isHolderPlayer" guest>
-                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_addCard" guest></soccer-scoreboar-player-wc>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_updateAndRender" guest></soccer-scoreboar-player-wc>
                     </template>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
-                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest></soccer-scoreboar-player-wc>
+                        <soccer-scoreboar-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_updateAndRender" guest></soccer-scoreboar-player-wc>
                     </template>
                     <div class="flex flex-horizontal">
                         <div class="flex-basis-50 teamRose">Sostituzioni</div>
                         <div class="flex-basis-50 teamRose">
                             <div class="teamRose">Cartellini</div>
                             <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_hadCard" guest>
-                                <soccer-scoreboar-player-wc player="{{player}}" guest></soccer-scoreboar-player-wc>
+                                <soccer-scoreboar-bench-wc player="{{player}}" on-wrap-remove-card="_updateAndRender" on-wrap-modify-card="_updateAndRender" guest></soccer-scoreboar-bench-wc>
                             </template>
                         </div>
                     </div>
@@ -125,6 +126,17 @@
 
                     match: {
                         type: new MatchSoccer(),
+                        notify:true,
+                        observer: '_matchChanged'
+                    },
+
+                    homeResult: {
+                        type: Number,
+                        notify:true
+                    },
+
+                    guestResult: {
+                        type: Number,
                         notify:true
                     }
                 };
@@ -138,12 +150,32 @@
             }
 
             /**
+             * @param {MatchSoccer} newValue
+             */
+            _matchChanged(newValue) {
+                if (!newValue) {
+                    return;
+                }
+
+                this.homeResult = this.match.getHomeResult();
+                this.guestResult = this.match.getGuestResult();
+            }
+
+            /**
              * @param evt
              * @private
              */
             _updateMatch(evt) {
 
                 this.match = evt.data;
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _addGoal(evt) {
+
             }
 
             /**
@@ -211,7 +243,7 @@
              * @param evt
              * @private
              */
-            _addCard(evt) {
+            _updateAndRender(evt) {
                 let team = evt.target.getAttribute('guest') === "" ? 'guestTeam' : 'homeTeam';
                 this._updateData(team);
             }

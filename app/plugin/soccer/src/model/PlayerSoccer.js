@@ -2,26 +2,40 @@ try {
     Player = require('./../../../../lib/sport/model/Player');
 
 }
-catch(err) {
+catch (err) {
     Player = require(__dirname + '/lib/sport/model/Player');
 
 }
 
 class PlayerSoccer extends Player {
 
-    static get POSITION_GAOLKEEPER() { return 'portiere'; };
+    static get POSITION_GAOLKEEPER() {
+        return 'portiere';
+    };
 
-    static get POSITION_DEFENDER() { return 'difensore'; };
+    static get POSITION_DEFENDER() {
+        return 'difensore';
+    };
 
-    static get POSITION_MIDFIELDER() { return 'centrocampista'; };
+    static get POSITION_MIDFIELDER() {
+        return 'centrocampista';
+    };
 
-    static get POSITION_STRIKER() { return 'attaccante'; };
+    static get POSITION_STRIKER() {
+        return 'attaccante';
+    };
 
-    static get STATUS_ROSTRUM() { return 'rostrum'; };
+    static get STATUS_ROSTRUM() {
+        return 'rostrum';
+    };
 
-    static get STATUS_BENCH() { return 'bench'; };
+    static get STATUS_BENCH() {
+        return 'bench';
+    };
 
-    static get STATUS_HOLDER() { return 'holder'; };
+    static get STATUS_HOLDER() {
+        return 'holder';
+    };
 
     constructor() {
         super();
@@ -59,7 +73,22 @@ class PlayerSoccer extends Player {
     }
 
     /**
+     * @param goal
+     * @return {PlayerSoccer}
+     */
+    addGoal(goal) {
+
+        if (this.status !== PlayerSoccer.STATUS_HOLDER) {
+            return;
+        }
+
+        this.goals.push(goal);
+        return this;
+    }
+
+    /**
      * @param {Card} card
+     * @return {PlayerSoccer}
      */
     addCard(card) {
 
@@ -68,6 +97,24 @@ class PlayerSoccer extends Player {
         }
 
         this.cards.push(card);
+        return this;
+    }
+
+    /**
+     * @param card
+     * @return {Card}|null
+     */
+    removeCard(card) {
+        let toRemove = null;
+
+        let index = this.cards.findIndex((iCard) => {
+            return card.type === iCard.type && card.time === iCard.time;
+        });
+
+        if (index > -1) {
+            toRemove = this.cards.splice(index, 1)[0];
+        }
+        return toRemove;
     }
 
     /**
@@ -84,7 +131,7 @@ class PlayerSoccer extends Player {
 
         let yellowCount = 0;
         for (let cont = 0; this.cards.length > cont; cont++) {
-            if (this.cards[cont].type === Card.TYPE_YELLOW ) {
+            if (this.cards[cont].type === Card.TYPE_YELLOW) {
                 yellowCount++;
             }
         }
@@ -99,7 +146,7 @@ class PlayerSoccer extends Player {
 
         let yellowCount = 0;
         for (let cont = 0; this.cards.length > cont; cont++) {
-            if (this.cards[cont].type === Card.TYPE_YELLOW ) {
+            if (this.cards[cont].type === Card.TYPE_YELLOW) {
                 yellowCount++;
             }
         }

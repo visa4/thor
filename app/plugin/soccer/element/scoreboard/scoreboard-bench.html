@@ -41,7 +41,7 @@
                 margin: 6px;
             }
 
-            #card-container {
+            .card-container {
                 padding-right: 8px;
             }
 
@@ -97,20 +97,38 @@
                 margin: 0;
             }
 
+            .red {
+                background-color: red;
+            }
+
+            .yellow {
+                background-color: yellow;
+            }
+
 
         </style>
-        <paper-card id="design">
-            <div id="card-container" class="card-content flex flex-horizontal">
-                <div id="player-data" class="data flex-basis-85 flex flex-vertical">
-                    <div id="metadata" class="dataWrapper flex flex-horizontal">
-                        <div class="number">{{player.shirtNumber}}</div>
-                        <div>{{player.shirtName}} {{player.surname}}</div>
+        <template id="repeatCard" is="dom-repeat" items="[[player.cards]]" as="card">
+            <paper-card class$="{{_computeCardBg(card)}}">
+                <div class="card-container card-content flex flex-horizontal">
+                    <div class="player-data data flex-basis-80 flex flex-vertical">
+                        <div class="dataWrapper flex flex-horizontal">
+                            <div class="number">{{player.shirtNumber}}</div>
+                            <div>{{player.shirtName}} {{player.surname}}</div>
+                            <div>&nbsp;{{card.time}} min</div>
+                        </div>
+                    </div>
+                    <div id="action" class="data flex-basis-20 flex flex-horizontal-end">
+                        <paper-menu-button>
+                            <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
+                            <paper-listbox slot="dropdown-content" multi>
+                                <paper-item on-tap="tapCard" card="{{card}}">Modifica</paper-item>
+                                <paper-item on-tap="_remove" card="{{card}}">Elimina</paper-item>
+                            </paper-listbox>
+                        </paper-menu-button>
                     </div>
                 </div>
-                <div id="action" class="data flex-basis-15 flex flex-horizontal-end">
-                </div>
-            </div>
-        </paper-card>
+            </paper-card>
+        </template>
         <paper-dialog id="card" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
             <iron-form id="cardForm" style="height: 100%; margin: 0;">
                 <form method="post" style="height: 100%; margin: 0;">
@@ -150,10 +168,12 @@
 
                     labelCard: {
                         type: String,
-                        notify:true
+                        notify:true,
+                        value: 'Modify'
                     }
                 };
             }
+
 
             ready() {
                 super.ready();
@@ -173,15 +193,60 @@
              */
             submitCard(evt) {
                 evt.preventDefault();
-                let type = this.$.card.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED;
-                let card = new Card(type, this.$.time.value);
-                this.player.addCard(card);
 
-                this.dispatchEvent(new CustomEvent('wrap-add-card', {detail: {player : this.player, card : card}}));
-                this.notifyPath('player.cards');
-
+                this.$.card.card.time = this.$.time.value;
+                this.dispatchEvent(new CustomEvent('wrap-modify-card', {detail: {player : this.player, card : this.$.card.card}}));
+                let cards = this.player.cards;
+                this.set('player.cards', []);
+                setTimeout(
+                    () => { this.set('player.cards', cards); },
+                    100
+                );
                 this.$.cardForm.reset();
                 this.$.card.close();
+            }
+
+            /**
+             * @param evt
+             */
+            tapCard(evt) {
+
+                if (this.left) {
+                    this.$.card.horizontalAlign = 'left';
+                } else {
+                    this.$.card.horizontalAlign = 'right';
+                }
+
+                switch (evt.target.card.type) {
+                    case Card.TYPE_YELLOW:
+                        this.$.card.style.backgroundColor = 'yellow';
+                        this.$.card.card = 'yellow';
+                        break;
+                    case Card.TYPE_RED:
+                        this.$.card.style.backgroundColor = 'red';
+                        this.$.card.card = 'red';
+                        break;
+                }
+                this.$.time.value = evt.target.card.time;
+                this.$.card.card = evt.target.card;
+                this.$.card.open();
+            }
+
+            _computeCardBg(card) {
+                return card.type === Card.TYPE_RED ? 'red' : 'yellow';
+            }
+
+            /**
+             * @param newValue
+             * @private
+             */
+            _leftChanged(newValue) {
+                console.log('TODO');
+            }
+
+            _remove(evt)  {
+                let card = this.player.removeCard(evt.target.card);
+                this.dispatchEvent(new CustomEvent('wrap-remove-card', {detail: {player : this.player, card : card}}));
             }
         }
 

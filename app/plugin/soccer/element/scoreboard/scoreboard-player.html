@@ -7,6 +7,7 @@
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../../bower_components/neon-animation/neon-animation.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
@@ -108,14 +109,16 @@
 
             }
 
-            #card {
+            #cardDialog,
+            #goalDialog {
                 margin: 0;
                 margin-top: 18px;
                 width: 150px;
                 height: 220px;
             }
 
-            #card .button {
+            #cardDialog .button,
+            #goalDialog .button {
                 background-color: black;
                 color: white;
                 width: 100px;
@@ -152,7 +155,7 @@
                 </div>
                 <div id="action" class="data flex-basis-15 flex flex-horizontal-end">
                     <template is="dom-if" if="{{_canGoal()}}">
-                        <paper-icon-button id="goal" icon="soccer:ball" title="Assegna un goal (fake)"></paper-icon-button>
+                        <paper-icon-button id="goal" icon="soccer:ball" title="Assegna un goal" on-tap="tapGoal"></paper-icon-button>
                     </template>
                     <template is="dom-if" if="{{_canCard()}}">
                         <paper-icon-button id="yellow" icon="soccer:yellow-card" title="Giallo" on-tap="tapCard"></paper-icon-button>
@@ -163,7 +166,7 @@
                 </div>
             </div>
         </paper-card>
-        <paper-dialog id="card" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+        <paper-dialog id="cardDialog" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
             <iron-form id="cardForm" style="height: 100%; margin: 0;">
                 <form method="post" style="height: 100%; margin: 0;">
                     <div class="dialog-content flex flex-vertical">
@@ -172,6 +175,26 @@
                         </div>
                         <div class="flex-basis-23 flex flex-horizontal-center">
                             <paper-button class="button" on-tap="submitCardButton">{{labelCard}}</paper-button>
+                        </div>
+                    </div>
+                </form>
+            </iron-form>
+        </paper-dialog>
+        <paper-dialog id="goalDialog" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+            <iron-form id="goalForm" style="height: 100%; margin: 0;">
+                <form method="post" style="height: 100%; margin: 0;">
+                    <div class="dialog-content flex flex-vertical">
+                        <div class="flex-basis-77">
+                            <paper-input id="timeGoal" label="Time" type="number" required></paper-input>
+                            <paper-dropdown-menu label="Type">
+                                <paper-listbox id="selectGoal" slot="dropdown-content" selected="0">
+                                    <paper-item value="standard">Goal</paper-item>
+                                    <paper-item value="autogoal">Autogoal</paper-item>
+                                </paper-listbox>
+                            </paper-dropdown-menu>
+                        </div>
+                        <div class="flex-basis-23 flex flex-horizontal-center">
+                            <paper-button class="button" on-tap="submitGoalButton">{{labelGoal}}</paper-button>
                         </div>
                     </div>
                 </form>
@@ -203,6 +226,12 @@
                     labelCard: {
                         type: String,
                         notify:true
+                    },
+
+                    labelGoal: {
+                        type: String,
+                        notify : true,
+                        value : 'Aggiungi'
                     }
                 };
             }
@@ -210,14 +239,14 @@
             static get observers() {
                 return [
                     '_changeStatus(player.status)',
-                    '_changeCards(player.cards)'
+                    '_changeCards(player.cards.*)'
                 ]
             }
 
             ready() {
                 super.ready();
-
                 this.$.cardForm.addEventListener('iron-form-presubmit', this.submitCard.bind(this));
+                this.$.goalForm.addEventListener('iron-form-presubmit', this.submitGoal.bind(this));
             }
 
 
@@ -262,10 +291,6 @@
              * @param {Array} cards
              */
             _changeCards(cards) {
-
-                if(!this._canCard()) {
-                    return;
-                }
 
                 setTimeout(
                     () => { this._changeVisibilityCard(); },
@@ -391,26 +416,41 @@
             tapCard(evt) {
 
                 if (this.left) {
-                    this.$.card.horizontalAlign = 'right';
+                    this.$.cardDialog.horizontalAlign = 'right';
                 } else {
-                    this.$.card.horizontalAlign = 'left';
+                    this.$.cardDialog.horizontalAlign = 'left';
                 }
 
                 switch (evt.target.id) {
                     case 'yellow':
                     case 'double-yellow':
-                        this.$.card.style.backgroundColor = 'yellow';
+                        this.$.cardDialog.style.backgroundColor = 'yellow';
                         this.labelCard = 'Ammonisci';
-                        this.$.card.card = 'yellow';
+                        this.$.cardDialog.card = 'yellow';
                         break;
                     case 'red':
-                        this.$.card.style.backgroundColor = 'red';
+                        this.$.cardDialog.style.backgroundColor = 'red';
                         this.labelCard = 'Espelli';
-                        this.$.card.card = 'red';
+                        this.$.cardDialog.card = 'red';
                         break;
                 }
 
-                this.$.card.open();
+                this.$.cardDialog.open();
+            }
+
+            /**
+             * @param evt
+             */
+            tapGoal(evt) {
+
+                if (this.left) {
+                    this.$.goalDialog.horizontalAlign = 'right';
+                } else {
+                    this.$.goalDialog.horizontalAlign = 'left';
+                }
+
+                this.$.goalDialog.open();
+
             }
 
             /**
@@ -433,7 +473,31 @@
                 this.notifyPath('player.cards');
 
                 this.$.cardForm.reset();
-                this.$.card.close();
+                this.$.cardDialog.close();
+            }
+
+            /**
+             * @param evt
+             */
+            submitGoalButton(evt) {
+                this.$.goalForm.submit();
+            }
+
+            /**
+             * @param evt
+             */
+            submitGoal(evt) {
+                evt.preventDefault();
+
+                let goal = new Goal();
+                goal.time = this.$.timeGoal.value;
+                goal.type = this.$.selectGoal.selectedItem.getAttribute('value');
+
+                this.player.addGoal(goal);
+                this.dispatchEvent(new CustomEvent('wrap-add-goal', {detail: {player : this.player, goal : goal}}));
+
+                this.$.goalForm.reset();
+                this.$.goalDialog.close();
             }
         }
 
