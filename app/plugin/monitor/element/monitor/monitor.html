@@ -4,6 +4,7 @@
 <link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
 <link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../../../../bower_components/paper-radio-button/paper-radio-button.html">
+<link rel="import" href="../../../../bower_components/paper-toggle-button/paper-toggle-button.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -56,6 +57,20 @@
                 background-color: #0b8043 ;
             }
 
+            paper-toggle-button {
+                width: 38px;
+                cursor: pointer;
+                --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
+                --paper-toggle-button-checked-button-color:  var(--paper-green-500);
+                --paper-toggle-button-checked-ink-color: var(--paper-green-500);
+                --paper-toggle-button-unchecked-bar-color:  var(--paper-pink-500);
+                --paper-toggle-button-unchecked-button-color:  var(--paper-pink-500);
+                --paper-toggle-button-unchecked-ink-color: var(--paper-pink-500);
+                --paper-toggle-button-invalid-bar-color:  var(--paper-green-500);
+                --paper-toggle-button-invalid-button-color:  var(--paper-green-500);
+
+            }
+
             .crud {
                 padding-left: 4px;
                 padding-right: 4px;
@@ -65,14 +80,8 @@
         <paper-card id="design" class="setting">
             <div class="card-setting">
                 <div class="enableButtonContainer">
-                    <paper-radio-button
-                            id="enableInput"
-                            class="monitor-configuration"
-                            on-change="_changeEnableMonitor"
-                            title="Enable">
-                    </paper-radio-button>
+                    <paper-toggle-button id="paperToggleEnable" on-change="_changeEnableMonitor"></paper-toggle-button>
                 </div>
-
             </div>
             <div class="card-content flex flex-horizontal">
                 <div class="flex-basis-85 flex flex-vertical">
@@ -128,8 +137,9 @@
              * @param {Number} enable
              */
             monitorEnableChange(enable) {
-                this.$.enableInput.disabled = !!enable;
-                this.$.enableInput.checked = !!enable;
+                this.$.paperToggleEnable.checked = !!enable;
+                this.$.paperToggleEnable.invalid = !!enable;
+                this.$.paperToggleEnable.disabled = !!enable;
             }
 
             /**
