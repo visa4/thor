@@ -1,0 +1,62 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="scoreboard-goal-single.html">
+
+<dom-module id="soccer-scoreboard-goal-wc">
+    <template>
+        <template id="repeatGoal" is="dom-repeat" items="[[player.goals]]" as="goal">
+            <soccer-scoreboar-goal-single-wc player="{{player}}" goal="{{goal}}" on-wrap-remove="_proxyRemove" on-wrap-update="_proxyUpdate"></soccer-scoreboar-goal-single-wc>
+        </template>
+    </template>
+
+    <script>
+        class ElementSoccerScoreboardGoal extends Polymer.Element {
+
+            static get is() {
+                return 'soccer-scoreboard-goal-wc';
+            }
+
+            static get properties() {
+                return {
+
+                    player: {
+                        type: new PlayerSoccer(),
+                        notify: true,
+                    }
+                };
+            }
+
+            static get observers() {
+                return [
+                    '_changeGoals(player.goals.*)'
+                ]
+            }
+
+            _changeGoals(goals) {
+                this.$.repeatGoal.render();
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _proxyRemove(evt) {
+                evt.preventDefault();
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: evt.detail}));
+                this.notifyPath("player.goals");
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _proxyUpdate(evt) {
+                evt.preventDefault();
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: evt.detail}));
+            }
+        }
+
+        window.customElements.define(ElementSoccerScoreboardGoal.is, ElementSoccerScoreboardGoal);
+
+    </script>
+</dom-module>

@@ -1,0 +1,65 @@
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+
+<link rel="import" href="scoreboard-card-single.html">
+
+<dom-module id="soccer-scoreboard-card-wc">
+    <template>
+        <template id="repeatCard" is="dom-repeat" items="[[player.cards]]" as="card">
+            <soccer-scoreboar-card-single-wc  player="{{player}}" card="{{card}}" on-wrap-remove="_proxyRemove" on-wrap-update="_proxyUpdate"></soccer-scoreboar-card-single-wc>
+        </template>
+    </template>
+
+    <script>
+        class ElementSoccerScoreboardCard extends Polymer.Element {
+
+            static get is() {
+                return 'soccer-scoreboard-card-wc';
+            }
+
+            static get properties() {
+                return {
+
+                    player: {
+                        type: new PlayerSoccer(),
+                        notify:true
+                    }
+                };
+            }
+
+            static get observers() {
+                return [
+                    '_changeCards(player.cards.*)'
+                ]
+            }
+
+            /**
+             * @param evt
+             */
+            _changeCards(cards) {
+                this.$.repeatCard.render();
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _proxyRemove(evt) {
+                evt.preventDefault();
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: evt.detail}));
+                this.notifyPath("player.cards");
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _proxyUpdate(evt) {
+                evt.preventDefault();
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: evt.detail}));
+            }
+        }
+
+        window.customElements.define(ElementSoccerScoreboardCard.is, ElementSoccerScoreboardCard);
+
+    </script>
+</dom-module>

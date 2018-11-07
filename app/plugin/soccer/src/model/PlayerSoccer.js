@@ -87,6 +87,23 @@ class PlayerSoccer extends Player {
     }
 
     /**
+     * @param goal
+     * @return {PlayerSoccer}
+     */
+    removeGoal(goal) {
+        let toRemove = null;
+
+        let index = this.goals.findIndex((iGoal) => {
+            return goal.type === iGoal.type && iGoal.time === iGoal.time;
+        });
+
+        if (index > -1) {
+            toRemove = this.goals.splice(index, 1)[0];
+        }
+        return toRemove;
+    }
+
+    /**
      * @param {Card} card
      * @return {PlayerSoccer}
      */

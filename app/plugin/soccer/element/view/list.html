@@ -159,14 +159,17 @@
             changeMatch(evt) {
 
                 for (let cont = 0; this.resources.length > cont; cont++) {
+                    if (evt.detail.id === this.resources[cont].id) {
+                        continue;
+                    }
                     this.resources[cont].enable = 0
                 }
 
                 let soccerStorage = serviceManager.get('StoragePluginManager').get(SoccerConfig.NAME_SERVICE);
                 soccerStorage.getAll({enable: 1})
                     .then((enableMatch) => {
-                        for (let cont = 0; enableMatch.length > cont; cont++) {
 
+                        for (let cont = 0; enableMatch.length > cont; cont++) {
                             enableMatch[cont].enable = 0;
                             soccerStorage.update(enableMatch[cont])
                                 .then((data) => {})
@@ -176,10 +179,10 @@
                                 );
                         }
 
-                        evt.detail.enable = 1;
                         soccerStorage.update(evt.detail)
                             .then((data) => {
-                                serviceManager.get('PaperToastNotification').notify(' Enable TODO');
+                                let enableLabel = data.enable === 1 ? 'Enable' : 'Disable';
+                                serviceManager.get('PaperToastNotification').notify(`${enableLabel} match`);
                             })
                             .catch((err) => {
                                     console.log(err)

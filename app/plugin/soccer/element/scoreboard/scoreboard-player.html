@@ -14,7 +14,7 @@
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/iconset/iconset.html">
 
-<dom-module id="soccer-scoreboar-player-wc">
+<dom-module id="soccer-scoreboard-player-wc">
     <template>
         <style include="global-layout"></style>
         <style include="global-style"></style>
@@ -30,6 +30,7 @@
 
             paper-card {
                 width: 100%;
+                height: 40px;
                 min-height: initial;
                 min-width: inherit;
             }
@@ -48,6 +49,7 @@
 
             #card-container {
                 padding-right: 8px;
+                height: 40px;
             }
 
             paper-menu-button {
@@ -206,7 +208,7 @@
         class ElementSoccerScoreboardPlayer extends Polymer.Element {
 
             static get is() {
-                return 'soccer-scoreboar-player-wc';
+                return 'soccer-scoreboard-player-wc';
             }
 
             static get properties() {
@@ -291,10 +293,10 @@
              * @param {Array} cards
              */
             _changeCards(cards) {
-
+                console.log('CARD', this.player.surname);
                 setTimeout(
                     () => { this._changeVisibilityCard(); },
-                    300
+                    150
                 );
             }
 
@@ -465,7 +467,7 @@
              */
             submitCard(evt) {
                 evt.preventDefault();
-                let type = this.$.card.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED;
+                let type = this.$.cardDialog.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED;
                 let card = new Card(type, this.$.time.value);
                 this.player.addCard(card);
 

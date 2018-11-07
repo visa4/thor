@@ -11,7 +11,7 @@ class SoccerService {
          *
          * @type {MatchSoccer}|{}
          */
-        this.match = {};
+        this.match = new MatchSoccer();
 
         /**
          * @param {Storage}
@@ -42,14 +42,18 @@ class SoccerService {
      */
     _checkChangeEnableMatch(evt) {
 
-        if (evt.data.enable  !== 1) {
-            return;
-        }
-
-        this.match = evt.data;
-        this.match.guestTeam.getPlayers({sort:'position'});
-        this.match.homeTeam.getPlayers({sort:'position'});
-        this.eventManager.fire(SoccerService.UPDATE_CURRENT_MATCH, this.match);
+       switch (true) {
+           case this.match.id === evt.data.id && evt.data.enable === 0 :
+               this.match = new MatchSoccer();
+               this.eventManager.fire(SoccerService.UPDATE_CURRENT_MATCH, this.match);
+               break;
+           case evt.data.enable === 1 && evt.data.id !== this.match.id :
+               this.match = evt.data;
+               this.match.guestTeam.getPlayers({sort:'position'});
+               this.match.homeTeam.getPlayers({sort:'position'});
+               this.eventManager.fire(SoccerService.UPDATE_CURRENT_MATCH, this.match);
+               break;
+       }
     }
 
     /**

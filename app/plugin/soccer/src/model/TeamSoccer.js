@@ -56,7 +56,6 @@ class TeamSoccer extends Team {
         for (let cont = 0; this.players.length > cont; cont++) {
             switch (true) {
                 case typeof options === 'object' && options.status === PlayerSoccer.STATUS_HOLDER && this.players[cont].status === PlayerSoccer.STATUS_HOLDER :
-                    console.log('suca', this.players[cont].status);
                     count++;
                     break;
                     // TODO other count

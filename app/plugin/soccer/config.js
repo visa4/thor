@@ -70,6 +70,7 @@ class SoccerConfig extends PluginConfig {
         let hydrator = new PropertyHydrator(
             new MatchSoccer(),
             {
+                enable : new NumberStrategy(),
                 guestTeam : new HydratorStrategy(
                     this.serviceManager.get('HydratorPluginManager').get('teamSoccerHydrator')
                 ),

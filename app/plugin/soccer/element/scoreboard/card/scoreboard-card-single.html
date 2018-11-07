@@ -1,19 +1,19 @@
-<link rel="import" href="../../../../bower_components/polymer/polymer.html">
-<link rel="import" href="../../../../bower_components/polymer/lib/elements/dom-if.html">
-<link rel="import" href="../../../../bower_components/paper-icon-button/paper-icon-button.html">
-<link rel="import" href="../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
-<link rel="import" href="../../../../bower_components/iron-form/iron-form.html">
-<link rel="import" href="../../../../bower_components/paper-card/paper-card.html">
-<link rel="import" href="../../../../bower_components/paper-input/paper-input.html">
-<link rel="import" href="../../../../bower_components/paper-button/paper-button.html">
-<link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
-<link rel="import" href="../../../../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../../../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../../../bower_components/polymer/lib/elements/dom-if.html">
+<link rel="import" href="../../../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../../../../bower_components/iron-form/iron-form.html">
+<link rel="import" href="../../../../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../../../../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../../../../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../../../../bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="../../../../../bower_components/neon-animation/neon-animation.html">
 
-<link rel="import" href="../../../../css/global-layout.html">
-<link rel="import" href="../../../../css/global-styles.html">
-<link rel="import" href="../../../../element/iconset/iconset.html">
+<link rel="import" href="../../../../../css/global-layout.html">
+<link rel="import" href="../../../../../css/global-styles.html">
+<link rel="import" href="../../../../../element/iconset/iconset.html">
 
-<dom-module id="soccer-scoreboar-bench-wc">
+<dom-module id="soccer-scoreboar-card-single-wc">
     <template>
         <style include="global-layout"></style>
         <style include="global-style"></style>
@@ -31,6 +31,7 @@
                 width: 100%;
                 min-height: initial;
                 min-width: inherit;
+                height: 40px;
             }
 
             .data {
@@ -43,6 +44,7 @@
 
             .card-container {
                 padding-right: 8px;
+                height: 40px;
             }
 
             paper-menu-button {
@@ -79,7 +81,7 @@
 
             #card {
                 margin: 0;
-                margin-top: 18px;
+                margin-top: 10px;
                 width: 150px;
                 height: 220px;
             }
@@ -107,28 +109,26 @@
 
 
         </style>
-        <template id="repeatCard" is="dom-repeat" items="[[player.cards]]" as="card">
-            <paper-card class$="{{_computeCardBg(card)}}">
-                <div class="card-container card-content flex flex-horizontal">
-                    <div class="player-data data flex-basis-80 flex flex-vertical">
-                        <div class="dataWrapper flex flex-horizontal">
-                            <div class="number">{{player.shirtNumber}}</div>
-                            <div>{{player.shirtName}} {{player.surname}}</div>
-                            <div>&nbsp;{{card.time}} min</div>
-                        </div>
-                    </div>
-                    <div id="action" class="data flex-basis-20 flex flex-horizontal-end">
-                        <paper-menu-button>
-                            <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
-                            <paper-listbox slot="dropdown-content" multi>
-                                <paper-item on-tap="tapCard" card="{{card}}">Modifica</paper-item>
-                                <paper-item on-tap="_remove" card="{{card}}">Elimina</paper-item>
-                            </paper-listbox>
-                        </paper-menu-button>
+        <paper-card class$="{{_computeCardBg(card)}}">
+            <div class="card-container card-content flex flex-horizontal">
+                <div class="player-data data flex-basis-80 flex flex-vertical">
+                    <div class="dataWrapper flex flex-horizontal">
+                        <div class="number">{{player.shirtNumber}}</div>
+                        <div>{{player.shirtName}} {{player.surname}}</div>
+                        <div>&nbsp;{{card.time}} min</div>
                     </div>
                 </div>
-            </paper-card>
-        </template>
+                <div id="action" class="data flex-basis-20 flex flex-horizontal-end">
+                    <paper-menu-button>
+                        <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
+                        <paper-listbox slot="dropdown-content" multi>
+                            <paper-item on-tap="tapCard" card="{{card}}">Modifica</paper-item>
+                            <paper-item on-tap="_remove" card="{{card}}">Elimina</paper-item>
+                        </paper-listbox>
+                    </paper-menu-button>
+                </div>
+            </div>
+        </paper-card>
         <paper-dialog id="card" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
             <iron-form id="cardForm" style="height: 100%; margin: 0;">
                 <form method="post" style="height: 100%; margin: 0;">
@@ -146,10 +146,10 @@
     </template>
 
     <script>
-        class ElementSoccerScoreboardBench extends Polymer.Element {
+        class ElementSoccerScoreboardCardSingle extends Polymer.Element {
 
             static get is() {
-                return 'soccer-scoreboar-bench-wc';
+                return 'soccer-scoreboar-card-single-wc';
             }
 
             static get properties() {
@@ -157,6 +157,11 @@
 
                     player: {
                         type: new PlayerSoccer(),
+                        notify:true
+                    },
+
+                    card: {
+                        type: new Card(),
                         notify:true
                     },
 
@@ -195,13 +200,7 @@
                 evt.preventDefault();
 
                 this.$.card.card.time = this.$.time.value;
-                this.dispatchEvent(new CustomEvent('wrap-modify-card', {detail: {player : this.player, card : this.$.card.card}}));
-                let cards = this.player.cards;
-                this.set('player.cards', []);
-                setTimeout(
-                    () => { this.set('player.cards', cards); },
-                    100
-                );
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player : this.player, card : this.$.card.card}}));
                 this.$.cardForm.reset();
                 this.$.card.close();
             }
@@ -241,16 +240,16 @@
              * @private
              */
             _leftChanged(newValue) {
-                console.log('TODO');
+               // console.log('TODO');
             }
 
             _remove(evt)  {
                 let card = this.player.removeCard(evt.target.card);
-                this.dispatchEvent(new CustomEvent('wrap-remove-card', {detail: {player : this.player, card : card}}));
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: {player : this.player, card : card}}));
             }
         }
 
-        window.customElements.define(ElementSoccerScoreboardBench.is, ElementSoccerScoreboardBench);
+        window.customElements.define(ElementSoccerScoreboardCardSingle.is, ElementSoccerScoreboardCardSingle);
 
     </script>
 </dom-module>

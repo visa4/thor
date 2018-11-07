@@ -12,6 +12,17 @@ class MatchSoccer extends Match {
     constructor() {
         super();
 
+
+        /**
+         * @type {TeamSoccer}
+         */
+        this.homeTeam = new TeamSoccer();
+
+        /**
+         * @type {TeamSoccer}
+         */
+        this.guestTeam = new TeamSoccer();
+
         /**
          * @type {number}
          */

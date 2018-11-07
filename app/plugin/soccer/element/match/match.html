@@ -84,6 +84,7 @@
             }
 
             paper-toggle-button {
+                width: 38px;
                 --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
                 --paper-toggle-button-checked-button-color:  var(--paper-green-500);
                 --paper-toggle-button-checked-ink-color: var(--paper-green-500);
@@ -100,13 +101,8 @@
         <paper-card id="design" class="setting">
             <div class="card-setting">
                 <div class="enableButtonContainer">
-                    <paper-radio-button
-                            id="enableInput"
-                            on-change="_changeEnableMatch"
-                            title="Enable">
-                    </paper-radio-button>
+                    <paper-toggle-button id="paperToggleEnable" on-change="_changeEnableMatch"></paper-toggle-button>
                 </div>
-                <paper-toggle-button id="paperToggleEnable" on-change="_changeEnableMatch"></paper-toggle-button>
             </div>
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-85 flex flex-vertical">
@@ -162,7 +158,7 @@
             }
 
             _changeEnableMatch(evt) {
-                this.match.enable = evt.target.checked;
+                this.match.enable = evt.target.checked === true ? 1 : 0;
                 this.dispatchEvent(new CustomEvent('wrap-change-enable-match', {detail: this.match}));
             }
 
@@ -170,10 +166,7 @@
              * @param enable
              */
             matchEnableChange(enable) {
-                this.$.enableInput.disabled = !!enable;
-                this.$.enableInput.checked = !!enable;
 
-                this.$.paperToggleEnable.disabled = !!enable;
                 this.$.paperToggleEnable.checked = !!enable;
 
             }
