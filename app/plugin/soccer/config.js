@@ -51,17 +51,6 @@ class SoccerConfig extends PluginConfig {
      */
     _loadHydrator() {
 
-
-        /**
-         *
-         */
-        this._loadCardHydrator();
-
-        /**
-         *
-         */
-        this._loadPlayerHydrator();
-
         /**
          *
          */
@@ -159,6 +148,8 @@ class SoccerConfig extends PluginConfig {
 
     _loadPlayerHydrator() {
 
+        this._loadCardHydrator();
+
         let hydrator = new PropertyHydrator(
             new PlayerSoccer(),
             {
@@ -235,11 +226,18 @@ class SoccerConfig extends PluginConfig {
 
     _loadTamHydrator() {
 
+        this._loadPlayerHydrator();
+
+        this._loadReplacementHydrator();
+
         let hydrator = new PropertyHydrator(
                 new TeamSoccer(),
                 {
                     'players' : new HydratorStrategy(
                         this.serviceManager.get('HydratorPluginManager').get('playerSoccerHydrator')
+                    ),
+                    'replacemens' :  new HydratorStrategy(
+                        this.serviceManager.get('HydratorPluginManager').get('replacementSoccerHydrator')
                     ),
                 }
             );
@@ -248,13 +246,15 @@ class SoccerConfig extends PluginConfig {
             .enableExtractProperty('name')
             .enableExtractProperty('logo')
             .enableExtractProperty('players')
-            .enableExtractProperty('staff');
+            .enableExtractProperty('staff')
+            .enableExtractProperty('replacemens');
 
         hydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
             .enableHydrateProperty('log')
             .enableHydrateProperty('players')
-            .enableHydrateProperty('staff');
+            .enableHydrateProperty('staff')
+            .enableHydrateProperty('replacemens');
 
         this.serviceManager.get('HydratorPluginManager').set(
             'teamSoccerHydrator',
@@ -304,7 +304,33 @@ class SoccerConfig extends PluginConfig {
             'cardSoccerHydrator',
             hydrator
         );
+    }
 
+    _loadReplacementHydrator() {
+        let hydrator = new PropertyHydrator(
+            new Replacement(),
+            {
+                'playerOut' : new HydratorStrategy(
+                    this.serviceManager.get('HydratorPluginManager').get('playerSoccerHydrator')
+                ),
+                'playerIn' : new HydratorStrategy(
+                    this.serviceManager.get('HydratorPluginManager').get('playerSoccerHydrator')
+                ),
+            }
+        );
+
+        hydrator.enableExtractProperty('playerIn')
+            .enableExtractProperty('playerOut')
+            .enableExtractProperty('time');
+
+        hydrator.enableHydrateProperty('playerIn')
+            .enableHydrateProperty('playerOut')
+            .enableHydrateProperty('time');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'replacementSoccerHydrator',
+            hydrator
+        );
     }
 }
 

@@ -6,11 +6,12 @@
   "homepage": "www.visa4.it",
   "config": "config.js",
   "autoloads": [
+    "src/model/Goal.js",
+    "src/model/Card.js",
+    "src/model/Replacement.js",
     "src/model/MatchSoccer.js",
     "src/model/PlayerSoccer.js",
     "src/model/TeamSoccer.js",
-    "src/model/Gaol.js",
-    "src/model/Card.js",
     "src/SoccerService.js"
   ]
 }

@@ -5,7 +5,7 @@
 <dom-module id="soccer-scoreboard-goal-wc">
     <template>
         <template id="repeatGoal" is="dom-repeat" items="[[player.goals]]" as="goal">
-            <soccer-scoreboar-goal-single-wc player="{{player}}" goal="{{goal}}" on-wrap-remove="_proxyRemove" on-wrap-update="_proxyUpdate"></soccer-scoreboar-goal-single-wc>
+            <soccer-scoreboar-goal-single-wc player="{{player}}" goal="{{goal}}" on-wrap-remove="_proxyRemove" on-wrap-update="_proxyUpdate" left="{{left}}"></soccer-scoreboar-goal-single-wc>
         </template>
     </template>
 
@@ -22,6 +22,11 @@
                     player: {
                         type: new PlayerSoccer(),
                         notify: true,
+                    },
+
+                    left: {
+                        type: Boolean,
+                        value: false
                     }
                 };
             }

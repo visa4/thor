@@ -171,11 +171,12 @@
       "name": "soccer",
       "configFile": "config.js",
       "autoloads": [
+        "src/model/Goal.js",
+        "src/model/Card.js",
+        "src/model/Replacement.js",
         "src/model/MatchSoccer.js",
         "src/model/PlayerSoccer.js",
         "src/model/TeamSoccer.js",
-        "src/model/Goal.js",
-        "src/model/Card.js",
         "src/SoccerService.js"
       ]
     }

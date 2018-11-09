@@ -23,12 +23,12 @@ class SoccerService {
 
             switch (enableMatchs.length) {
                 case 2:
-                    console.error('Must be present 0 or 1 enable match')
+                    console.error('Must be present 0 or 1 enable match');
                     break;
                 case 1:
                     this.match = enableMatchs[0];
-                    this.match.guestTeam.getPlayers({sort:'position'});
-                    this.match.homeTeam.getPlayers({sort:'position'});
+                    this.match.guestTeam.sortPlayer({position : true});
+                    this.match.homeTeam.sortPlayer({position : true});
                     break;
             }
         });
@@ -49,8 +49,8 @@ class SoccerService {
                break;
            case evt.data.enable === 1 && evt.data.id !== this.match.id :
                this.match = evt.data;
-               this.match.guestTeam.getPlayers({sort:'position'});
-               this.match.homeTeam.getPlayers({sort:'position'});
+               this.match.guestTeam.sortPlayer({position : true});
+               this.match.homeTeam.sortPlayer({position : true});
                this.eventManager.fire(SoccerService.UPDATE_CURRENT_MATCH, this.match);
                break;
        }

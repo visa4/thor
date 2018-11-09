@@ -41,8 +41,7 @@
 
                     team: {
                         type: new TeamSoccer(),
-                        notify:true,
-                        observer: '_teamChanged'
+                        notify:true
                     },
 
                     result: {
@@ -57,17 +56,6 @@
                         observer: '_leftChanged'
                     }
                 };
-            }
-
-            /**
-             * @param newValue
-             */
-            _teamChanged(newValue) {
-                if (!newValue) {
-                    return;
-                }
-
-                this.result = newValue.getResult();
             }
 
             /**

@@ -9,6 +9,8 @@
 <link rel="import" href="../../../../bower_components/paper-dialog/paper-dialog.html">
 <link rel="import" href="../../../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
 <link rel="import" href="../../../../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../../../../bower_components/paper-autocomplete/paper-autocomplete.html">
+<link rel="import" href="../../../../bower_components/paper-item/paper-item.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
@@ -48,7 +50,6 @@
             }
 
             #card-container {
-                padding-right: 8px;
                 height: 40px;
             }
 
@@ -112,7 +113,8 @@
             }
 
             #cardDialog,
-            #goalDialog {
+            #goalDialog,
+            #replaceDialog {
                 margin: 0;
                 margin-top: 18px;
                 width: 150px;
@@ -120,7 +122,8 @@
             }
 
             #cardDialog .button,
-            #goalDialog .button {
+            #goalDialog .button,
+            #replaceDialog .button  {
                 background-color: black;
                 color: white;
                 width: 100px;
@@ -146,23 +149,38 @@
                 color: grey !important;
             }
 
+            paper-autocomplete {
+                padding-bottom: 7px;
+            }
+
+            :host-context(paper-autocomplete) {
+                background-color: green;
+            }
+
+            :host(#suggestionsWrapper)  {
+                background-color: blue;
+            }
+
         </style>
         <paper-card id="design">
             <div id="card-container" class="card-content flex flex-horizontal">
-                <div id="player-data" class="data flex-basis-85 flex flex-vertical">
+                <div id="player-data" class="data flex-basis-85 flex">
                     <div id="metadata" class="dataWrapper flex flex-horizontal">
                         <div class="number">{{player.shirtNumber}}</div>
                         <div>{{player.shirtName}} {{player.surname}}</div>
                     </div>
                 </div>
                 <div id="action" class="data flex-basis-15 flex flex-horizontal-end">
+                    <template is="dom-if" if="{{_canReplace()}}">
+                        <paper-icon-button id="replace" icon="soccer:replace" title="Sostituisci" on-tap="tapDialog"></paper-icon-button>
+                    </template>
                     <template is="dom-if" if="{{_canGoal()}}">
-                        <paper-icon-button id="goal" icon="soccer:ball" title="Assegna un goal" on-tap="tapGoal"></paper-icon-button>
+                        <paper-icon-button id="goal" icon="soccer:ball" title="Assegna un goal" on-tap="tapDialog"></paper-icon-button>
                     </template>
                     <template is="dom-if" if="{{_canCard()}}">
-                        <paper-icon-button id="yellow" icon="soccer:yellow-card" title="Giallo" on-tap="tapCard"></paper-icon-button>
-                        <paper-icon-button id="double-yellow" icon="soccer:double-yellow-card"  title="Doppio giallo" on-tap="tapCard"></paper-icon-button>
-                        <paper-icon-button id="red" icon="soccer:red-card" title="Rosso" on-tap="tapCard"></paper-icon-button>
+                        <paper-icon-button id="yellow" icon="soccer:yellow-card" title="Giallo" on-tap="tapDialog"></paper-icon-button>
+                        <paper-icon-button id="double-yellow" icon="soccer:double-yellow-card"  title="Doppio giallo" on-tap="tapDialog"></paper-icon-button>
+                        <paper-icon-button id="red" icon="soccer:red-card" title="Rosso" on-tap="tapDialog"></paper-icon-button>
                     </template>
                     <paper-icon-button id="status" icon="soccer:rostrum" on-tap="changeStatus"></paper-icon-button>
                 </div>
@@ -202,6 +220,57 @@
                 </form>
             </iron-form>
         </paper-dialog>
+        <paper-dialog id="replaceDialog" no-overlap horizontal-align="left" vertical-align="top" entry-animation="scale-up-animation" exit-animation="fade-out-animation">
+            <iron-form id="replaceForm" style="height: 100%; margin: 0;">
+                <form method="post" style="height: 100%; margin: 0;">
+                    <div class="dialog-content flex flex-vertical">
+                        <div class="flex-basis-77">
+                            <paper-input id="timeReplace" label="Time" type="number" required></paper-input>
+                            <div id="substitution" class="flex-basis-50 flex flex-center">
+                                <paper-autocomplete
+                                        id="replaceAutocomplete"
+                                        label="Replace"
+                                        text-property="surname"
+                                        value-property="name"
+                                        remote-source
+                                        on-autocomplete-selected="_selectReplace"
+                                        on-autocomplete-change="_searchReplaceChanged">
+                                    <template slot="autocomplete-custom-template">
+                                        <style>
+                                            :host {
+                                                display: block;
+                                            }
+
+                                            paper-item.account-item {
+                                                padding: 8px 16px;
+                                            }
+
+                                            .service-name {
+                                                color: #333;
+                                            }
+
+                                            .service-description {
+                                                margin-top: 4px;
+                                                color: #999;
+                                            }
+                                        </style>
+                                        <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                                            <div>
+                                                <div class="service-name">[[item.surname]]</div>
+                                            </div>
+                                            <paper-ripple></paper-ripple>
+                                        </paper-item>
+                                    </template>
+                                </paper-autocomplete>
+                            </div>
+                        </div>
+                        <div class="flex-basis-23 flex flex-horizontal-center">
+                            <paper-button class="button" on-tap="submitReplaceButton">{{labelReplace}}</paper-button>
+                        </div>
+                    </div>
+                </form>
+            </iron-form>
+        </paper-dialog>
     </template>
 
     <script>
@@ -234,6 +303,12 @@
                         type: String,
                         notify : true,
                         value : 'Aggiungi'
+                    },
+
+                    labelReplace: {
+                        type: String,
+                        notify : true,
+                        value : 'Sostituisci'
                     }
                 };
             }
@@ -249,6 +324,7 @@
                 super.ready();
                 this.$.cardForm.addEventListener('iron-form-presubmit', this.submitCard.bind(this));
                 this.$.goalForm.addEventListener('iron-form-presubmit', this.submitGoal.bind(this));
+                this.$.replaceForm.addEventListener('iron-form-presubmit', this.submitReplace.bind(this));
             }
 
 
@@ -269,10 +345,13 @@
                     case PlayerSoccer.STATUS_ROSTRUM:
                         this.$.status.icon = 'soccer:holder';
                         this.$.status.title = 'Sposta nei giocatori in panchina';
+                        this.$['metadata'].classList.remove("flex-basis-50");
                         break;
                     case PlayerSoccer.STATUS_BENCH:
                         this.$.status.icon = 'soccer:bench-left';
                         this.$.status.title = 'Sposta nei giocatori titolari';
+
+                        this.$['metadata'].classList.remove("flex-basis-50");
                         this.$['player-data'].classList.remove("flex-basis-85");
                         this.$['player-data'].classList.add("flex-basis-70");
                         this.$['action'].classList.remove("flex-basis-15");
@@ -281,6 +360,7 @@
                     case PlayerSoccer.STATUS_HOLDER:
                         this.$.status.icon = 'soccer:rostrum';
                         this.$.status.title = 'Sposta nei giocatori in rosa';
+                        this.$['metadata'].classList.add("flex-basis-50");
                         this.$['player-data'].classList.remove("flex-basis-85");
                         this.$['player-data'].classList.add("flex-basis-70");
                         this.$['action'].classList.remove("flex-basis-15");
@@ -379,19 +459,22 @@
 
                 if (newValue === true) {
                     this.$['card-container'].classList.add("reverse");
-                    this.$['player-data'].classList.add("flex-end");
+                    this.$['player-data'].classList.remove("flex-horizontal-end");
+                    this.$['player-data'].classList.add("reverse");
                     this.$.metadata.classList.add("reverse");
+                    this.$.metadata.classList.remove("flex-1");
                     this.$.action.classList.remove("flex-vertical-end");
                     this.$.action.classList.add("reverse");
                 }
 
                 if (newValue === false) {
                     this.$['card-container'].classList.remove("reverse");
-                    this.$['player-data'].classList.remove("flex-end");
+                    this.$['player-data'].classList.add("flex-horizontal-end");
+                    this.$['player-data'].classList.remove("reverse");
                     this.$.metadata.classList.remove("reverse");
+                    this.$.metadata.classList.add("flex-1");
                     this.$.action.classList.add("flex-vertical-end");
                     this.$.action.classList.remove("reverse");
-
                 }
             }
 
@@ -412,46 +495,63 @@
             }
 
             /**
-             * @param evt
+             * @returns {boolean}
+             * @private
              */
-            tapCard(evt) {
+            _canReplace() {
+                return this.player.status === PlayerSoccer.STATUS_HOLDER;
+            }
 
-                if (this.left) {
-                    this.$.cardDialog.horizontalAlign = 'right';
-                } else {
-                    this.$.cardDialog.horizontalAlign = 'left';
-                }
+            /**
+             * @parmas evt
+             * @private
+             */
+            _selectReplace(evt) {
+               console.log(evt.detail.option);
+            }
 
-                switch (evt.target.id) {
-                    case 'yellow':
-                    case 'double-yellow':
-                        this.$.cardDialog.style.backgroundColor = 'yellow';
-                        this.labelCard = 'Ammonisci';
-                        this.$.cardDialog.card = 'yellow';
-                        break;
-                    case 'red':
-                        this.$.cardDialog.style.backgroundColor = 'red';
-                        this.labelCard = 'Espelli';
-                        this.$.cardDialog.card = 'red';
-                        break;
-                }
+            /**
+             * @parmas evt
+             * @private
+             */
+            _searchReplaceChanged(evt) {
 
-                this.$.cardDialog.open();
+                let team = this.getAttribute('guest') === "" ? 'guestTeam' : 'homeTeam';
+
+                evt.detail.target.suggestions(
+                    serviceManager.get('SoccerService').match[team].getPlayers({toBench : true, name : evt.detail.value})
+                );
             }
 
             /**
              * @param evt
              */
-            tapGoal(evt) {
+            tapDialog(evt) {
+                let nameDialog = `${evt.target.id}Dialog`;
 
-                if (this.left) {
-                    this.$.goalDialog.horizontalAlign = 'right';
-                } else {
-                    this.$.goalDialog.horizontalAlign = 'left';
+                switch (evt.target.id) {
+                    case 'yellow':
+                    case 'double-yellow':
+                        nameDialog = 'cardDialog';
+                        this.$[nameDialog].style.backgroundColor = 'yellow';
+                        this.$[nameDialog].card = 'yellow';
+                        this.labelCard = 'Ammonisci';
+                        break;
+                    case 'red':
+                        nameDialog = 'cardDialog';
+                        this.$[nameDialog].style.backgroundColor = 'red';
+                        this.$[nameDialog].card = 'red';
+                        this.labelCard = 'Espelli';
+                        break;
                 }
 
-                this.$.goalDialog.open();
+                if (this.left) {
+                    this.$[nameDialog].horizontalAlign = 'right';
+                } else {
+                    this.$[nameDialog].horizontalAlign = 'left';
+                }
 
+                this.$[nameDialog].open();
             }
 
             /**
@@ -500,9 +600,36 @@
                 this.$.goalForm.reset();
                 this.$.goalDialog.close();
             }
+
+            /**
+             * @param evt
+             */
+            submitReplace(evt) {
+                evt.preventDefault();
+
+                this.dispatchEvent(new CustomEvent(
+                    'wrap-replace',
+                    {
+                        detail: {
+                            playerOut : this.player,
+                            playerIn : this.$.replaceAutocomplete._selectedOption,
+                            time : this.$.timeReplace.value
+                        }
+                    }
+                ));
+
+                this.$.replaceForm.reset();
+                this.$.replaceDialog.close();
+            }
+
+            /**
+             * @param evt
+             */
+            submitReplaceButton(evt) {
+                this.$.replaceForm.submit();
+            }
+
         }
-
-
 
         window.customElements.define(ElementSoccerScoreboardPlayer.is, ElementSoccerScoreboardPlayer);
 

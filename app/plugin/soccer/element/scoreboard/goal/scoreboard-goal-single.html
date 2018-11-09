@@ -39,11 +39,8 @@
             }
 
             .dataWrapper {
-                margin: 6px;
-            }
-
-            .goal-container {
-                padding-right: 8px;
+                font-size: 16px;
+                margin: 8px;
             }
 
             paper-menu-button {
@@ -157,6 +154,11 @@
                         notify: true
                     },
 
+                    goal: {
+                        type: new Goal(),
+                        notify: true
+                    },
+
                     left: {
                         type: Boolean,
                         value: false,
@@ -191,8 +193,9 @@
             submitGoal(evt) {
                 evt.preventDefault();
 
-                this.$.goal.goal.time = this.$.time.value;
-                this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player: this.player, goal: this.$.goal.goal}}));
+                this.goal.time = this.$.time.value;
+                this.notifyPath('goal.time');
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player: this.player, goal: this.goal}}));
                 this.$.goalForm.reset();
                 this.$.goal.close();
             }
@@ -223,7 +226,22 @@
              * @private
              */
             _leftChanged(newValue) {
-                //console.log('TODO');
+                if (newValue === true) {
+                    this.shadowRoot.querySelector('.goal-container').classList.add("reverse");
+                    this.shadowRoot.querySelector('.dataWrapper').classList.add("reverse");
+
+                    this.$['action'].classList.remove("flex-horizontal-end");
+                    this.$['action'].classList.add("flex-horizontal-start");
+
+                }
+
+                if (newValue === false) {
+                    this.shadowRoot.querySelector('.goal-container').classList.remove("reverse");
+                    this.shadowRoot.querySelector('.dataWrapper').classList.remove("reverse");
+
+                    this.$['action'].classList.remove("flex-horizontal-start");
+                    this.$['action'].classList.add("flex-horizontal-end");
+                }
             }
 
             _remove(evt) {

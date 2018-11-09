@@ -39,11 +39,11 @@
             }
 
             .dataWrapper {
-                margin: 6px;
+                font-size: 16px;
+                margin: 8px;
             }
 
             .card-container {
-                padding-right: 8px;
                 height: 40px;
             }
 
@@ -74,9 +74,8 @@
                 flex-direction: row-reverse;
             }
 
-            .flex-end {
-                align-items: flex-end;
-
+            .unreverse {
+                flex-direction: unset;
             }
 
             #card {
@@ -99,6 +98,10 @@
                 margin: 0;
             }
 
+            .time {
+                padding: 0 4px 0 4px;
+            }
+
             .red {
                 background-color: red;
             }
@@ -115,7 +118,7 @@
                     <div class="dataWrapper flex flex-horizontal">
                         <div class="number">{{player.shirtNumber}}</div>
                         <div>{{player.shirtName}} {{player.surname}}</div>
-                        <div>&nbsp;{{card.time}} min</div>
+                        <div class="time flex">&nbsp;{{card.time}} min </div>
                     </div>
                 </div>
                 <div id="action" class="data flex-basis-20 flex flex-horizontal-end">
@@ -179,12 +182,22 @@
                 };
             }
 
-
             ready() {
                 super.ready();
 
                 this.$.cardForm.addEventListener('iron-form-presubmit', this.submitCard.bind(this));
             }
+
+            static get observers() {
+                return [
+                    '_changeTime(card.time)'
+                ]
+            }
+
+            _changeTime(time) {
+                console.log('DIO CANE');
+            }
+
 
             /**
              * @param evt
@@ -199,8 +212,9 @@
             submitCard(evt) {
                 evt.preventDefault();
 
-                this.$.card.card.time = this.$.time.value;
-                this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player : this.player, card : this.$.card.card}}));
+                this.card.time = this.$.time.value;
+                this.notifyPath('card.time');
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player : this.player, card : this.card}}));
                 this.$.cardForm.reset();
                 this.$.card.close();
             }
@@ -240,7 +254,24 @@
              * @private
              */
             _leftChanged(newValue) {
-               // console.log('TODO');
+                if (newValue === true) {
+                    this.shadowRoot.querySelector('.card-container').classList.add("reverse");
+                    this.shadowRoot.querySelector('.dataWrapper').classList.add("reverse");
+                    this.shadowRoot.querySelector('.time').classList.add("unreverse");
+
+                    this.$['action'].classList.remove("flex-horizontal-end");
+                    this.$['action'].classList.add("flex-horizontal-start");
+
+                }
+
+                if (newValue === false) {
+                    this.shadowRoot.querySelector('.card-container').classList.remove("reverse");
+                    this.shadowRoot.querySelector('.dataWrapper').classList.remove("reverse");
+                    this.shadowRoot.querySelector('.time').classList.remove("unreverse");
+
+                    this.$['action'].classList.remove("flex-horizontal-start");
+                    this.$['action'].classList.add("flex-horizontal-end");
+                }
             }
 
             _remove(evt)  {

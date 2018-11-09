@@ -2,6 +2,7 @@
 
 <link rel="import" href="scoreboard-player.html">
 <link rel="import" href="scoreboard-match-result.html">
+<link rel="import" href="scoreboard-replacement.html">
 <link rel="import" href="card/scoreboard-card.html">
 <link rel="import" href="goal/scoreboard-goal.html">
 <link rel="import" href="../iconset/iconset.html">
@@ -58,7 +59,7 @@
                 <div class="flex-basis-30">
                     <div class="teamRose">Goal</div>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hasGoal" home>
-                        <soccer-scoreboard-goal-wc player="{{player}}" on-wrap-remove="_changeGoal" on-wrap-update="_changeGoal" home left></soccer-scoreboard-goal-wc>
+                        <soccer-scoreboard-goal-wc player="{{player}}" on-wrap-remove="_changeGoal" on-wrap-update="_changeGoal" home></soccer-scoreboard-goal-wc>
                     </template>
                     <div class="teamRose">Rosa</div>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isRostrumPlayer" home>
@@ -70,7 +71,7 @@
                     <div class="teamRose">Titolari</div>
                     <div>
                         <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
-                            <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-add-goal="_changeGoal" home left></soccer-scoreboard-player-wc>
+                            <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-add-goal="_changeGoal" on-wrap-replace="_addReplacePlayer" home left></soccer-scoreboard-player-wc>
                         </template>
                     </div>
                     <div class="teamRose">Panchina</div>
@@ -81,10 +82,15 @@
                         <div class="flex-basis-50 teamRose">
                             <div class="teamRose">Cartellini</div>
                             <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hasCard" home>
-                                <soccer-scoreboard-card-wc player="{{player}}" on-wrap-remove="_changeCard" on-wrap-update="_changeCard" home left></soccer-scoreboard-card-wc>
+                                <soccer-scoreboard-card-wc player="{{player}}" on-wrap-remove="_changeCard" on-wrap-update="_changeCard" home></soccer-scoreboard-card-wc>
                             </template>
                         </div>
-                        <div class="flex-basis-50 teamRose">Sostituzioni</div>
+                        <div class="flex-basis-50 teamRose padding-left-6">
+                            <div class="teamRose">Sostituzioni</div>
+                            <template is="dom-repeat" items="[[match.homeTeam.replacemens]]" as="replacement" home>
+                                <soccer-scoreboar-replacement-wc replacement="{{replacement}}" on-wrap-remove="_removeReplacementPlayer" home></soccer-scoreboar-replacement-wc>
+                            </template>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -93,18 +99,23 @@
                     <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}" result="{{guestResult}}"></soccer-scoreboar-match-result-wc>
                     <div class="teamRose">Titolari</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isHolderPlayer" guest>
-                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-add-goal="_changeGoal" guest></soccer-scoreboard-player-wc>
+                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-add-goal="_changeGoal" on-wrap-replace="_addReplacePlayer" guest></soccer-scoreboard-player-wc>
                     </template>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
                         <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" guest></soccer-scoreboard-player-wc>
                     </template>
                     <div class="flex flex-horizontal">
-                        <div class="flex-basis-50 teamRose">Sostituzioni</div>
                         <div class="flex-basis-50 teamRose">
+                            <div class="teamRose">Sostituzioni</div>
+                            <template is="dom-repeat" items="[[match.guestTeam.replacemens]]" as="replacement" guest>
+                                <soccer-scoreboar-replacement-wc replacement="{{replacement}}" on-wrap-remove="_removeReplacementPlayer" guest left></soccer-scoreboar-replacement-wc>
+                            </template>
+                        </div>
+                        <div class="flex-basis-50 teamRose padding-left-6">
                             <div class="teamRose">Cartellini</div>
                             <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_hasCard" guest>
-                                <soccer-scoreboard-card-wc player="{{player}}" on-wrap-remove="_changeCard" on-wrap-update="_changeCard" guest></soccer-scoreboard-card-wc>
+                                <soccer-scoreboard-card-wc player="{{player}}" on-wrap-remove="_changeCard" on-wrap-update="_changeCard" guest left></soccer-scoreboard-card-wc>
                             </template>
                         </div>
                     </div>
@@ -229,7 +240,7 @@
              * @param {PlayerSoccer} item1
              * @param {PlayerSoccer} item2
 
-            _sortCard(item1, item2) {
+             _sortCard(item1, item2) {
 
             }
 
@@ -306,11 +317,38 @@
                     for (let cont = 0; elems.length > cont; cont++) {
 
                         if ( elems[cont].player.id === evt.detail.player.id) {
-                            console.log('dio cane');
                             elems[cont]._changeVisibilityCard();
                         }
                     }
                 }
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _addReplacePlayer(evt) {
+
+                let team = this._getTeamAttributeByElement(evt.target);
+
+                let replacement = this.match[team].addReplacementPlayer(evt.detail.playerIn, evt.detail.playerOut, evt.detail.time);
+                if (replacement) {
+                    this._updateData(team);
+                }
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _removeReplacementPlayer(evt) {
+
+                let team = this._getTeamAttributeByElement(evt.target);
+
+                if (this.match[team].removeReplacementPlayer(evt.detail.replacement)) {
+                    this._updateData(team);
+                }
+
             }
 
             /**
@@ -323,7 +361,7 @@
                     .get(SoccerConfig.NAME_SERVICE)
                     .update(this.match)
                     .then((data)=> {
-                    //    console.log('update');
+                        //    console.log('update');
                     })
                     .catch((error) => {console.error(error)});
             }

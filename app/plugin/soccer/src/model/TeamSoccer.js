@@ -13,6 +13,11 @@ class TeamSoccer extends Team {
 
     constructor() {
         super();
+
+        /**
+         * @type {Array}
+         */
+        this.replacemens = [];
     }
 
     /**
@@ -67,10 +72,44 @@ class TeamSoccer extends Team {
         return count;
     }
 
+    /**
+     * @param options
+     * @return {Array}
+     */
     getPlayers(options) {
 
-        if(options && options.sort === 'position') {
-            let list =  this.players.sort((elem1, elem2) =>{
+        let players = super.getPlayers();
+
+        if (options && options.bench === true || options.toBench === true) {
+            players =  players.filter((player) => { return player.status === PlayerSoccer.STATUS_BENCH; });
+
+            if (options.toBench === true) {
+                players =  players.filter((player) => {
+                    let toBench = true;
+                    for (let cont = 0; this.replacemens.length > cont; cont++) {
+                        if (player.id === this.replacemens[cont].playerOut.id) {
+                            toBench = false;
+                            break;
+                        }
+                    }
+                    return toBench;
+                });
+            }
+        }
+
+        if (options && options.name !== '') {
+            players =  players.filter((player) => { return player.surname.search(new RegExp(options.name, 'i')) > -1; });
+        }
+
+        return players;
+    }
+
+    /**
+     * @param options
+     */
+    sortPlayer(options) {
+        if(options && options.position === true) {
+            this.players.sort((elem1, elem2) =>{
 
                 let value = 1;
                 switch (elem1.position) {
@@ -115,15 +154,76 @@ class TeamSoccer extends Team {
                 return value;
             });
         }
-
-        return super.getPlayers();
     }
 
     /**
-     * @return {number}
+     * @param {PlayerSoccer} playerIn
+     * @param {PlayerSoccer} playerOut
+     * @param {number}  time
+     * @return {Replacement}|null
      */
-    getResult() {
-        return 0;
+    addReplacementPlayer(playerIn, playerOut, time) {
+        let replacement = null;
+        let searchPlayerIn = this.players.find((player) => {
+            return player.id === playerIn.id;
+        });
+
+        if (!searchPlayerIn || searchPlayerIn.status !== PlayerSoccer.STATUS_BENCH) {
+            return replacement;
+        }
+
+        let searchPlayerOut = this.players.find((player) => {
+            return player.id === playerOut.id;
+        });
+
+        if (!searchPlayerOut || searchPlayerOut.status !== PlayerSoccer.STATUS_HOLDER) {
+            return replacement;
+        }
+
+        replacement = new Replacement(
+            playerIn,
+            playerOut,
+            time
+        );
+
+        this.replacemens.push(replacement);
+        this.sortReplacementPlayer({time : true});
+
+        searchPlayerIn.status = PlayerSoccer.STATUS_HOLDER;
+        searchPlayerOut.status = PlayerSoccer.STATUS_BENCH;
+
+        return replacement;
+    }
+
+    /**
+     * @param {Replacement} replacement
+     * @return {boolean}
+     */
+    removeReplacementPlayer(replacement) {
+
+        let index = this.replacemens.findIndex((iReplacement) => {
+            return iReplacement.playerIn.id === replacement.playerIn.id &&
+                iReplacement.playerOut.id === replacement.playerOut.id &&
+                iReplacement.time === replacement.time
+        });
+
+        if (index > -1) {
+            this.replacemens.splice(index, 1);
+        }
+
+        return index > -1;
+    }
+
+    /**
+     * @param options
+     */
+    sortReplacementPlayer(options) {
+
+        if (options && options.time === true) {
+            this.replacemens.sort((elem1, elem2) => {
+                return elem1.time <= elem2.time;
+            });
+        }
     }
 }
 

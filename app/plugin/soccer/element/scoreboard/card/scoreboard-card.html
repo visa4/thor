@@ -5,7 +5,7 @@
 <dom-module id="soccer-scoreboard-card-wc">
     <template>
         <template id="repeatCard" is="dom-repeat" items="[[player.cards]]" as="card">
-            <soccer-scoreboar-card-single-wc  player="{{player}}" card="{{card}}" on-wrap-remove="_proxyRemove" on-wrap-update="_proxyUpdate"></soccer-scoreboar-card-single-wc>
+            <soccer-scoreboar-card-single-wc  player="{{player}}" card="{{card}}" on-wrap-remove="_proxyRemove" on-wrap-update="_proxyUpdate" left="{{left}}"></soccer-scoreboar-card-single-wc>
         </template>
     </template>
 
@@ -22,7 +22,12 @@
                     player: {
                         type: new PlayerSoccer(),
                         notify:true
-                    }
+                    },
+
+                    left: {
+                        type: Boolean,
+                        value: false
+                    },
                 };
             }
 
