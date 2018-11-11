@@ -142,7 +142,10 @@
         "color": " green"
       },
       "name": "media-device",
-      "configFile": "config.js"
+      "configFile": "config.js",
+      "autoloads": [
+        "src/model/MediaDevice.js"
+      ]
     },
     {
       "icon": "app:timer",

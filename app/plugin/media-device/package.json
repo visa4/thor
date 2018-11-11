@@ -4,5 +4,8 @@
   "author": "antonino visalli <antonino.visalli@gmail.com>",
   "description": "Dsign media device module",
   "homepage": "www.visa4.it",
-  "config": "config.js"
+  "config": "config.js",
+  "autoloads": [
+    "src/model/MediaDevice.js"
+  ]
 }

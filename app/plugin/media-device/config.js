@@ -51,6 +51,48 @@ class MediaDeviceConfig extends PluginConfig {
      */
     _loadHydrator() {
 
+        let hydrator = new PropertyHydrator(
+            new MediaDevice()
+        );
+
+        hydrator.enableExtractProperty('id')
+            .enableExtractProperty('label')
+            .enableExtractProperty('groupId')
+            .enableExtractProperty('type');
+
+        hydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('label')
+            .enableHydrateProperty('groupId')
+            .enableHydrateProperty('type');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'mediaDeviceApiHydrator',
+            hydrator
+        );
+
+        hydrator = new PropertyHydrator(
+            new MediaDevice(),
+            {},
+            {
+                deviceId : 'id',
+                kind : 'type'
+            }
+        );
+
+        hydrator.enableExtractProperty('deviceId')
+            .enableExtractProperty('label')
+            .enableExtractProperty('groupId')
+            .enableExtractProperty('kind');
+
+        hydrator.enableHydrateProperty('deviceId')
+            .enableHydrateProperty('label')
+            .enableHydrateProperty('groupId')
+            .enableHydrateProperty('kind');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'mediaDeviceFromApiApiHydrator',
+            hydrator
+        );
     }
 
     /**
@@ -68,7 +110,7 @@ class MediaDeviceConfig extends PluginConfig {
                         {
                             "name": MediaDeviceConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "name", "status", "duration", "virtualMonitorReference", "*tags"
+                                "++id", "label", "groupId", "type"
                             ]
                         }
                     );
