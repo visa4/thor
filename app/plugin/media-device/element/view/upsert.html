@@ -54,7 +54,47 @@
         <style include="global-style"></style>
         <slot name="header"></slot>
         <div class="flex flex-horizontal">
-            media updert
+            <paper-autocomplete
+                    id="mediaDevice"
+                    label="Media device"
+                    text-property="label"
+                    value-property="label"
+                    remote-source
+                    on-autocomplete-selected="_selectMediaDevice"
+                    on-autocomplete-change="_searchMediaDeviceChanged">
+                <template slot="autocomplete-custom-template">
+                    <style>
+                        :host {
+                            display: block;
+                        }
+
+                        paper-item.account-item {
+                            padding: 8px 16px;
+                        }
+
+                        .service-name {
+                            color: #333;
+                        }
+
+                        .service-description {
+                            margin-top: 4px;
+                            color: #999;
+                        }
+                    </style>
+                    <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                        <div>
+                            <div class="service-name">[[item.label]]</div>
+                            <div class="service-description">[[item.kind]]</div>
+                        </div>
+                        <paper-ripple></paper-ripple>
+                    </paper-item>
+                </template>
+            </paper-autocomplete>
+        </div>
+        <div>
+            <div class="flex flex-horizontal-end" style="margin-top: 20px;">
+                <paper-button on-tap="submitSidelineButton">{{labelAction}}</paper-button>
+            </div>
         </div>
     </template>
 
@@ -74,7 +114,7 @@
                     resource: {
                         type: Object,
                         notify: true,
-                        value: new MatchSoccer(),
+                        value: new MediaDevice(),
                         observer: '_resourceChanged'
                     },
 
@@ -104,6 +144,42 @@
 
                 this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
             }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _selectMediaDevice(evt) {
+
+                // evt.detail.option
+
+                this.resource = serviceManager.get('HydratorPluginManager')
+                    .get('mediaDeviceFromApiApiHydrator')
+                    .hydrate(evt.detail.option);
+            }
+
+            /**
+             * @param evt
+             * @private
+             */
+            _searchMediaDeviceChanged(evt) {
+                navigator.mediaDevices.enumerateDevices()
+                    .then(function(devices) {
+                        let filter = devices.filter(
+                            (element) => {
+                                return element.label.search(new RegExp(evt.detail.value, 'i')) > -1;
+                            }
+                        );
+
+                        evt.detail.target.suggestions(
+                            filter
+                        );
+                    })
+                    .catch(function(err) {
+                        console.error(err);
+                    });
+            }
+
         }
 
         window.customElements.define(ElementMediaDeviceViewUpsert.is, ElementMediaDeviceViewUpsert);

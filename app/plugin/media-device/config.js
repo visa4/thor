@@ -75,7 +75,8 @@ class MediaDeviceConfig extends PluginConfig {
             {},
             {
                 deviceId : 'id',
-                kind : 'type'
+                kind : 'type',
+                label : 'name'
             }
         );
 
@@ -110,7 +111,7 @@ class MediaDeviceConfig extends PluginConfig {
                         {
                             "name": MediaDeviceConfig.NAME_COLLECTION,
                             "index": [
-                                "++id", "label", "groupId", "type"
+                                "++id", "name", "groupId", "type"
                             ]
                         }
                     );

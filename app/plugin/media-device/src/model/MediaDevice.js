@@ -19,7 +19,7 @@ class MediaDevice {
         /**
          * @type {string}
          */
-        this.label = '';
+        this.name = '';
     }
 }
 module.exports = MediaDevice;
