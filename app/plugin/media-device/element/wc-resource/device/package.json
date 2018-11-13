@@ -1,0 +1,6 @@
+{
+  "name": "ws-resource-timer",
+  "version": "0.1.0",
+  "description": "View the progress timer",
+  "main": "wsresource-timer.html"
+}

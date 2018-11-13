@@ -1,0 +1,55 @@
+<dom-module id="wc-resource-device">
+    <template>
+        <style>
+
+            #camera {
+                width: 700px;
+                height: 200px;
+                object-fit: fill;
+            }
+
+        </style>
+        <video id="camera" autoplay>
+
+        </video>
+    </template>
+
+    <script>
+        class WcResourceDevice extends Polymer.Element {
+
+            static get is() {
+                return 'wc-resource-device';
+            }
+
+            static get properties() {
+                return {
+
+                    data: {
+                        type: Object,
+                        notify: true,
+                        observer: '_dataChanged',
+                    }
+
+                };
+            }
+
+            ready() {
+                super.ready();
+
+                let constraint = { video : {deviceId: { exact:  'd8907b814023a701f053ee5d7c7fd9ec9358a42753568e81607a94a24d3eb0f1'}}};
+                //constraint = {video: true};
+
+                navigator.mediaDevices.getUserMedia(constraint)
+                    .then((stream) => {
+                       this.$.camera.srcObject = stream;
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                    });
+            }
+        }
+
+        window.customElements.define(WcResourceDevice.is, WcResourceDevice);
+
+    </script>
+</dom-module>
