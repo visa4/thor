@@ -209,16 +209,15 @@ class Application {
      */
     static injectServices(serviceManager) {
 
-
         serviceManager.set(
-            (new HydratorPluginManager).constructor.name,
-            new HydratorPluginManager()
+            'HydratorPluginManager',
+            HydratorPluginManager.getInstance()
         ).set(
-            (new StoragePluginManager).constructor.name,
-            new StoragePluginManager()
+            'StoragePluginManager',
+            StoragePluginManager.getInstance()
         ).set(
-            (new CommunicatorPluginManager).constructor.name,
-            new CommunicatorPluginManager()
+            'SenderPluginManager',
+            SenderPluginManager.getInstance()
         );
     }
 }

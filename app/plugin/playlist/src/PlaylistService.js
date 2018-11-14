@@ -163,7 +163,6 @@ class PlaylistService {
         playlist.status = Playlist.RUNNING;
 
         let timeslot = playlist.first();
-       // timeslot.playlistId = playlist.id;
         this.timeslotSender.play(timeslot, {playlistId: playlist.id});
         this.eventManager.fire(PlaylistService.PLAY, playlist);
         this.eventManager.on(
@@ -181,7 +180,6 @@ class PlaylistService {
         this._executeBids(playlist, 'stop');
         playlist.status = Playlist.IDLE;
         let timeslot = playlist.current();
-        // timeslot.playlistId = playlist.id;
         this.timeslotSender.stop(timeslot, {playlistId: playlist.id});
         this.eventManager.fire(PlaylistService.STOP, playlist);
     }
@@ -201,7 +199,6 @@ class PlaylistService {
         this._executeBids(playlist, 'resume');
 
         let timeslot = playlist.current();
-      //  timeslot.playlistId = playlist.id;
         this.timeslotSender.resume(timeslot,  {playlistId: playlist.id});
         this.eventManager.fire(PlaylistService.RESUME, playlist);
 
@@ -220,7 +217,6 @@ class PlaylistService {
         this.removeRunningPlaylist(playlist);
         this._executeBids(playlist, 'pause');
         let timeslot = playlist.current();
-      //  timeslot.playlistId = playlist.id;
         this.timeslotSender.pause(timeslot,  {playlistId: playlist.id});
         this.eventManager.fire(PlaylistService.PAUSE, playlist);
     }
@@ -251,7 +247,6 @@ class PlaylistService {
             case runningPlaylist.hasNext():
                 let nextTimeslot = runningPlaylist.next();
                 console.log('PLAYLIST NEXT', this.playlist.name, nextTimeslot);
-            //    nextTimeslot.playlistId = this.playlist.id;
                 this.playlistService.timeslotSender.play(nextTimeslot,  {playlistId: this.playlist.id});
                 this.playlistService.eventManager.on(
                     `timeline-${this.playlistService.timer.getTotalTimeValues().secondTenths + parseInt(nextTimeslot.duration) * 10}`,

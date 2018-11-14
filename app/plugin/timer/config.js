@@ -32,6 +32,7 @@ class TimerConfig extends PluginConfig {
         if (service.length === 0) {
             this._loadHydrator();
             this._loadStorage();
+            this._loadTimerSender();
             this._loadTimerService();
         } else {
             for (let cont = 0; service.length > cont; cont++) {
@@ -43,7 +44,8 @@ class TimerConfig extends PluginConfig {
                         this._loadStorage();
                         break;
                     case service[cont] === 'TimerService':
-                        this._loadStorage();
+                        this._loadTimerSender();
+                        this._loadTimerService();
                         break;
                 }
             }
@@ -161,12 +163,17 @@ class TimerConfig extends PluginConfig {
     /**
      * @private
      */
+    _loadTimerSender() {
+        this.serviceManager.get('SenderPluginManager')
+            .set('timerSender', require('electron').ipcRenderer);
+    }
+
+    /**
+     * @private
+     */
     _loadTimerService() {
-        let CommunicatorAggregate = require('../../lib/communicator/CommunicatorAggregate');
         let timerService = new TimerService(
-            new CommunicatorAggregate(
-                [serviceManager.get('CommunicatorPluginManager').get('Ipc')]
-            ),
+            this.serviceManager.get('SenderPluginManager').get('timerSender'),
             this.serviceManager.get('HydratorPluginManager').get('timerHydrator')
         );
         this.serviceManager.set('TimerService', timerService);
