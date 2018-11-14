@@ -6,6 +6,7 @@
   "homepage": "www.visa4.it",
   "config": "config.js",
   "autoloads": [
-    "src/model/MediaDevice.js"
+    "src/model/MediaDevice.js",
+    "src/injector/MediaDeviceDataInjector"
   ]
 }

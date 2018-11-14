@@ -54,48 +54,53 @@
         <style include="global-style"></style>
         <slot name="header"></slot>
         <div class="flex flex-horizontal">
-            <paper-autocomplete
-                    id="mediaDevice"
-                    label="Media device"
-                    text-property="label"
-                    value-property="label"
-                    remote-source
-                    on-autocomplete-selected="_selectMediaDevice"
-                    on-autocomplete-change="_searchMediaDeviceChanged">
-                <template slot="autocomplete-custom-template">
-                    <style>
-                        :host {
-                            display: block;
-                        }
+            <iron-form id="formResource">
+                <form method="post">
+                    <paper-autocomplete
+                            id="mediaDevice"
+                            label="Media device"
+                            text-property="label"
+                            value-property="label"
+                            remote-source
+                            on-autocomplete-selected="_selectMediaDevice"
+                            on-autocomplete-change="_searchMediaDeviceChanged">
+                        <template slot="autocomplete-custom-template">
+                            <style>
+                                :host {
+                                    display: block;
+                                }
 
-                        paper-item.account-item {
-                            padding: 8px 16px;
-                        }
+                                paper-item.account-item {
+                                    padding: 8px 16px;
+                                }
 
-                        .service-name {
-                            color: #333;
-                        }
+                                .service-name {
+                                    color: #333;
+                                }
 
-                        .service-description {
-                            margin-top: 4px;
-                            color: #999;
-                        }
-                    </style>
-                    <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
-                        <div>
-                            <div class="service-name">[[item.label]]</div>
-                            <div class="service-description">[[item.kind]]</div>
+                                .service-description {
+                                    margin-top: 4px;
+                                    color: #999;
+                                }
+                            </style>
+                            <paper-item class="account-item" on-tap="_onSelect" role="option" aria-selected="false">
+                                <div>
+                                    <div class="service-name">[[item.label]]</div>
+                                    <div class="service-description">[[item.kind]]</div>
+                                </div>
+                                <paper-ripple></paper-ripple>
+                            </paper-item>
+                        </template>
+                    </paper-autocomplete>
+                    <div>
+                        <div class="flex flex-horizontal-end" style="margin-top: 20px;">
+                            <paper-button on-tap="submitResourceButton">{{labelAction}}</paper-button>
                         </div>
-                        <paper-ripple></paper-ripple>
-                    </paper-item>
-                </template>
-            </paper-autocomplete>
+                    </div>
+                </form>
+            </iron-form>
         </div>
-        <div>
-            <div class="flex flex-horizontal-end" style="margin-top: 20px;">
-                <paper-button on-tap="submitSidelineButton">{{labelAction}}</paper-button>
-            </div>
-        </div>
+
     </template>
 
     <script>
@@ -133,9 +138,13 @@
                     .eventManager.on(Storage.STORAGE_POST_SAVE, this._clearResource.bind(this)
                 );
 */
-                //this.$.formResource.addEventListener('iron-form-presubmit', this.submitResource.bind(this));
+                this.$.formResource.addEventListener('iron-form-presubmit', this.submitResource.bind(this));
             }
 
+            /**
+             * @param newValue
+             * @param oldValue
+             */
             _resourceChanged(newValue, oldValue) {
 
                 if (!newValue) {
@@ -150,8 +159,6 @@
              * @private
              */
             _selectMediaDevice(evt) {
-
-                // evt.detail.option
 
                 this.resource = serviceManager.get('HydratorPluginManager')
                     .get('mediaDeviceFromApiApiHydrator')
@@ -180,6 +187,32 @@
                     });
             }
 
+            /**
+             * @param evt
+             */
+            submitResourceButton(evt) {
+                this.$.formResource.submit();
+            }
+
+            /**
+             * @param evt
+             */
+            submitResource(evt) {
+                evt.preventDefault();
+
+                let method = this.resource.id ? 'update' : 'save';
+
+                serviceManager.get('StoragePluginManager')
+                    .get(MediaDeviceConfig.NAME_SERVICE)[method](this.resource)
+                    .then((data) => {
+                        serviceManager.get('PaperToastNotification').notify(method.charAt(0).toUpperCase() + method.slice(1) + ' media device');
+                    })
+                    .catch((err) => {
+                            console.log(err)
+                        }
+                    );
+
+            }
         }
 
         window.customElements.define(ElementMediaDeviceViewUpsert.is, ElementMediaDeviceViewUpsert);

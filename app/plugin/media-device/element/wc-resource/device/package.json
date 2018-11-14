@@ -1,6 +1,6 @@
 {
-  "name": "ws-resource-timer",
+  "name": "wc-resource-media-device",
   "version": "0.1.0",
-  "description": "View the progress timer",
-  "main": "wsresource-timer.html"
+  "description": "View video device ws",
+  "main": "wc-resource-media-device.html"
 }

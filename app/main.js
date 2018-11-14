@@ -25,6 +25,11 @@ let monitorHydrator = new PropertyHydrator(
     }
 );
 
+/**
+ * Enable autoplay
+ */
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
 monitorHydrator.addStrategy(
     'monitors',
     new HydratorStrategy(monitorHydrator)

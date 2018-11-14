@@ -56,17 +56,17 @@ class MediaDeviceConfig extends PluginConfig {
         );
 
         hydrator.enableExtractProperty('id')
-            .enableExtractProperty('label')
+            .enableExtractProperty('name')
             .enableExtractProperty('groupId')
             .enableExtractProperty('type');
 
         hydrator.enableHydrateProperty('id')
-            .enableHydrateProperty('label')
+            .enableHydrateProperty('name')
             .enableHydrateProperty('groupId')
             .enableHydrateProperty('type');
 
         this.serviceManager.get('HydratorPluginManager').set(
-            'mediaDeviceApiHydrator',
+            'mediaDeviceHydrator',
             hydrator
         );
 
@@ -127,7 +127,7 @@ class MediaDeviceConfig extends PluginConfig {
                                     serviceManager.get('DexieManager'),
                                     MediaDeviceConfig.NAME_COLLECTION
                                 ),
-                                serviceManager.get('HydratorPluginManager').get('timeslotHydrator')
+                                serviceManager.get('HydratorPluginManager').get('mediaDeviceHydrator')
                             );
 
 
@@ -135,6 +135,12 @@ class MediaDeviceConfig extends PluginConfig {
                                 MediaDeviceConfig.NAME_SERVICE,
                                 storage
                             );
+
+                            serviceManager.get('TimeslotDataInjectorService')
+                                .set('MediaDeviceDataInjector',new MediaDeviceDataInjector(
+                                    storage
+                                ));
+
                         }.bind(this)
                     );
                 }

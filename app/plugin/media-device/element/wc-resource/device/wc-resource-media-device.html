@@ -1,10 +1,10 @@
-<dom-module id="wc-resource-device">
+<dom-module id="wc-resource-media-device">
     <template>
         <style>
 
             #camera {
-                width: 700px;
-                height: 200px;
+                height: 100%;
+                width: 100%;
                 object-fit: fill;
             }
 
@@ -15,10 +15,10 @@
     </template>
 
     <script>
-        class WcResourceDevice extends Polymer.Element {
+        class WcResourceMediaDevice extends Polymer.Element {
 
             static get is() {
-                return 'wc-resource-device';
+                return 'wc-resource-media-device';
             }
 
             static get properties() {
@@ -33,15 +33,19 @@
                 };
             }
 
-            ready() {
-                super.ready();
+            /**
+             * @param newValue
+             * @param oldValue
+             * @private
+             */
+            _dataChanged(newValue, oldValue) {
 
-                let constraint = { video : {deviceId: { exact:  'd8907b814023a701f053ee5d7c7fd9ec9358a42753568e81607a94a24d3eb0f1'}}};
+                let constraint = { video : {deviceId: { exact:  newValue.id}}};
                 //constraint = {video: true};
 
                 navigator.mediaDevices.getUserMedia(constraint)
                     .then((stream) => {
-                       this.$.camera.srcObject = stream;
+                        this.$.camera.srcObject = stream;
                     })
                     .catch((err) => {
                         console.log(err);
@@ -49,7 +53,7 @@
             }
         }
 
-        window.customElements.define(WcResourceDevice.is, WcResourceDevice);
+        window.customElements.define(WcResourceMediaDevice.is, WcResourceMediaDevice);
 
     </script>
 </dom-module>

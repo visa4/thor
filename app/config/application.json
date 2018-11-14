@@ -58,7 +58,8 @@
       "autoloads": [
         "src/model/GenericFile.js",
         "src/model/Image.js",
-        "src/model/Video.js"
+        "src/model/Video.js",
+        "src/model/Audio.js"
       ],
       "name": "resource"
     },
@@ -144,7 +145,8 @@
       "name": "media-device",
       "configFile": "config.js",
       "autoloads": [
-        "src/model/MediaDevice.js"
+        "src/model/MediaDevice.js",
+        "src/injector/MediaDeviceDataInjector"
       ]
     },
     {

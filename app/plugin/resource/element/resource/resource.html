@@ -47,6 +47,10 @@
                 background-image: url("img/web.jpeg") !important;
             }
 
+            .audioBackground {
+                background-image: url("img/audio.jpeg") !important;
+            }
+
             .activePaperButton {
                 color: var(--app-primary-color);
             }
@@ -104,6 +108,9 @@
                         break;
                     case newValue.type === 'video/mp4':
                         this.$.rightSection.classList.add("videoBackground");
+                        break;
+                    case newValue.type === 'audio/mp3':
+                        this.$.rightSection.classList.add("audioBackground");
                         break;
                 }
 

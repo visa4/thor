@@ -97,6 +97,7 @@ class ResourceConfig extends PluginConfig {
 
         this._loadVideoHydrator();
         this._loadImageHydrator();
+        this._loadAudioHydrator();
         this._loadZipHydrator();
 
         let hydrator = new AggregatePropertyHydrator('type');
@@ -109,6 +110,9 @@ class ResourceConfig extends PluginConfig {
         ).addHydratorMap(
             this.serviceManager.get('HydratorPluginManager').get('genericHydrator'),
             ['application/zip', 'text/html']
+        ).addHydratorMap(
+            this.serviceManager.get('HydratorPluginManager').get('audioHydrator'),
+            ['audio/mp3']
         );
 
         this.serviceManager.get('HydratorPluginManager').set(
@@ -173,6 +177,35 @@ class ResourceConfig extends PluginConfig {
 
         this.serviceManager.get('HydratorPluginManager').set(
             'imageHydrator',
+            imageHydrator
+        );
+    }
+
+    /**
+     *
+     * @return {PropertyHydrator}
+     * @private
+     */
+    _loadAudioHydrator() {
+        let imageHydrator = new PropertyHydrator(new Audio());
+        imageHydrator.enableHydrateProperty('id')
+            .enableHydrateProperty('name')
+            .enableHydrateProperty('size')
+            .enableHydrateProperty('type')
+            .enableHydrateProperty('location')
+            .enableHydrateProperty('lastModified')
+            .enableHydrateProperty('duration');
+
+        imageHydrator.enableExtractProperty('id')
+            .enableExtractProperty('name')
+            .enableExtractProperty('size')
+            .enableExtractProperty('type')
+            .enableExtractProperty('location')
+            .enableExtractProperty('lastModified')
+            .enableExtractProperty('duration');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'audioHydrator',
             imageHydrator
         );
     }

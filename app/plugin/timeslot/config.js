@@ -108,9 +108,6 @@ class TimeslotConfig extends PluginConfig {
     _loadDataServiceInjectorService() {
         let timeslotDataInjectorServicePluginManager = new TimeslotDataInjectorServicePluginManager();
         this.serviceManager.set('TimeslotDataInjectorService', timeslotDataInjectorServicePluginManager);
-
-        this.serviceManager.get('TimeslotDataInjectorService').set('Test1',new Test1());
-        this.serviceManager.get('TimeslotDataInjectorService').set('Test2',new Test2());
     }
 
     /**

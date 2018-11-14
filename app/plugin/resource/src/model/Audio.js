@@ -1,31 +1,16 @@
 
-class Video extends GenericFile {
+class Audio extends GenericFile {
 
     constructor() {
         super();
         this.duration = null;
-        this.dimension = {};
 
         Object.defineProperty(
             this,
             "typeLabel",
-            {writable: false, enumerable: true, configurable: true, value: 'video'}
+            {writable: false, enumerable: true, configurable: true, value: 'audio'}
         );
-    }
-
-    /**
-     * @returns {Number}
-     */
-    getWidth() {
-        return this.dimension.width;
-    }
-
-    /**
-     * @returns {Number}
-     */
-    getHeight() {
-        return this.dimension.height;
     }
 }
 
-module.exports = Video;
+module.exports = Audio;

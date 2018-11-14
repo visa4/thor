@@ -10,7 +10,7 @@
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/iconset/iconset.html">
 
-<dom-module id="match-wc">
+<dom-module id="media-device-wc">
     <template>
         <style include="global-layout"></style>
         <style include="global-style"></style>
@@ -67,51 +67,23 @@
             }
 
             #rightSection {
-                background-image: url("img/calcio.jpg") !important;
+                background-image: url("img/tegnology.jpg") !important;
             }
 
-            .enableButtonContainer {
-                height: 40px;
-                width: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .enableButtonContainer paper-radio-button {
-                width: 16px;
-            }
-
-            paper-toggle-button {
-                width: 38px;
-                cursor: pointer;
-                --paper-toggle-button-checked-bar-color:  var(--paper-green-500);
-                --paper-toggle-button-checked-button-color:  var(--paper-green-500);
-                --paper-toggle-button-checked-ink-color: var(--paper-green-500);
-                --paper-toggle-button-unchecked-bar-color:  var(--paper-pink-500);
-                --paper-toggle-button-unchecked-button-color:  var(--paper-pink-500);
-                --paper-toggle-button-unchecked-ink-color: var(--paper-pink-500);
-            }
 
         </style>
-        <paper-card id="design" class="setting">
-            <div class="card-setting">
-                <div class="enableButtonContainer">
-                    <paper-toggle-button id="paperToggleEnable" on-change="_changeEnableMatch"></paper-toggle-button>
-                </div>
-            </div>
+        <paper-card id="design">
             <div class="card-content flex flex-horizontal">
                 <div class="data flex-basis-85 flex flex-vertical">
                     <div class="dataWrapper">
-                        <div>{{match.homeTeam.name}} vs {{match.guestTeam.name}}</div>
-                        <div>{{match.date}}</div>
+                        <div>{{mediaDevice.name}}</div>
                     </div>
                 </div>
                 <div class="flags flex-basis-15">
                     <paper-menu-button ignore-select disabled="{{hideCrud}}">
                         <paper-icon-button icon="app:more" slot="dropdown-trigger" alt="multi menu"></paper-icon-button>
                         <paper-listbox slot="dropdown-content" multi>
-                            <paper-item on-click="_update">Modifica</paper-item>
+                            <!--   <paper-item on-click="_update">Modifica</paper-item> -->
                             <paper-item  on-click="_remove">Elimina</paper-item>
                         </paper-listbox>
                     </paper-menu-button>
@@ -123,52 +95,39 @@
     </template>
 
     <script>
-        class ElementMatch extends Polymer.Element {
+        class ElementMediaDevice extends Polymer.Element {
 
             static get is() {
-                return 'match-wc';
+                return 'media-device-wc';
             }
 
             static get properties() {
                 return {
 
-                    match: {
+                    mediaDevice: {
                         type: Object,
                         notify:true
                     },
                 };
             }
 
-            static get observers() {
-                return [
-                    'matchEnableChange(match.enable)'
-                ]
+            ready() {
+                super.ready();
+                navigator.mediaDevices.ondevicechange = function(event) {
+                    console.log('PD');
+                }
             }
 
             _remove(evt) {
-                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.match}));
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: this.mediaDevice}));
             }
 
             _update(evt) {
-                this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.match}));
-            }
-
-            _changeEnableMatch(evt) {
-                this.match.enable = evt.target.checked === true ? 1 : 0;
-                this.dispatchEvent(new CustomEvent('wrap-change-enable-match', {detail: this.match}));
-            }
-
-            /**
-             * @param enable
-             */
-            matchEnableChange(enable) {
-
-                this.$.paperToggleEnable.checked = !!enable;
-
+                this.dispatchEvent(new CustomEvent('wrap-update', {detail: this.mediaDevice}));
             }
         }
 
-        window.customElements.define(ElementMatch.is, ElementMatch);
+        window.customElements.define(ElementMediaDevice.is, ElementMediaDevice);
 
     </script>
 </dom-module>

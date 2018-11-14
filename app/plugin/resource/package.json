@@ -8,6 +8,7 @@
   "autoload": [
     "src/model/GenericFile.js",
     "src/model/Image.js",
-    "src/model/Video.js"
+    "src/model/Video.js",
+    "src/model/Audio.js"
   ]
 }

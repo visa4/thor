@@ -126,6 +126,11 @@
                             divResource.appendChild(tagVideo);
                             this.$.resources.appendChild(divResource);
                             break;
+                        case 'audio/mp3':
+                            let tagAudio = this._createAudio(this.timeslot.resources[cont]);
+                            divResource.appendChild(tagAudio);
+                            this.$.resources.appendChild(divResource);
+                            break;
                         case 'text/html':
                             this._createWebComponent(this.timeslot.resources[cont])
                                 .then(
@@ -314,6 +319,25 @@
             }
 
             /**
+             * Create audio tag
+             *
+             * @private
+             * @param resource
+             * @return Element
+             */
+            _createAudio(resource) {
+                let element = document.createElement('audio');
+                element.src = resource.getPath();
+                element.loop = this.timeslot.rotation === Timeslot.ROTATION_LOOP ? true : false;
+                if (this.startAt > 0) {
+                    element.currentTime = this.startAt;
+                }
+                element.play();
+
+                return element;
+            }
+
+            /**
              * @return element
              */
             _initWebComponent(name) {
@@ -363,20 +387,20 @@
             }
 
             pause() {
-                let videos = this.shadowRoot.querySelectorAll('video');
-                for (let cont = 0; videos.length > cont; cont++) {
-                    videos[cont].pause();
+                let tags = this.shadowRoot.querySelectorAll('video, audio');
+                for (let cont = 0; tags.length > cont; cont++) {
+                    tags[cont].pause();
                 }
             }
 
             resume(currentTime) {
-                let videos = this.shadowRoot.querySelectorAll('video');
-                for (let cont = 0; videos.length > cont; cont++) {
+                let tags = this.shadowRoot.querySelectorAll('video, audio');
+                for (let cont = 0; tags.length > cont; cont++) {
                     if (currentTime) {
                         console.log('CURRENT TIME', currentTime);
-                        videos[cont].currentTime = currentTime;
+                        tags[cont].currentTime = currentTime;
                     }
-                    videos[cont].play();
+                    tags[cont].play();
                 }
             }
 

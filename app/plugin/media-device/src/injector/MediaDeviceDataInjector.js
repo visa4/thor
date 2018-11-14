@@ -1,10 +1,10 @@
 
-class TimerDataInjector extends AbstractInjector {
+class MediaDeviceDataInjector extends AbstractInjector {
 
-    constructor(timerStorage) {
+    constructor(mediaDeviceStorage) {
         super();
 
-        this.storage = timerStorage;
+        this.storage = mediaDeviceStorage;
     }
 
     /**
@@ -34,36 +34,36 @@ class TimerDataInjector extends AbstractInjector {
     }
 
     /**
-     * @param {Timer} timer
+     * @param {MediaDevice} mediaDevice
      */
-    extractTimeslot(timer) {
-        return {'id' : timer.id};
+    extractTimeslot(mediaDevice) {
+        return {'id' : mediaDevice.id};
     }
 
     /**
      *  @return string
      */
     get serviceLabel() {
-        return 'TimerDataInjector';
+        return 'MediaDeviceDataInjector';
     }
 
     /**
      *  @return string
      */
     get serviceName() {
-        return TimerDataInjector.name;
+        return MediaDeviceDataInjector.name;
     }
 
     /**
      *  @return string
      */
     get serviceDescription() {
-        return 'Timer metadata';
+        return 'Media Device metadata';
     }
 
     serviceNamespace () {
-        return 'timer';
+        return 'mediaDevice';
     }
 }
 
-module.exports = TimerDataInjector;
+module.exports = MediaDeviceDataInjector;

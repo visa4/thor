@@ -7,6 +7,7 @@
 <link rel="import" href="../../../../css/global-layout.html">
 <link rel="import" href="../../../../css/global-styles.html">
 <link rel="import" href="../../../../element/pagination/pagination.html">
+<link rel="import" href="../media-device/media-device.html">
 
 <dom-module id="media-device-view-list">
     <template>
@@ -22,7 +23,7 @@
         <slot name="header"></slot>
         <div hidden$="{{!hasResources}}">
             <template is="dom-repeat" items="[[resources]]" as="resource">
-
+                <media-device-wc media-device="{{resource}}" on-wrap-remove="remove"></media-device-wc>
             </template>
             <application-pagination page="{{page}}" total-item="{{totalItems}}" item-per-page="{{itemPerPage}}"></application-pagination>
         </div>
@@ -82,12 +83,12 @@
             ready() {
                 super.ready();
                 serviceManager.get('StoragePluginManager')
-                    .get(SoccerConfig.NAME_SERVICE)
+                    .get(MediaDeviceConfig.NAME_SERVICE)
                     .eventManager.on(Storage.STORAGE_POST_SAVE, this._getResources.bind(this)
                 );
 
                 serviceManager.get('StoragePluginManager')
-                    .get(SoccerConfig.NAME_SERVICE)
+                    .get(MediaDeviceConfig.NAME_SERVICE)
                     .eventManager.on(Storage.STORAGE_POST_UPDATE, this._getResources.bind(this)
                 );
             }
@@ -98,7 +99,7 @@
             _getResources() {
 
                 serviceManager.get('StoragePluginManager')
-                    .get(SoccerConfig.NAME_SERVICE)
+                    .get(MediaDeviceConfig.NAME_SERVICE)
                     .getPaged(this.page, this.itemPerPage)
                     .then((data) => {
                         this.set('resources', data);
@@ -131,10 +132,10 @@
                 this.hasTimer = this.resources.length > 0;
 
                 serviceManager.get('StoragePluginManager')
-                    .get(SoccerConfig.NAME_SERVICE)
+                    .get(MediaDeviceConfig.NAME_SERVICE)
                     .remove(evt.detail)
                     .then((data) => {
-                        serviceManager.get('PaperToastNotification').notify('Remove timer')
+                        serviceManager.get('PaperToastNotification').notify('Remove media device')
                     });
 
             }
