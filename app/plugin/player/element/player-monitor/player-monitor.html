@@ -223,12 +223,13 @@
 
             /**
              * @param timeslot
+             * @params context
              * @private
              */
-            getTimeslotElement(timeslot) {
+            getTimeslotElement(timeslot, context) {
                 let query = `player-timeslot[timeslot-id="${timeslot.id}"]`;
-                if (timeslot.playlistId) {
-                    query = query.concat(`[playlist-id="${timeslot.playlistId}"]`);
+                if (context.playlistId) {
+                    query = query.concat(`[playlist-id="${context.playlistId}"]`);
                 } else {
                     query = query.concat(`:not([playlist-id=""])`);
                 }
@@ -239,13 +240,13 @@
             /**
              * @param {Timeslot} timeslot
              */
-            startTimeslot(timeslot) {
+            startTimeslot(timeslot, context) {
                 let playerTimeslot = document.createElement('player-timeslot');
 
                 playerTimeslot.height = this.height;
                 playerTimeslot.width  = this.width;
                 playerTimeslot.filters = timeslot.filters;
-                playerTimeslot.config(timeslot);
+                playerTimeslot.config(timeslot, context);
 
                 this.clearLayer(timeslot.context);
                 this.appendTimeslot(timeslot.context, playerTimeslot);
@@ -262,7 +263,7 @@
                     return;
                 }
 
-                this.startTimeslot(this._hydrateTimeslot(msg.timeslot));
+                this.startTimeslot(this._hydrateTimeslot(msg.timeslot), msg.context);
             }
 
             /**
@@ -278,7 +279,7 @@
                     return;
                 }
 
-                let element = this.getTimeslotElement(msg.timeslot);
+                let element = this.getTimeslotElement(msg.timeslot, msg.context);
                 if (element) {
                     console.log('MONITOR STOP TIMESLOT', msg.timeslot);
                     element.remove();
@@ -298,7 +299,7 @@
                     return;
                 }
                 console.log('MONITOR PAUSE TIMESLOT', msg.timeslot);
-                let element = this.getTimeslotElement(msg.timeslot);
+                let element = this.getTimeslotElement(msg.timeslot,  msg.context);
                 if (element) {
                     element.pause();
                 }
@@ -317,7 +318,7 @@
                     return;
                 }
 
-                let element = this.getTimeslotElement(msg.timeslot);
+                let element = this.getTimeslotElement(msg.timeslot, msg.context);
                 console.log('MONITOR RESUME TIMESLOT', msg.timeslot);
 
                 switch (true) {
@@ -438,9 +439,15 @@
              * @private
              */
             _hydrateTimeslot(data) {
-                return serviceManager.get('HydratorPluginManager')
+                let timeslot = serviceManager.get('HydratorPluginManager')
                     .get('timeslotHydrator')
                     .hydrate(data);
+
+                if (!(timeslot instanceof Timeslot)) {
+                    console.error('Wrong data timeslot');
+                }
+
+                return timeslot;
             }
         }
 

@@ -31,53 +31,62 @@ class TimeslotSenderService {
     }
 
     /**
+     *
      * @param timeslot
+     * @param context
      */
-    play(timeslot) {
+    play(timeslot, context = {}) {
 
         this.ipc.send(
             TimeslotSenderService.TIMESLOT_PLAY,
             {
-                'timeslot': timeslot
+                timeslot : timeslot,
+                context : context
             }
         );
     }
 
     /**
      * @param timeslot
+     * @param context
      */
-    stop(timeslot) {
+    stop(timeslot, context = {}) {
 
         this.ipc.send(
             TimeslotSenderService.TIMESLOT_STOP,
             {
-                'timeslot': timeslot,
+                timeslot : timeslot,
+                context : context
             }
         );
     }
 
     /**
      * @param timeslot
+     * @param context
      */
-    pause(timeslot) {
+    pause(timeslot, context = {}) {
 
         this.ipc.send(
             TimeslotSenderService.TIMESLOT_PAUSE,
             {
-                'timeslot': timeslot,
+                timeslot : timeslot,
+                context : context
             }
         );
     }
 
     /**
      * @param timeslot
+     * @param context
      */
-    resume(timeslot) {
+    resume(timeslot, context = {}) {
 
         this.ipc.send(
             TimeslotSenderService.TIMESLOT_RESUME,
             {
-                'timeslot': timeslot,
+                timeslot : timeslot,
+                context : context
             }
         );
     }

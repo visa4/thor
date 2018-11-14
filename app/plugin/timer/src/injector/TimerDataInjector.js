@@ -4,7 +4,22 @@ class TimerDataInjector extends AbstractInjector {
     constructor(timerStorage) {
         super();
 
+        /**
+         * @type {Storage}
+         */
         this.storage = timerStorage;
+
+        /**
+         * @type null
+         */
+        this.service = null;
+    }
+
+    /**
+     * @param {TimerService} service
+     */
+    setTimerService(service) {
+
     }
 
     /**

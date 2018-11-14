@@ -98,10 +98,10 @@
                 }
             }
 
-            config(timeslot) {
+            config(timeslot, context) {
                 this.timeslot = timeslot;
                 this.timeslotId = timeslot.id;
-                this.playlistId = timeslot.playlistId;
+                this.playlistId = context.playlistId;
             }
 
             /**
