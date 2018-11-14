@@ -11,31 +11,28 @@ catch(err) {
  */
 class PlaylistService {
 
-    static get PLAY()  { return 'play-playlist'; }
+    static get PLAY()  { return 'play-timeslot'; }
 
-    static get STOP()  { return 'stop-playlist'; }
+    static get STOP()  { return 'stop-timeslot'; }
 
-    static get PAUSE()  { return 'pause-playlist'; }
+    static get PAUSE()  { return 'pause-timeslot'; }
 
-    static get RESUME() { return 'resume-playlist'; }
+    static get RESUME() { return 'resume-timeslot'; }
 
     /**
      *
-     * @param {TimeslotSenderService} timeslotSender
+     * @param sender
      * @param {Storage} playlistStorage
      * @param {Timer} timer
      */
-    constructor(timeslotSender, playlistStorage, timer) {
+    constructor(sender, playlistStorage, timer) {
+
+        this.sender = sender ? sender : null;
 
         /**
          * @type {Timer}
          */
         this.timer = timer;
-        /**
-         *
-         * @type {TimeslotSenderService}
-         */
-        this.timeslotSender = timeslotSender ? timeslotSender : null;
 
         /**
          * @type {Storage}
@@ -163,7 +160,13 @@ class PlaylistService {
         playlist.status = Playlist.RUNNING;
 
         let timeslot = playlist.first();
-        this.timeslotSender.play(timeslot, {playlistId: playlist.id});
+        this.sender.send(
+            PlaylistService.PLAY,
+            {
+                timeslot : timeslot,
+                context : {playlistId: playlist.id}
+            }
+        );
         this.eventManager.fire(PlaylistService.PLAY, playlist);
         this.eventManager.on(
             `timeline-${this.timer.getTotalTimeValues().secondTenths + parseInt(timeslot.duration) * 10}`,
@@ -180,7 +183,13 @@ class PlaylistService {
         this._executeBids(playlist, 'stop');
         playlist.status = Playlist.IDLE;
         let timeslot = playlist.current();
-        this.timeslotSender.stop(timeslot, {playlistId: playlist.id});
+        this.sender.send(
+            PlaylistService.STOP,
+            {
+                timeslot : timeslot,
+                context : {playlistId: playlist.id}
+            }
+        );
         this.eventManager.fire(PlaylistService.STOP, playlist);
     }
 
@@ -199,7 +208,13 @@ class PlaylistService {
         this._executeBids(playlist, 'resume');
 
         let timeslot = playlist.current();
-        this.timeslotSender.resume(timeslot,  {playlistId: playlist.id});
+        this.sender.send(
+            PlaylistService.RESUME,
+            {
+                timeslot : timeslot,
+                context : {playlistId: playlist.id}
+            }
+        );
         this.eventManager.fire(PlaylistService.RESUME, playlist);
 
         this.eventManager.on(
@@ -217,7 +232,13 @@ class PlaylistService {
         this.removeRunningPlaylist(playlist);
         this._executeBids(playlist, 'pause');
         let timeslot = playlist.current();
-        this.timeslotSender.pause(timeslot,  {playlistId: playlist.id});
+        this.sender.send(
+            PlaylistService.PAUSE,
+            {
+                timeslot : timeslot,
+                context : {playlistId: playlist.id}
+            }
+        );
         this.eventManager.fire(PlaylistService.PAUSE, playlist);
     }
 
@@ -247,7 +268,13 @@ class PlaylistService {
             case runningPlaylist.hasNext():
                 let nextTimeslot = runningPlaylist.next();
                 console.log('PLAYLIST NEXT', this.playlist.name, nextTimeslot);
-                this.playlistService.timeslotSender.play(nextTimeslot,  {playlistId: this.playlist.id});
+                this.playlistService.sender.send(
+                    PlaylistService.PLAY,
+                    {
+                        timeslot : timeslot,
+                        context : {playlistId: this.playlist.id}
+                    }
+                );
                 this.playlistService.eventManager.on(
                     `timeline-${this.playlistService.timer.getTotalTimeValues().secondTenths + parseInt(nextTimeslot.duration) * 10}`,
                     this.playlistService.processPlaylist.bind({playlistService : this.playlistService, playlist: this.playlist})

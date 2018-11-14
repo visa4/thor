@@ -32,6 +32,7 @@ class PlaylistConfig extends PluginConfig {
         if (service.length === 0) {
             this._loadHydrator();
             this._loadStorage();
+            this._loadPlaylistSender();
             this._loadPlaylistService();
         } else {
             for (let cont = 0; service.length > cont; cont++) {
@@ -43,6 +44,7 @@ class PlaylistConfig extends PluginConfig {
                         this._loadStorage();
                         break;
                     case service[cont] === 'PlaylistService':
+                        this._loadPlaylistSender();
                         this._loadPlaylistService();
                         break;
                 }
@@ -139,13 +141,21 @@ class PlaylistConfig extends PluginConfig {
     /**
      * @private
      */
+    _loadPlaylistSender() {
+        this.serviceManager.get('SenderPluginManager')
+            .set('playlistSender', require('electron').ipcRenderer);
+    }
+
+    /**
+     * @private
+     */
     _loadPlaylistService() {
         this.serviceManager.get('StoragePluginManager').eventManager.on(
             ServiceManager.LOAD_SERVICE,
             function (evt) {
                 if (evt.data.name === PlaylistConfig.NAME_SERVICE) {
                     let playlistService =  new PlaylistService(
-                        serviceManager.get('TimeslotSenderService'),
+                        serviceManager.get('SenderPluginManager').get('playlistSender'),
                         serviceManager.get('StoragePluginManager').get(PlaylistConfig.NAME_SERVICE),
                         serviceManager.get('Timer')
                     );

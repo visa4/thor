@@ -163,7 +163,6 @@ class TimeslotService {
         this.timeslotSender.play(timeslot);
         this.eventManager.fire(TimeslotService.PLAY, timeslot);
         console.log('RES', `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime)  * 10}`);
-        console.log(timeslot.rotation);
         if (timeslot.rotation === Timeslot.ROTATION_INFINITY) {
             return;
         }

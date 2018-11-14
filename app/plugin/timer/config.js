@@ -172,11 +172,11 @@ class TimerConfig extends PluginConfig {
      * @private
      */
     _loadTimerService() {
-        let timerService = new TimerService(
+        this.serviceManager.set('TimerService', new TimerService(
             this.serviceManager.get('SenderPluginManager').get('timerSender'),
             this.serviceManager.get('HydratorPluginManager').get('timerHydrator')
+            )
         );
-        this.serviceManager.set('TimerService', timerService);
     }
 }
 
