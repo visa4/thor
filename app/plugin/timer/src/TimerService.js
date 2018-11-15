@@ -17,15 +17,15 @@ class TimerService {
     static get RESUME() { return 'resume-timer'; }
 
     /**
-     * @param {Communicator} communicator
+     * @param {ipcRenderer} sender
      * @param hydrator
      */
-    constructor(communicator, hydrator) {
+    constructor(sender, hydrator) {
 
         /**
-         * @type {Communicator}
+         * @type {ipcRenderer}
          */
-        this.communicator = communicator;
+        this.sender = sender;
 
         /**
          * @type {AbstractHydrator}
@@ -86,7 +86,7 @@ class TimerService {
 
       //  this.activeTimer[timer.id].removeEventListener('secondTenthsUpdated', this._progress.bind(this));
         this.activeTimer[timer.id].stop();
-        this.communicator.send(
+        this.sender.send(
             'proxy',
             {nameMessage : 'timer-stop', data : evt.data}
         );
@@ -119,11 +119,10 @@ class TimerService {
      * @param evt
      */
     _progress(evt) {
-  //      console.log('SERVICE TIMER PROGRESS', evt.data);
         this.eventManager.fire('progress', evt.data);
 
         evt.data.progress = evt.data.timer.getTimeValues();
-        this.communicator.send(
+        this.sender.send(
             'proxy',
             {nameMessage : 'timer-progress', data : evt.data}
         );

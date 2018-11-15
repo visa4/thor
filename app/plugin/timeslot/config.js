@@ -32,7 +32,7 @@ class TimeslotConfig extends PluginConfig {
         if (service.length === 0) {
             this._loadHydrator();
             this._loadStorage();
-            this._loadTimeslotServerService();
+            this._loadTimeslotSender();
             this._loadTimeslotService();
             this._loadDataServiceInjectorService();
         } else {
@@ -44,10 +44,8 @@ class TimeslotConfig extends PluginConfig {
                     case service[cont] === 'Storage':
                         this._loadStorage();
                         break;
-                    case service[cont] === 'TimeslotSenderService':
-                        this._loadTimeslotServerService();
-                        break;
                     case service[cont] === 'TimeslotService':
+                        this._loadTimeslotSender();
                         this._loadTimeslotService();
                         break;
                     case service[cont] === 'TimeslotDataInjectorService':
@@ -113,9 +111,9 @@ class TimeslotConfig extends PluginConfig {
     /**
      * @private
      */
-    _loadTimeslotServerService() {
-        let timeslotSenderService = new TimeslotSenderService();
-        this.serviceManager.set('TimeslotSenderService', timeslotSenderService);
+    _loadTimeslotSender() {
+        this.serviceManager.get('SenderPluginManager')
+            .set('timeslotSender', require('electron').ipcRenderer);
     }
 
     /**
@@ -129,7 +127,7 @@ class TimeslotConfig extends PluginConfig {
                 if (evt.data.name ===  TimeslotConfig.NAME_SERVICE) {
 
                     let timeslotService = new TimeslotService(
-                        this.serviceManager.get('TimeslotSenderService'),
+                        this.serviceManager.get('SenderPluginManager').get('timeslotSender'),
                         this.serviceManager.get('StoragePluginManager').get(TimeslotConfig.NAME_SERVICE),
                         this.serviceManager.get('Timer')
                     );

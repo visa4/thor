@@ -98,7 +98,7 @@
                 }
             }
 
-            config(timeslot, context) {
+            config(timeslot, context = {}) {
                 this.timeslot = timeslot;
                 this.timeslotId = timeslot.id;
                 this.playlistId = context.playlistId;
@@ -386,6 +386,9 @@
                 // TODO memory leak controll for all resource
             }
 
+            /**
+             *
+             */
             pause() {
                 let tags = this.shadowRoot.querySelectorAll('video, audio');
                 for (let cont = 0; tags.length > cont; cont++) {
@@ -393,6 +396,9 @@
                 }
             }
 
+            /**
+             * @param currentTime
+             */
             resume(currentTime) {
                 let tags = this.shadowRoot.querySelectorAll('video, audio');
                 for (let cont = 0; tags.length > cont; cont++) {

@@ -1,7 +1,7 @@
 
 class TimerDataInjector extends AbstractInjector {
 
-    constructor(timerStorage) {
+    constructor(timerStorage, timerService) {
         super();
 
         /**
@@ -10,9 +10,9 @@ class TimerDataInjector extends AbstractInjector {
         this.storage = timerStorage;
 
         /**
-         * @type null
+         * @type {TimerService}
          */
-        this.service = null;
+        this.timerService = timerService;
     }
 
     /**
@@ -36,6 +36,10 @@ class TimerDataInjector extends AbstractInjector {
      */
     getTimeslotData(data) {
         return new Promise((resolve, reject) => {
+
+            if (this.timerService && this.timerService.hasActiveTimer(data.id)) {
+                resolve(this.timerService.getActiveTimer(data.id));
+            }
 
             this.storage.get(data.id).then(function(data) {
 

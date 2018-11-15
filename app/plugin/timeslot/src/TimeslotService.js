@@ -21,27 +21,26 @@ class TimeslotService {
 
     /**
      *
-     * @param {TimeslotSenderService} timeslotSender
+     * @param {sender} sender
      * @param {Storage} timeslotStorage
      * @param {Timer} timer
      */
-    constructor(timeslotSender, timeslotStorage, timer) {
-
-        /**
-         * @type {Timer}
-         */
-        this.timer = timer;
+    constructor(sender, timeslotStorage, timer) {
 
         /**
          *
-         * @type {TimeslotSenderService}
          */
-        this.timeslotSender = timeslotSender ? timeslotSender : null;
+        this.sender = sender ? sender : null;
 
         /**
          * @type {Storage}
          */
         this.timeslotStorage = timeslotStorage ? timeslotStorage : null;
+
+        /**
+         * @type {Timer}
+         */
+        this.timer = timer;
 
         /**
          * Event manager
@@ -160,7 +159,10 @@ class TimeslotService {
 
         timeslot.options.typeService = 'timeslot';
         this._executeBids(timeslot, 'play');
-        this.timeslotSender.play(timeslot);
+        this.sender.send(
+            TimeslotService.PLAY,
+            {timeslot : timeslot}
+        );
         this.eventManager.fire(TimeslotService.PLAY, timeslot);
         console.log('RES', `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime)  * 10}`);
         if (timeslot.rotation === Timeslot.ROTATION_INFINITY) {
@@ -181,7 +183,10 @@ class TimeslotService {
         timeslot.options.typeService = 'timeslot';
 
         this._executeBids(timeslot, 'stop');
-        this.timeslotSender.stop(timeslot);
+        this.sender.send(
+            TimeslotService.STOP,
+            {timeslot : timeslot}
+        );
         this.eventManager.fire(TimeslotService.STOP, timeslot);
     }
 
@@ -192,7 +197,10 @@ class TimeslotService {
 
         timeslot.options.typeService = 'timeslot';
         this._executeBids(timeslot, 'pause');
-        this.timeslotSender.pause(timeslot);
+        this.sender.send(
+            TimeslotService.STOP,
+            {timeslot : timeslot}
+        );
         this.eventManager.fire(TimeslotService.PAUSE, timeslot);
     }
 
@@ -208,7 +216,10 @@ class TimeslotService {
 
         timeslot.options.typeService = 'timeslot';
         this._executeBids(timeslot, 'resume');
-        this.timeslotSender.resume(timeslot);
+        this.sender.send(
+            TimeslotService.RESUME,
+            {timeslot : timeslot}
+        );
         this.eventManager.fire(TimeslotService.RESUME, timeslot);
         console.log('RES', `timeline-${this.timer.getTotalTimeValues().secondTenths + (parseInt(timeslot.duration) - timeslot.currentTime)  * 10}`);
         this.eventManager.on(

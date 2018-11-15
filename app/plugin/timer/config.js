@@ -150,7 +150,8 @@ class TimerConfig extends PluginConfig {
 
                             serviceManager.get('TimeslotDataInjectorService')
                                 .set('TimerDataInjector',new TimerDataInjector(
-                                    storage
+                                    storage,
+                                    serviceManager.get('TimerService')
                                 ));
 
                         }.bind(this)

@@ -226,7 +226,7 @@
              * @params context
              * @private
              */
-            getTimeslotElement(timeslot, context) {
+            getTimeslotElement(timeslot, context = {}) {
                 let query = `player-timeslot[timeslot-id="${timeslot.id}"]`;
                 if (context.playlistId) {
                     query = query.concat(`[playlist-id="${context.playlistId}"]`);
@@ -235,21 +235,6 @@
                 }
 
                 return this.shadowRoot.querySelector(query);
-            }
-
-            /**
-             * @param {Timeslot} timeslot
-             */
-            startTimeslot(timeslot, context) {
-                let playerTimeslot = document.createElement('player-timeslot');
-
-                playerTimeslot.height = this.height;
-                playerTimeslot.width  = this.width;
-                playerTimeslot.filters = timeslot.filters;
-                playerTimeslot.config(timeslot, context);
-
-                this.clearLayer(timeslot.context);
-                this.appendTimeslot(timeslot.context, playerTimeslot);
             }
 
             /**
@@ -266,6 +251,20 @@
                 this.startTimeslot(this._hydrateTimeslot(msg.timeslot), msg.context);
             }
 
+            /**
+             * @param {Timeslot} timeslot
+             */
+            startTimeslot(timeslot, context) {
+                let playerTimeslot = document.createElement('player-timeslot');
+
+                playerTimeslot.height = this.height;
+                playerTimeslot.width  = this.width;
+                playerTimeslot.filters = timeslot.filters;
+                playerTimeslot.config(timeslot, context);
+
+                this.clearLayer(timeslot.context);
+                this.appendTimeslot(timeslot.context, playerTimeslot);
+            }
             /**
              * TODO add public interface
              *
@@ -327,14 +326,15 @@
                         element.resume(msg.timeslot.currentTime);
                         break;
                     default:
-                        let timeslot = document.createElement('player-timeslot');
-                        timeslot.height = this.height;
-                        timeslot.width  = this.width;
-                        timeslot.config(msg.timeslot);
-                        timeslot.startAt = msg.timeslot.currentTime;
-                        timeslot.filters = msg.timeslot.filters;
-                        this.clearLayer(msg.timeslot.context);
-                        this.appendTimeslot(msg.timeslot.context, timeslot);
+                        let timeslotWc = document.createElement('player-timeslot');
+                        let timeslot = this._hydrateTimeslot(msg.timeslot);
+                        timeslotWc.height = this.height;
+                        timeslotWc.width  = this.width;
+                        timeslotWc.config(timeslot);
+                        timeslotWc.startAt = timeslot.currentTime;
+                        timeslotWc.filters = timeslot.filters;
+                        this.clearLayer(timeslot.context);
+                        this.appendTimeslot(timeslot.context, timeslotWc);
                         break;
                 }
             }
