@@ -3,7 +3,7 @@
 <link rel="import" href="scoreboard-player.html">
 <link rel="import" href="scoreboard-match-result.html">
 <link rel="import" href="scoreboard-replacement.html">
-<link rel="import" href="card/scoreboard-card.html">
+<link rel="import" href="card/scoreboard-cards.html">
 <link rel="import" href="goal/scoreboard-goal.html">
 <link rel="import" href="../iconset/iconset.html">
 
@@ -67,7 +67,7 @@
                     </template>
                 </div>
                 <div class="flex-basis-70 padding-left-6">
-                    <soccer-scoreboar-match-result-wc team="{{match.homeTeam}}" result="{{homeResult}}" left></soccer-scoreboar-match-result-wc>
+                    <soccer-scoreboar-match-result-wc team="{{match.homeTeam}}" result="{{homeResult}}" home left></soccer-scoreboar-match-result-wc>
                     <div class="teamRose">Titolari</div>
                     <div>
                         <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
@@ -81,9 +81,7 @@
                     <div class="flex flex-horizontal">
                         <div class="flex-basis-50 teamRose">
                             <div class="teamRose">Cartellini</div>
-                            <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hasCard" home>
-                                <soccer-scoreboard-card-wc player="{{player}}" on-wrap-remove="_changeCard" on-wrap-update="_changeCard" home></soccer-scoreboard-card-wc>
-                            </template>
+                            <soccer-scoreboard-cards-wc cards="{{match.homeTeam.cards}}" home></soccer-scoreboard-cards-wc>
                         </div>
                         <div class="flex-basis-50 teamRose padding-left-6">
                             <div class="teamRose">Sostituzioni</div>
@@ -114,9 +112,7 @@
                         </div>
                         <div class="flex-basis-50 teamRose padding-left-6">
                             <div class="teamRose">Cartellini</div>
-                            <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_hasCard" guest>
-                                <soccer-scoreboard-card-wc player="{{player}}" on-wrap-remove="_changeCard" on-wrap-update="_changeCard" guest left></soccer-scoreboard-card-wc>
-                            </template>
+                            <soccer-scoreboard-cards-wc cards="{{match.guestTeam.cards}}" guest left></soccer-scoreboard-cards-wc>
                         </div>
                     </div>
                 </div>
@@ -236,17 +232,6 @@
             }
 
             /**
-             * TODO
-             * @param {PlayerSoccer} item1
-             * @param {PlayerSoccer} item2
-
-             _sortCard(item1, item2) {
-
-            }
-
-             */
-
-            /**
              * @param {PlayerSoccer} player
              * @return boolean
              * @private
@@ -300,9 +285,9 @@
              * @private
              */
             _changeCard(evt) {
-                let team = this._getTeamAttributeByElement(evt.target);
+            //    let team = this._getTeamAttributeByElement(evt.target);
                 this._updateData(team);
-
+/*
                 // TODO porcheria da capire meglio e sistemare
                 if (evt.type === 'wrap-add-card') {
                     let elems = this.shadowRoot.querySelectorAll('soccer-scoreboard-card-wc');
@@ -321,6 +306,7 @@
                         }
                     }
                 }
+                */
             }
 
             /**
@@ -357,13 +343,7 @@
             _updateData(team) {
 
                 this._renderData(team);
-                serviceManager.get('StoragePluginManager')
-                    .get(SoccerConfig.NAME_SERVICE)
-                    .update(this.match)
-                    .then((data)=> {
-                        //    console.log('update');
-                    })
-                    .catch((error) => {console.error(error)});
+                serviceManager.get('SoccerService').updateCurrentMatch();
             }
 
             _renderData(type) {

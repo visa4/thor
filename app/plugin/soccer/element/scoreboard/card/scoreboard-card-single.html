@@ -188,17 +188,6 @@
                 this.$.cardForm.addEventListener('iron-form-presubmit', this.submitCard.bind(this));
             }
 
-            static get observers() {
-                return [
-                    '_changeTime(card.time)'
-                ]
-            }
-
-            _changeTime(time) {
-                console.log('DIO CANE');
-            }
-
-
             /**
              * @param evt
              */
@@ -212,7 +201,7 @@
             submitCard(evt) {
                 evt.preventDefault();
 
-                this.card.time = this.$.time.value;
+                this.card.time = parseInt(this.$.time.value);
                 this.notifyPath('card.time');
                 this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player : this.player, card : this.card}}));
                 this.$.cardForm.reset();
@@ -274,9 +263,12 @@
                 }
             }
 
+            /**
+             * @param {CustomEvent} evt
+             * @private
+             */
             _remove(evt)  {
-                let card = this.player.removeCard(evt.target.card);
-                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: {player : this.player, card : card}}));
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: {player : this.player, card : evt.target.card}}));
             }
         }
 

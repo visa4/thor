@@ -61,11 +61,6 @@ class PlayerSoccer extends Player {
         this.goals = [];
 
         /**
-         * @type {Array}
-         */
-        this.cards = [];
-
-        /**
          * @type {String}
          */
         this.status = PlayerSoccer.STATUS_ROSTRUM;
@@ -101,78 +96,6 @@ class PlayerSoccer extends Player {
             toRemove = this.goals.splice(index, 1)[0];
         }
         return toRemove;
-    }
-
-    /**
-     * @param {Card} card
-     * @return {PlayerSoccer}
-     */
-    addCard(card) {
-
-        if (this.isExpelled()) {
-            return;
-        }
-
-        this.cards.push(card);
-        return this;
-    }
-
-    /**
-     * @param card
-     * @return {Card}|null
-     */
-    removeCard(card) {
-        let toRemove = null;
-
-        let index = this.cards.findIndex((iCard) => {
-            return card.type === iCard.type && card.time === iCard.time;
-        });
-
-        if (index > -1) {
-            toRemove = this.cards.splice(index, 1)[0];
-        }
-        return toRemove;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    hasNoCard() {
-        return this.cards.length === 0;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    isWarning() {
-
-        let yellowCount = 0;
-        for (let cont = 0; this.cards.length > cont; cont++) {
-            if (this.cards[cont].type === Card.TYPE_YELLOW) {
-                yellowCount++;
-            }
-        }
-        return yellowCount === 1;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    isExpelled() {
-
-
-        let yellowCount = 0;
-        for (let cont = 0; this.cards.length > cont; cont++) {
-            if (this.cards[cont].type === Card.TYPE_YELLOW) {
-                yellowCount++;
-            }
-        }
-
-        let red = !!this.cards.find((elem) => {
-            return elem.type === Card.TYPE_RED;
-        });
-
-        return red || yellowCount >= 2;
     }
 }
 

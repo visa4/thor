@@ -5,6 +5,10 @@ class SoccerService {
 
     static get UPDATE_CURRENT_MATCH() { return 'update-current-match' };
 
+    static get HOME_TEAM() { return 'home' };
+
+    static get GUEST_TEAM() { return 'guest' };
+
     constructor(storage) {
 
         /**
@@ -61,6 +65,95 @@ class SoccerService {
      */
     getCurrentMatch() {
         return this.match;
+    }
+
+    /**
+     *
+     */
+    updateCurrentMatch() {
+
+        this.storage.update(this.match).then((data) => {
+
+            this.eventManager.fire('update-match', data);
+            console.log('SoccerService UPDATE', data);
+        });
+    }
+
+    /**
+     * @param teamName
+     * @param card
+     */
+    addCard(teamName, card) {
+
+        let result = this._getTeamFromString(teamName).addCard(card);
+        if (result) {
+            console.log('SoccerService ADD CARD', teamName, card);
+            this.eventManager.fire(`add-card-${teamName}`, {card : result});
+            this.updateCurrentMatch();
+        }
+    }
+
+    /**
+     * @param teamName
+     * @param card
+     */
+    removeCard(teamName, card) {
+
+        let result = this._getTeamFromString(teamName).removeCard(card);
+        if (result) {
+            console.log('SoccerService REMOVE CARD', teamName, card);
+            this.eventManager.fire(`remove-card-${teamName}`, {card : result});
+            this.updateCurrentMatch();
+        }
+    }
+
+    /**
+     * @param teamName
+     * @param card
+     */
+    updateCards(teamName) {
+        this._getTeamFromString(teamName).sortCardsPlayer({time : true});
+        console.log('SoccerService UPDATE CARDS', teamName, this._getTeamFromString(teamName).cards);
+        this.eventManager.fire(`update-cards-${teamName}`, {cards : this._getTeamFromString(teamName).cards});
+        this.updateCurrentMatch();
+    }
+
+    /**
+     * @param {string} teamName
+     * @param {string} id
+     */
+    getPlayer(teamName, id) {
+        return this._getTeamFromString(teamName).getPlayer(id);
+    }
+
+    /**
+     * @param teamName
+     * @return {TeamSoccer}
+     */
+    getTeam(teamName) {
+        return this._getTeamFromString(teamName);
+    }
+
+    /**
+     * @param teamName
+     * @return {TeamSoccer}
+     * @private
+     */
+    _getTeamFromString(teamName) {
+
+        let team = {};
+        switch (teamName) {
+            case SoccerService.GUEST_TEAM:
+                team = this.match.getGuestTeam();
+                break;
+            case SoccerService.HOME_TEAM:
+                team = this.match.getHomeTeam();
+                break;
+            default:
+                throw 'Wrong team name';
+        }
+
+        return team;
     }
 }
 

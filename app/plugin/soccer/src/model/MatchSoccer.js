@@ -72,6 +72,20 @@ class MatchSoccer extends Match {
         }
         return result;
     }
+
+    /**
+     * @return {TeamSoccer}
+     */
+    getHomeTeam() {
+        return this.homeTeam;
+    }
+
+    /**
+     * @return {TeamSoccer}
+     */
+    getGuestTeam() {
+        return this.guestTeam;
+    }
 }
 
 module.exports = MatchSoccer;

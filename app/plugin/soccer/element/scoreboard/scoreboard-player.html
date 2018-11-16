@@ -179,7 +179,7 @@
                     </template>
                     <template is="dom-if" if="{{_canCard()}}">
                         <paper-icon-button id="yellow" icon="soccer:yellow-card" title="Giallo" on-tap="tapDialog"></paper-icon-button>
-                        <paper-icon-button id="double-yellow" icon="soccer:double-yellow-card"  title="Doppio giallo" on-tap="tapDialog"></paper-icon-button>
+                        <paper-icon-button id="double-yellow" icon="soccer:double-yellow-card"  title="Doppio giallo" on-tap="tapDialog" class="hidden"></paper-icon-button>
                         <paper-icon-button id="red" icon="soccer:red-card" title="Rosso" on-tap="tapDialog"></paper-icon-button>
                     </template>
                     <paper-icon-button id="status" icon="soccer:rostrum" on-tap="changeStatus"></paper-icon-button>
@@ -316,7 +316,7 @@
             static get observers() {
                 return [
                     '_changeStatus(player.status)',
-                    '_changeCards(player.cards.*)'
+           //         '_changeCards(player.cards.*)'
                 ]
             }
 
@@ -325,8 +325,22 @@
                 this.$.cardForm.addEventListener('iron-form-presubmit', this.submitCard.bind(this));
                 this.$.goalForm.addEventListener('iron-form-presubmit', this.submitGoal.bind(this));
                 this.$.replaceForm.addEventListener('iron-form-presubmit', this.submitReplace.bind(this));
-            }
 
+                serviceManager.get('SoccerService')
+                    .eventManager
+                    .on(`add-card-${this._getTeamName()}`, this._renderCard.bind(this));
+
+                serviceManager.get('SoccerService')
+                    .eventManager
+                    .on(`remove-card-${this._getTeamName()}`, this._renderCard.bind(this));
+
+                setTimeout(
+                    () => {
+                        this._changeVisibilityCard();
+                        },
+                    200
+                );
+            }
 
             /**
              * @param evt
@@ -380,6 +394,16 @@
             }
 
             /**
+             * @parmas evt
+             * @private
+             */
+            _renderCard(evt) {
+                if (evt.data.card.playerId === this.player.id) {
+                    this._changeVisibilityCard();
+                }
+            }
+
+            /**
              *
              */
             _changeVisibilityCard() {
@@ -389,24 +413,25 @@
                     return;
                 }
 
+                let team = serviceManager.get('SoccerService').getTeam(this._getTeamName());
                 for (let cont = 0; elements.length > cont; cont++) {
 
                     switch (true) {
                         case elements[cont].id === 'yellow':
                             switch (true) {
-                                case this.player.isExpelled() === true:
+                                case team.isExpelled(this.player) === true:
                                     elements[cont].disabled = true;
-                                    if (this.player.isWarning() === true) {
+                                    if (team.isWarning(this.player) === true) {
                                         elements[cont].classList.add('hidden');
                                     } else {
                                         elements[cont].classList.remove('hidden');
                                     }
                                     break;
-                                case this.player.isWarning() === true:
+                                case team.isWarning(this.player) === true:
                                     elements[cont].classList.add('hidden');
                                     elements[cont].disabled = true;
                                     break;
-                                case this.player.hasNoCard() === true:
+                                case team.hasNoCard(this.player) === true:
                                     elements[cont].classList.remove('hidden');
                                     elements[cont].disabled = false;
                                     break;
@@ -414,19 +439,19 @@
                             break;
                         case elements[cont].id === 'double-yellow':
                             switch (true) {
-                                case this.player.isExpelled() === true:
+                                case team.isExpelled(this.player) === true:
                                     elements[cont].disabled = true;
-                                    if (this.player.isWarning() === true) {
+                                    if (team.isWarning(this.player) === true) {
                                         elements[cont].classList.remove('hidden');
                                     } else {
                                         elements[cont].classList.add('hidden');
                                     }
                                     break;
-                                case this.player.isWarning() === true:
+                                case team.isWarning(this.player) === true:
                                     elements[cont].classList.remove('hidden');
                                     elements[cont].disabled = false;
                                     break;
-                                case this.player.hasNoCard() === true:
+                                case team.hasNoCard(this.player) === true:
                                     elements[cont].classList.add('hidden');
                                     elements[cont].disabled = true;
                                     break;
@@ -434,14 +459,14 @@
                             break;
                         case elements[cont].id === 'red':
                             switch (true) {
-                                case this.player.isExpelled() === true:
+                                case team.isExpelled(this.player) === true:
                                     elements[cont].disabled = true;
                                     break;
-                                case this.player.isWarning() === true:
+                                case team.isWarning(this.player) === true:
                                     elements[cont].classList.remove('hidden');
                                     elements[cont].disabled = false;
                                     break;
-                                case this.player.hasNoCard() === true:
+                                case team.hasNoCard(this.player) === true:
                                     elements[cont].classList.remove('hidden');
                                     elements[cont].disabled = false;
                                     break;
@@ -566,12 +591,15 @@
              */
             submitCard(evt) {
                 evt.preventDefault();
-                let type = this.$.cardDialog.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED;
-                let card = new Card(type, this.$.time.value);
-                this.player.addCard(card);
 
-                this.dispatchEvent(new CustomEvent('wrap-add-card', {detail: {player : this.player, card : card}}));
-                this.notifyPath('player.cards');
+                serviceManager.get('SoccerService').addCard(
+                    this._getTeamName(),
+                    new Card(
+                        this.$.cardDialog.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED,
+                        parseInt(this.$.time.value),
+                        this.player.id
+                    )
+                );
 
                 this.$.cardForm.reset();
                 this.$.cardDialog.close();
@@ -629,6 +657,27 @@
                 this.$.replaceForm.submit();
             }
 
+            /**
+             * @return {string}
+             * @private
+             */
+            _getTeamName() {
+
+                let label = '';
+                switch (true) {
+                    case this.getAttribute('guest') === "":
+                        label = SoccerService.GUEST_TEAM;
+                        break;
+                    case this.getAttribute('home') === "":
+                        label = SoccerService.HOME_TEAM;
+                        break;
+                    default:
+                        console.error('No attribute for team name found');
+
+                }
+
+                return label;
+            }
         }
 
         window.customElements.define(ElementSoccerScoreboardPlayer.is, ElementSoccerScoreboardPlayer);

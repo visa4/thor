@@ -18,7 +18,15 @@ class TeamSoccer extends Team {
          * @type {Array}
          */
         this.replacemens = [];
+
+        /**
+         *
+         * @type {Array}
+         */
+        this.cards = [];
     }
+
+
 
     /**
      * @param playerId
@@ -73,7 +81,19 @@ class TeamSoccer extends Team {
     }
 
     /**
-     * @param options
+     * @param {string} id
+     * @return {PlayerSoccer}|null
+     */
+    getPlayer(id) {
+        let player =  this.players.find((player) => {
+            return player.id === id;
+        });
+
+        return player ? player : null;
+    }
+
+    /**
+     * @param {Object} options
      * @return {Array}
      */
     getPlayers(options) {
@@ -224,6 +244,119 @@ class TeamSoccer extends Team {
                 return elem1.time <= elem2.time;
             });
         }
+    }
+
+    /**
+     * @param options
+     */
+    sortCardsPlayer(options) {
+
+        if (options && options.time === true) {
+            this.cards.sort((elem1, elem2) => {
+                return elem1.time <= elem2.time;
+            });
+        }
+    }
+
+
+    /**
+     * @param {Card} card
+     * @return {Card}|null
+     */
+    addCard(card) {
+
+        if (this.isExpelled({id : card.playerId}) || !this._hasPlayer(card.playerId)) {
+            return null;
+        }
+
+        this.cards.push(card);
+        this.sortCardsPlayer({time : true});
+        return card;
+    }
+
+    /**
+     * @param card
+     * @return {Card}|null
+     */
+    removeCard(card) {
+        let toRemove = null;
+
+        let index = this.cards.findIndex((iCard) => {
+            return card.type === iCard.type && card.time === iCard.time && card.playerId === iCard.playerId;
+        });
+
+        if (index > -1) {
+            toRemove = this.cards.splice(index, 1)[0];
+        }
+        return toRemove;
+    }
+
+    /**
+     * @param {PlayerSoccer} player
+     * @return {boolean}
+     */
+    isExpelled(player) {
+
+        let playerCards = this.cards.filter((card) => {
+            return card.playerId === player.id;
+        });
+
+        let yellowCount = 0;
+        for (let cont = 0; playerCards.length > cont; cont++) {
+            if (playerCards[cont].type === Card.TYPE_YELLOW) {
+                yellowCount++;
+            }
+        }
+
+        let red = !!playerCards.find((elem) => {
+            return elem.type === Card.TYPE_RED;
+        });
+
+        return red || yellowCount >= 2;
+    }
+
+    /**
+     * @param {PlayerSoccer} player
+     * @returns {boolean}
+     */
+    isWarning(player) {
+
+        let playerCards = this.cards.filter((card) => {
+            return card.playerId === player.id;
+        });
+
+        let yellowCount = 0;
+        for (let cont = 0; playerCards.length > cont; cont++) {
+            if (playerCards[cont].type === Card.TYPE_YELLOW) {
+                yellowCount++;
+            }
+        }
+        return yellowCount === 1;
+    }
+
+    /**
+     * @param {PlayerSoccer} player
+     * @returns {boolean}
+     */
+    hasNoCard(player) {
+        let playerCards = this.cards.filter((card) => {
+            return card.playerId === player.id;
+        });
+
+        return playerCards.length === 0;
+    }
+
+    /**
+     * @param playerId
+     * @return {boolean}
+     * @private
+     */
+    _hasPlayer(playerId) {
+        let index = this.players.findIndex((player) => {
+            return player.id === playerId;
+        });
+
+        return index > -1;
     }
 }
 
