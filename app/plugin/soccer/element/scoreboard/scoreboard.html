@@ -4,7 +4,6 @@
 <link rel="import" href="scoreboard-match-result.html">
 <link rel="import" href="scoreboard-replacement.html">
 <link rel="import" href="card/scoreboard-cards.html">
-<link rel="import" href="goal/scoreboard-goal.html">
 <link rel="import" href="goal/scoreboard-goals.html">
 <link rel="import" href="../iconset/iconset.html">
 
@@ -60,9 +59,6 @@
                 <div class="flex-basis-30">
                     <div class="teamRose">Goal</div>
                     <soccer-scoreboard-goals-wc goals="{{match.homeTeam.goals}}" home></soccer-scoreboard-goals-wc>
-                    <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hasGoal" home>
-                        <soccer-scoreboard-goal-wc player="{{player}}" on-wrap-remove="_changeGoal" on-wrap-update="_changeGoal" home></soccer-scoreboard-goal-wc>
-                    </template>
                     <div class="teamRose">Rosa</div>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isRostrumPlayer" home>
                         <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" home></soccer-scoreboard-player-wc>
@@ -73,7 +69,7 @@
                     <div class="teamRose">Titolari</div>
                     <div>
                         <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
-                            <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-add-goal="_changeGoal" on-wrap-replace="_addReplacePlayer" home left></soccer-scoreboard-player-wc>
+                            <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-replace="_addReplacePlayer" home left></soccer-scoreboard-player-wc>
                         </template>
                     </div>
                     <div class="teamRose">Panchina</div>
@@ -99,7 +95,7 @@
                     <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}" result="{{guestResult}}"></soccer-scoreboar-match-result-wc>
                     <div class="teamRose">Titolari</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isHolderPlayer" guest>
-                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-add-goal="_changeGoal" on-wrap-replace="_addReplacePlayer" guest></soccer-scoreboard-player-wc>
+                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-replace="_addReplacePlayer" guest></soccer-scoreboard-player-wc>
                     </template>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
@@ -120,10 +116,7 @@
                 </div>
                 <div class="flex-basis-30">
                     <div class="teamRose">Goal</div>
-                    <soccer-scoreboard-goals-wc goals="{{match.guestTeam.goals}}" guest></soccer-scoreboard-goals-wc>
-                    <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_hasGoal" guest>
-                        <soccer-scoreboard-goal-wc player="{{player}}" on-wrap-remove="_changeGoal" on-wrap-update="_changeGoal" guest left></soccer-scoreboard-goal-wc>
-                    </template>
+                    <soccer-scoreboard-goals-wc goals="{{match.guestTeam.goals}}" guest left></soccer-scoreboard-goals-wc>
                     <div class="teamRose">Rosa</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isRostrumPlayer" guest>
                         <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest left></soccer-scoreboard-player-wc>
@@ -166,8 +159,13 @@
 
                 this.match = serviceManager.get('SoccerService').getCurrentMatch();
 
-                serviceManager.get('SoccerService')
-                    .eventManager.on(SoccerService.UPDATE_CURRENT_MATCH, this._updateMatch.bind(this))
+                serviceManager.get('SoccerService').eventManager.on(SoccerService.UPDATE_CURRENT_MATCH, this._updateMatch.bind(this))
+
+                serviceManager.get('SoccerService').eventManager.on('remove-guest-home', this._changeGuestResult.bind(this));
+                serviceManager.get('SoccerService').eventManager.on('add-guest-home', this._changeGuestResult.bind(this));
+
+                serviceManager.get('SoccerService').eventManager.on('remove-goal-home', this._changeHomeResult.bind(this));
+                serviceManager.get('SoccerService').eventManager.on('add-goal-home', this._changeHomeResult.bind(this));
             }
 
             /**
@@ -195,28 +193,16 @@
              * @param evt
              * @private
              */
-            _changeGoal(evt) {
+            _changeHomeResult(evt) {
+                this.homeResult = this.match.getHomeTeam().getResult();
+            }
 
-                switch (true) {
-                    case evt.detail.goal.type === Goal.TYPE_STANDARD && this._isHomeTeamByElement(evt.target) === true:
-                    case evt.detail.goal.type === Goal.TYPE_AUTO && this._isHomeTeamByElement(evt.target) === false:
-                        this.homeResult = this.match.getHomeTeam().getResult();
-                        break;
-                    case evt.detail.goal.type === Goal.TYPE_STANDARD && this._isHomeTeamByElement(evt.target) === false:
-                    case evt.detail.goal.type === Goal.TYPE_AUTO && this._isHomeTeamByElement(evt.target) === true:
-                        this.guestResult = this.match.getGuestTeam().getResult();
-                        break;
-                }
-
-                this._updateData(this._getTeamAttributeByElement(evt.target));
-
-                // TODO porcheria da capire meglio e sistemare
-                if (evt.type === 'wrap-add-goal') {
-                    let elems = this.shadowRoot.querySelectorAll('soccer-scoreboard-goal-wc');
-                    for (let cont = 0; elems.length > cont; cont++) {
-                        elems[cont].$.repeatGoal.render();
-                    }
-                }
+            /**
+             * @param evt
+             * @private
+             */
+            _changeGuestResult(evt) {
+                this.guestResult = this.match.getGuestTeam().getResult();
             }
 
             /**

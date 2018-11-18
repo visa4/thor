@@ -193,7 +193,6 @@
                 evt.preventDefault();
 
                 this.goal.time = parseInt(this.$.time.value);
-                this.notifyPath('goal.time');
                 this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player: this.player, goal: this.goal}}));
                 this.$.goalForm.reset();
                 this.$.goal.close();
@@ -244,8 +243,7 @@
             }
 
             _remove(evt) {
-                let goal = this.player.removeGoal(evt.target.goal);
-                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: {player: this.player, goal: goal}}));
+                this.dispatchEvent(new CustomEvent('wrap-remove', {detail: {player: this.player, goal: this.goal}}));
             }
         }
 

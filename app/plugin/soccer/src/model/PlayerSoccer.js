@@ -66,37 +66,6 @@ class PlayerSoccer extends Player {
         this.status = PlayerSoccer.STATUS_ROSTRUM;
 
     }
-
-    /**
-     * @param goal
-     * @return {PlayerSoccer}
-     */
-    addGoal(goal) {
-
-        if (this.status !== PlayerSoccer.STATUS_HOLDER) {
-            return;
-        }
-
-        this.goals.push(goal);
-        return this;
-    }
-
-    /**
-     * @param goal
-     * @return {PlayerSoccer}
-     */
-    removeGoal(goal) {
-        let toRemove = null;
-
-        let index = this.goals.findIndex((iGoal) => {
-            return goal.type === iGoal.type && iGoal.time === iGoal.time;
-        });
-
-        if (index > -1) {
-            toRemove = this.goals.splice(index, 1)[0];
-        }
-        return toRemove;
-    }
 }
 
 module.exports = PlayerSoccer;
