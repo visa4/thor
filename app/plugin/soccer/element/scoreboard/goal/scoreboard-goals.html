@@ -2,19 +2,19 @@
 
 <link rel="import" href="scoreboard-goal-single.html">
 
-<dom-module id="soccer-scoreboard-goal-wc">
+<dom-module id="soccer-scoreboard-goals-wc">
     <template>
         <template id="repeatGoal" is="dom-repeat" items="[[goals]]" as="goal">
-            <soccer-scoreboar-goal-single-wc player="{{_getPlayer(goal)}}" goal="{{goal}}" on-wrap-remove="_remove" on-wrap-update="_udate" left="{{left}}"></soccer-scoreboar-goal-single-wc>
+            <soccer-scoreboar-goal-single-wc player="{{_getPlayer(goal)}}" goal="{{goal}}" on-wrap-remove="_remove" on-wrap-update="_update" left="{{left}}"></soccer-scoreboar-goal-single-wc>
         </template>
         <div>NUOVI GOAL</div>
     </template>
 
     <script>
-        class ElementSoccerScoreboardGoal extends Polymer.Element {
+        class ElementSoccerScoreboardGoals extends Polymer.Element {
 
             static get is() {
-                return 'soccer-scoreboard-goal-wc';
+                return 'soccer-scoreboard-goals-wc';
             }
 
             static get properties() {
@@ -32,12 +32,16 @@
                 };
             }
 
-            /**
-             * @param {Goal} goal
-             * @private
-             */
-            _getPlayer(goal) {
-                return serviceManager.get('SoccerService').getPlayer(this._getTeamName(), goal.playerId)
+            ready() {
+                super.ready();
+
+                return serviceManager.get('SoccerService')
+                    .eventManager
+                    .on(`add-goal-${this._getTeamName()}`, this._addGoalListener.bind(this));
+            }
+
+            _addGoalListener(evt) {
+                this.$.repeatGoal.render();
             }
 
             /**
@@ -45,19 +49,34 @@
              * @private
              */
             _remove(evt) {
-                console.log('ADDD GOAL');
-                this.$.repeatCard.render();
+                console.log('REMOVE GOAL');
+                serviceManager.get('SoccerService').removeGoal(this._getTeamName(), evt.target.goal);
+                this.$.repeatGoal.render();
             }
+
 
             /**
              * @param evt
              * @private
              */
-            _udate(evt) {
+            _update(evt) {
                 console.log('UPDATE GOAL');
-                this.$.repeatCard.render();
+                serviceManager.get('SoccerService').updateGoals(this._getTeamName(), evt.target.goal);
+                this.$.repeatGoal.render();
             }
 
+            /**
+             * @param {Goal} goal
+             * @private
+             */
+            _getPlayer(goal) {
+
+                let teamName = this._getTeamName();
+                if (Goal.TYPE_AUTO === goal.type) {
+                    teamName = teamName === 'home' ? 'guest' : 'home';
+                }
+                return serviceManager.get('SoccerService').getPlayer(teamName, goal.playerId)
+            }
 
             /**
              * @return {string}
@@ -82,7 +101,7 @@
             }
         }
 
-        window.customElements.define(ElementSoccerScoreboardGoal.is, ElementSoccerScoreboardGoal);
+        window.customElements.define(ElementSoccerScoreboardGoals.is, ElementSoccerScoreboardGoals);
 
     </script>
 </dom-module>

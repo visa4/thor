@@ -264,6 +264,17 @@ class TeamSoccer extends Team {
         }
     }
 
+    /**
+     * @param options
+     */
+    sortGoalsPlayer(options) {
+
+        if (options && options.time === true) {
+            this.goals.sort((elem1, elem2) => {
+                return elem1.time <= elem2.time;
+            });
+        }
+    }
 
     /**
      * @param {Card} card
@@ -353,37 +364,10 @@ class TeamSoccer extends Team {
     }
 
     /**
-     * @param goal
-     * @return {Goal}|null
+     * @return {Number}
      */
-    addGoal(goal) {
-
-
-        let player = this.getPlayer(goal.playerId);
-
-        if (player.status !== PlayerSoccer.STATUS_HOLDER) {
-            return null;
-        }
-
-        this.goals.push(goal);
-        return goal;
-    }
-
-    /**
-     * @param goal
-     * @return {PlayerSoccer}
-     */
-    removeGoal(goal) {
-        let toRemove = null;
-
-        let index = this.goals.findIndex((iGoal) => {
-            return goal.type === iGoal.type && iGoal.time === iGoal.time && goal.playerId === iGoal.playerId;
-        });
-
-        if (index > -1) {
-            toRemove = this.goals.splice(index, 1)[0];
-        }
-        return toRemove;
+    getResult() {
+        return this.goals.length;
     }
 
     /**

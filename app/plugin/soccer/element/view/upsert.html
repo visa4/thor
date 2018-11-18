@@ -226,8 +226,8 @@
                     return;
                 }
 
-                this.hasHomeTeam = newValue.hasHomeTeam();
-                this.hasGuestTeam = newValue.hasGuestTeam();
+                this.hasHomeTeam = newValue.hasHomeTeam() && newValue.getHomeTeam().countPlayer() > 0;
+                this.hasGuestTeam = newValue.hasGuestTeam() && newValue.getGuestTeam().countPlayer() > 0;
 
                 this.labelAction = newValue && newValue.id ? 'Update' : 'Save';
             }

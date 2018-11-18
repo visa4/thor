@@ -43,6 +43,20 @@ class Match {
     }
 
     /**
+     * @return {TeamSoccer}
+     */
+    getHomeTeam() {
+        return this.homeTeam;
+    }
+
+    /**
+     * @return {TeamSoccer}
+     */
+    getGuestTeam() {
+        return this.guestTeam;
+    }
+
+    /**
      * @returns {Match}
      */
     removeHomeTeam() {

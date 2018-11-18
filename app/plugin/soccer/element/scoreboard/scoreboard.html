@@ -5,6 +5,7 @@
 <link rel="import" href="scoreboard-replacement.html">
 <link rel="import" href="card/scoreboard-cards.html">
 <link rel="import" href="goal/scoreboard-goal.html">
+<link rel="import" href="goal/scoreboard-goals.html">
 <link rel="import" href="../iconset/iconset.html">
 
 <link rel="import" href="../../../../css/global-layout.html">
@@ -58,6 +59,7 @@
             <div class="home flex-basis-50 flex flex-horizontal padding-right-6">
                 <div class="flex-basis-30">
                     <div class="teamRose">Goal</div>
+                    <soccer-scoreboard-goals-wc goals="{{match.homeTeam.goals}}" home></soccer-scoreboard-goals-wc>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_hasGoal" home>
                         <soccer-scoreboard-goal-wc player="{{player}}" on-wrap-remove="_changeGoal" on-wrap-update="_changeGoal" home></soccer-scoreboard-goal-wc>
                     </template>
@@ -118,6 +120,7 @@
                 </div>
                 <div class="flex-basis-30">
                     <div class="teamRose">Goal</div>
+                    <soccer-scoreboard-goals-wc goals="{{match.guestTeam.goals}}" guest></soccer-scoreboard-goals-wc>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_hasGoal" guest>
                         <soccer-scoreboard-goal-wc player="{{player}}" on-wrap-remove="_changeGoal" on-wrap-update="_changeGoal" guest left></soccer-scoreboard-goal-wc>
                     </template>
@@ -175,8 +178,8 @@
                     return;
                 }
 
-                this.homeResult = this.match.getHomeResult();
-                this.guestResult = this.match.getGuestResult();
+                this.homeResult = this.match.getHomeTeam().getResult();
+                this.guestResult = this.match.getGuestTeam().getResult();
             }
 
             /**
@@ -197,11 +200,11 @@
                 switch (true) {
                     case evt.detail.goal.type === Goal.TYPE_STANDARD && this._isHomeTeamByElement(evt.target) === true:
                     case evt.detail.goal.type === Goal.TYPE_AUTO && this._isHomeTeamByElement(evt.target) === false:
-                        this.homeResult = this.match.getHomeResult();
+                        this.homeResult = this.match.getHomeTeam().getResult();
                         break;
                     case evt.detail.goal.type === Goal.TYPE_STANDARD && this._isHomeTeamByElement(evt.target) === false:
                     case evt.detail.goal.type === Goal.TYPE_AUTO && this._isHomeTeamByElement(evt.target) === true:
-                        this.guestResult = this.match.getGuestResult();
+                        this.guestResult = this.match.getGuestTeam().getResult();
                         break;
                 }
 

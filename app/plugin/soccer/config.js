@@ -225,7 +225,7 @@ class SoccerConfig extends PluginConfig {
 
         this._loadCardHydrator();
 
-        this._loadGoalHydrator()
+        this._loadGoalHydrator();
 
         let hydrator = new PropertyHydrator(
                 new TeamSoccer(),

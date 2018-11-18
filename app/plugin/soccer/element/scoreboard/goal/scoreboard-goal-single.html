@@ -176,7 +176,6 @@
 
             ready() {
                 super.ready();
-
                 this.$.goalForm.addEventListener('iron-form-presubmit', this.submitGoal.bind(this));
             }
 
@@ -193,7 +192,7 @@
             submitGoal(evt) {
                 evt.preventDefault();
 
-                this.goal.time = this.$.time.value;
+                this.goal.time = parseInt(this.$.time.value);
                 this.notifyPath('goal.time');
                 this.dispatchEvent(new CustomEvent('wrap-update', {detail: {player: this.player, goal: this.goal}}));
                 this.$.goalForm.reset();

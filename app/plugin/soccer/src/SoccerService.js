@@ -109,12 +109,56 @@ class SoccerService {
 
     /**
      * @param teamName
-     * @param card
      */
     updateCards(teamName) {
         this._getTeamFromString(teamName).sortCardsPlayer({time : true});
         console.log('SoccerService UPDATE CARDS', teamName, this._getTeamFromString(teamName).cards);
         this.eventManager.fire(`update-cards-${teamName}`, {cards : this._getTeamFromString(teamName).cards});
+        this.updateCurrentMatch();
+    }
+
+    /**
+     * @param teamName
+     * @param goal
+     * @return {PlayerSoccer}
+     */
+    addGoal(teamName, goal) {
+
+        let result = this.match.addGoal(teamName, goal);
+        if (result) {
+            if (Goal.TYPE_AUTO === goal.type) {
+                teamName = teamName === 'home' ? 'guest' : 'home';
+            }
+            console.log('SoccerService ADD GOAL', teamName, goal);
+            this.eventManager.fire(`add-goal-${teamName}`, {goal : result});
+            this.updateCurrentMatch();
+        }
+    }
+
+    /**
+     * @param teamName
+     * @param goal
+     */
+    removeGoal(teamName, goal) {
+
+        let result = this.match.removeGoal(teamName, goal);
+        if (result) {
+            if (Goal.TYPE_AUTO === goal.type) {
+                teamName = teamName === 'home' ? 'guest' : 'home';
+            }
+            console.log('SoccerService REMOVE GOAL', teamName, goal);
+            this.eventManager.fire(`remove-goal-${teamName}`, {goal : result});
+            this.updateCurrentMatch();
+        }
+    }
+
+    /**
+     * @param teamName
+     */
+    updateGoals(teamName) {
+        this._getTeamFromString(teamName).sortGoalsPlayer({time : true});
+        console.log('SoccerService UPDATE GOALS', teamName, this._getTeamFromString(teamName).goals);
+        this.eventManager.fire(`update-goals-${teamName}`, {cards : this._getTeamFromString(teamName).goals});
         this.updateCurrentMatch();
     }
 
@@ -132,18 +176,6 @@ class SoccerService {
      */
     getTeam(teamName) {
         return this._getTeamFromString(teamName);
-    }
-
-    /**
-     * @param goal
-     * @return {PlayerSoccer}
-     */
-    addGoal(teamName, goal) {
-
-        let result = this._getTeamFromString(teamName).addGoal(goal);
-        if (result) {
-            console.log('GOALLLLLLLLLLLL');
-        }
     }
 
     /**

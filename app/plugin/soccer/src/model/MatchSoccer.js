@@ -29,62 +29,45 @@ class MatchSoccer extends Match {
         this.enable = 0;
     }
 
-    getHomeResult() {
-        return this._getResult(true);
-    }
-
-    getGuestResult() {
-        return this._getResult(false);
-    }
-
     /**
-     * @param isHome
-     * @private
+     * @param teamName
+     * @param goal
+     * @return {Goal}|null
      */
-    _getResult(isHome = true) {
+    addGoal(teamName, goal) {
 
-        let goalTeam = isHome ? 'homeTeam' : 'guestTeam';
-        let autoGoal = isHome ? 'guestTeam' : 'homeTeam';
-        let result = 0;
-
-        for (let cont = 0; this[goalTeam].players.length > cont; cont++) {
-            if (this[goalTeam].players[cont].goals.length === 0) {
-                continue;
-            }
-
-            for (let cont1 = 0; this[goalTeam].players[cont].goals.length > cont1; cont1++) {
-                if (this[goalTeam].players[cont].goals[cont1].type === Goal.TYPE_STANDARD) {
-                    result++
-                }
-            }
+        let team = teamName === 'home' ? this.getHomeTeam() : this.getGuestTeam();
+        let player = team.getPlayer(goal.playerId);
+        if (player.status !== PlayerSoccer.STATUS_HOLDER) {
+            return null;
         }
 
-        for (let cont = 0; this[autoGoal].players.length > cont; cont++) {
-            if (this[autoGoal].players[cont].goals.length === 0) {
-                continue;
-            }
-
-            for (let cont1 = 0; this[autoGoal].players[cont].goals.length > cont1; cont1++) {
-                if (this[autoGoal].players[cont].goals[cont1].type === Goal.TYPE_AUTO) {
-                    result++
-                }
-            }
+        if (Goal.TYPE_AUTO === goal.type) {
+            team = teamName === 'home' ?  this.getGuestTeam() :  this.getHomeTeam();
         }
-        return result;
+
+        team.goals.push(goal);
+        team.sortGoalsPlayer({time : true});
+        return goal;
     }
 
     /**
-     * @return {TeamSoccer}
+     * @param teamName
+     * @param goal
+     * @return {Goal}
      */
-    getHomeTeam() {
-        return this.homeTeam;
-    }
+    removeGoal(teamName, goal) {
 
-    /**
-     * @return {TeamSoccer}
-     */
-    getGuestTeam() {
-        return this.guestTeam;
+        let toRemove = null;
+        let team = teamName === 'home' ? this.getHomeTeam() : this.getGuestTeam();
+        let index = team.goals.findIndex((iGoal) => {
+            return goal.type === iGoal.type && goal.time === iGoal.time && goal.playerId === iGoal.playerId;
+        });
+
+        if (index > -1) {
+            toRemove = team.goals.splice(index, 1)[0];
+        }
+        return toRemove;
     }
 }
 
