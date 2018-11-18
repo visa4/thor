@@ -69,12 +69,12 @@
                     <div class="teamRose">Titolari</div>
                     <div>
                         <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isHolderPlayer" home>
-                            <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-replace="_addReplacePlayer" home left></soccer-scoreboard-player-wc>
+                            <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-replace="_addReplacePlayer" home left></soccer-scoreboard-player-wc>
                         </template>
                     </div>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.homeTeam.players]]" as="player" filter="_isBenchPlayer" home>
-                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" home left></soccer-scoreboard-player-wc>
+                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" home left></soccer-scoreboard-player-wc>
                     </template>
                     <div class="flex flex-horizontal">
                         <div class="flex-basis-50 teamRose">
@@ -95,11 +95,11 @@
                     <soccer-scoreboar-match-result-wc team="{{match.guestTeam}}" result="{{guestResult}}"></soccer-scoreboar-match-result-wc>
                     <div class="teamRose">Titolari</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isHolderPlayer" guest>
-                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" on-wrap-replace="_addReplacePlayer" guest></soccer-scoreboard-player-wc>
+                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-replace="_addReplacePlayer" guest></soccer-scoreboard-player-wc>
                     </template>
                     <div class="teamRose">Panchina</div>
                     <template is="dom-repeat" items="[[match.guestTeam.players]]" as="player" filter="_isBenchPlayer" guest>
-                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" on-wrap-add-card="_changeCard" guest></soccer-scoreboard-player-wc>
+                        <soccer-scoreboard-player-wc player="{{player}}" on-wrap-change-status="_changeStatus" guest></soccer-scoreboard-player-wc>
                     </template>
                     <div class="flex flex-horizontal">
                         <div class="flex-basis-50 teamRose">
@@ -268,14 +268,6 @@
                 }
 
                 this._updateData(team);
-            }
-
-            /**
-             * @param evt
-             * @private
-             */
-            _changeCard(evt) {
-                this._updateData(this._getTeamAttributeByElement());
             }
 
             /**

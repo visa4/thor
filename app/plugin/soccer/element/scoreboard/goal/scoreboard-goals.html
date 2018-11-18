@@ -7,7 +7,6 @@
         <template id="repeatGoal" is="dom-repeat" items="[[goals]]" as="goal">
             <soccer-scoreboar-goal-single-wc player="{{_getPlayer(goal)}}" goal="{{goal}}" on-wrap-remove="_remove" on-wrap-update="_update" left="{{left}}"></soccer-scoreboar-goal-single-wc>
         </template>
-        <div>NUOVI GOAL</div>
     </template>
 
     <script>
