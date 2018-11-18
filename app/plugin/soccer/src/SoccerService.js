@@ -135,6 +135,18 @@ class SoccerService {
     }
 
     /**
+     * @param goal
+     * @return {PlayerSoccer}
+     */
+    addGoal(teamName, goal) {
+
+        let result = this._getTeamFromString(teamName).addGoal(goal);
+        if (result) {
+            console.log('GOALLLLLLLLLLLL');
+        }
+    }
+
+    /**
      * @param teamName
      * @return {TeamSoccer}
      * @private

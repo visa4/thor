@@ -162,7 +162,9 @@
                 super.ready();
 
                 this.match = serviceManager.get('SoccerService').getCurrentMatch();
-                serviceManager.get('SoccerService').eventManager.on(SoccerService.UPDATE_CURRENT_MATCH, this._updateMatch.bind(this))
+
+                serviceManager.get('SoccerService')
+                    .eventManager.on(SoccerService.UPDATE_CURRENT_MATCH, this._updateMatch.bind(this))
             }
 
             /**
@@ -191,7 +193,6 @@
              * @private
              */
             _changeGoal(evt) {
-
 
                 switch (true) {
                     case evt.detail.goal.type === Goal.TYPE_STANDARD && this._isHomeTeamByElement(evt.target) === true:
@@ -285,28 +286,7 @@
              * @private
              */
             _changeCard(evt) {
-            //    let team = this._getTeamAttributeByElement(evt.target);
-                this._updateData(team);
-/*
-                // TODO porcheria da capire meglio e sistemare
-                if (evt.type === 'wrap-add-card') {
-                    let elems = this.shadowRoot.querySelectorAll('soccer-scoreboard-card-wc');
-                    for (let cont = 0; elems.length > cont; cont++) {
-                        elems[cont].$.repeatCard.render();
-                    }
-                }
-
-                // TODO porcheria da capire meglio e sistemare
-                if (evt.type === 'wrap-remove') {
-                    let elems = this.shadowRoot.querySelectorAll('soccer-scoreboard-player-wc');
-                    for (let cont = 0; elems.length > cont; cont++) {
-
-                        if ( elems[cont].player.id === evt.detail.player.id) {
-                            elems[cont]._changeVisibilityCard();
-                        }
-                    }
-                }
-                */
+                this._updateData(this._getTeamAttributeByElement());
             }
 
             /**

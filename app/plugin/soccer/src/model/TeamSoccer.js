@@ -24,6 +24,12 @@ class TeamSoccer extends Team {
          * @type {Array}
          */
         this.cards = [];
+
+        /**
+         *
+         * @type {Array}
+         */
+        this.goals = [];
     }
 
 
@@ -344,6 +350,40 @@ class TeamSoccer extends Team {
         });
 
         return playerCards.length === 0;
+    }
+
+    /**
+     * @param goal
+     * @return {Goal}|null
+     */
+    addGoal(goal) {
+
+
+        let player = this.getPlayer(goal.playerId);
+
+        if (player.status !== PlayerSoccer.STATUS_HOLDER) {
+            return null;
+        }
+
+        this.goals.push(goal);
+        return goal;
+    }
+
+    /**
+     * @param goal
+     * @return {PlayerSoccer}
+     */
+    removeGoal(goal) {
+        let toRemove = null;
+
+        let index = this.goals.findIndex((iGoal) => {
+            return goal.type === iGoal.type && iGoal.time === iGoal.time && goal.playerId === iGoal.playerId;
+        });
+
+        if (index > -1) {
+            toRemove = this.goals.splice(index, 1)[0];
+        }
+        return toRemove;
     }
 
     /**

@@ -315,8 +315,7 @@
 
             static get observers() {
                 return [
-                    '_changeStatus(player.status)',
-           //         '_changeCards(player.cards.*)'
+                    '_changeStatus(player.status)'
                 ]
             }
 
@@ -381,16 +380,6 @@
                         this.$['action'].classList.add("flex-basis-30");
                         break;
                 }
-            }
-
-            /**
-             * @param {Array} cards
-             */
-            _changeCards(cards) {
-                setTimeout(
-                    () => { this._changeVisibilityCard(); },
-                    150
-                );
             }
 
             /**

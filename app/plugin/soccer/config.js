@@ -148,15 +148,10 @@ class SoccerConfig extends PluginConfig {
 
     _loadPlayerHydrator() {
 
-        this._loadCardHydrator();
-
         let hydrator = new PropertyHydrator(
             new PlayerSoccer(),
             {
-                shirtNumber: new NumberStrategy(),
-                cards: new HydratorStrategy(
-                    this.serviceManager.get('HydratorPluginManager').get('cardSoccerHydrator')
-                )
+                shirtNumber: new NumberStrategy()
             }
         );
 
@@ -228,6 +223,10 @@ class SoccerConfig extends PluginConfig {
 
         this._loadReplacementHydrator();
 
+        this._loadCardHydrator();
+
+        this._loadGoalHydrator()
+
         let hydrator = new PropertyHydrator(
                 new TeamSoccer(),
                 {
@@ -240,6 +239,9 @@ class SoccerConfig extends PluginConfig {
                     'cards' :  new HydratorStrategy(
                         this.serviceManager.get('HydratorPluginManager').get('cardSoccerHydrator')
                     ),
+                    'goals' :  new HydratorStrategy(
+                        this.serviceManager.get('HydratorPluginManager').get('goalSoccerHydrator')
+                    ),
                 }
             );
 
@@ -249,7 +251,8 @@ class SoccerConfig extends PluginConfig {
             .enableExtractProperty('players')
             .enableExtractProperty('staff')
             .enableExtractProperty('replacemens')
-            .enableExtractProperty('cards');
+            .enableExtractProperty('cards')
+            .enableExtractProperty('goals');
 
         hydrator.enableHydrateProperty('id')
             .enableHydrateProperty('name')
@@ -257,7 +260,8 @@ class SoccerConfig extends PluginConfig {
             .enableHydrateProperty('players')
             .enableHydrateProperty('staff')
             .enableHydrateProperty('replacemens')
-            .enableHydrateProperty('cards');
+            .enableHydrateProperty('cards')
+            .enableHydrateProperty('goals');
 
         this.serviceManager.get('HydratorPluginManager').set(
             'teamSoccerHydrator',
@@ -310,6 +314,29 @@ class SoccerConfig extends PluginConfig {
 
         this.serviceManager.get('HydratorPluginManager').set(
             'cardSoccerHydrator',
+            hydrator
+        );
+    }
+
+    _loadGoalHydrator() {
+
+        let hydrator = new PropertyHydrator(
+            new Goal(),
+            {
+                time: new NumberStrategy()
+            }
+        );
+
+        hydrator.enableExtractProperty('type')
+            .enableExtractProperty('time')
+            .enableExtractProperty('playerId');
+
+        hydrator.enableHydrateProperty('type')
+            .enableHydrateProperty('time')
+            .enableHydrateProperty('playerId');
+
+        this.serviceManager.get('HydratorPluginManager').set(
+            'goalSoccerHydrator',
             hydrator
         );
     }

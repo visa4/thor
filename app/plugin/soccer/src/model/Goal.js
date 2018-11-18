@@ -4,11 +4,22 @@ class Goal {
 
     static get TYPE_STANDARD() { return 'standard' };
 
-    constructor() {
+    constructor(type = null, time = null, playerId = null) {
 
-        this.type = Goal.TYPE_STANDARD;
+        /**
+         * @type {string}
+         */
+        this.type = type ? type : Goal.TYPE_STANDARD;
 
-        this.time = null;
+        /**
+         * @type {Number}
+         */
+        this.time = time;
+
+        /**
+         * @type string
+         */
+        this.playerId = playerId;
     }
 }
 
