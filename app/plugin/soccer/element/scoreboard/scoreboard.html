@@ -161,8 +161,8 @@
 
                 serviceManager.get('SoccerService').eventManager.on(SoccerService.UPDATE_CURRENT_MATCH, this._updateMatch.bind(this))
 
-                serviceManager.get('SoccerService').eventManager.on('remove-guest-home', this._changeGuestResult.bind(this));
-                serviceManager.get('SoccerService').eventManager.on('add-guest-home', this._changeGuestResult.bind(this));
+                serviceManager.get('SoccerService').eventManager.on('remove-goal-guest', this._changeGuestResult.bind(this));
+                serviceManager.get('SoccerService').eventManager.on('add-goal-guest', this._changeGuestResult.bind(this));
 
                 serviceManager.get('SoccerService').eventManager.on('remove-goal-home', this._changeHomeResult.bind(this));
                 serviceManager.get('SoccerService').eventManager.on('add-goal-home', this._changeHomeResult.bind(this));
@@ -307,6 +307,10 @@
                 serviceManager.get('SoccerService').updateCurrentMatch();
             }
 
+            /**
+             * Recompute render of the dom-repeat element
+             * @param type
+             */
             _renderData(type) {
 
                 let listDomRepeat = [];

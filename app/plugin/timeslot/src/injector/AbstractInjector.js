@@ -48,6 +48,11 @@ class AbstractInjector {
     get serviceNamespace() {
         throw 'method must be override';
     }
+
+
+    getTextProperty() {
+        return 'name';
+    }
 }
 
 module.exports = AbstractInjector;

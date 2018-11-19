@@ -137,7 +137,10 @@ class SoccerConfig extends PluginConfig {
                                 new SoccerService(storage)
                             );
 
-
+                            serviceManager.get('TimeslotDataInjectorService')
+                                .set('HomePlayerDataInjector',new HomePlayerDataInjector(
+                                    serviceManager.get('SoccerService')
+                                ));
 
                         }.bind(this)
                     );

@@ -2,18 +2,21 @@
     <template>
         <style>
 
-            .timer {
+            .player {
                 padding: 0;
                 height: 100%;
                 width: 100%;
                 color: white;
-                font-size: 30px;
-                background-color: yellow;
+                font-size: 40px;
+                background-color: #0b97c4;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
 
         </style>
-        <div class="timer">
-
+        <div class="player">
+            {{data.shirtNumber}} {{data.name}} {{data.surname}}
         </div>
     </template>
 

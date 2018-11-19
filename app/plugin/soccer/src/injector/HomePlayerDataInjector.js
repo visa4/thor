@@ -1,18 +1,13 @@
 
-class TimerDataInjector extends AbstractInjector {
+class HomePlayerDataInjector extends AbstractInjector {
 
-    constructor(timerStorage, timerService) {
+    constructor(soccerService) {
         super();
 
         /**
-         * @type {Storage}
+         * @type {SoccerService}
          */
-        this.storage = timerStorage;
-
-        /**
-         * @type {TimerService}
-         */
-        this.timerService = timerService;
+        this.soccerService = soccerService;
     }
 
     /**
@@ -27,7 +22,13 @@ class TimerDataInjector extends AbstractInjector {
      * @return Promise
      */
     getServiceData(value) {
-        return this.storage.getAll({name: value});
+        return new Promise((resolve, reject) => {
+            let players = this.soccerService.getTeam(SoccerService.HOME_TEAM).getPlayers({surname :  value});
+            if (Array.isArray(players)) {
+                resolve(players);
+            }
+            reject(players);
+        });
     }
 
     /**
@@ -36,53 +37,49 @@ class TimerDataInjector extends AbstractInjector {
      */
     getTimeslotData(data) {
         return new Promise((resolve, reject) => {
-
-            if (this.timerService && this.timerService.hasActiveTimer(data.id)) {
-                resolve(this.timerService.getActiveTimer(data.id));
+            let player = this.soccerService.getPlayer(SoccerService.HOME_TEAM, data.id);
+            if (player) {
+                resolve(player);
             }
-
-            this.storage.get(data.id).then(function(data) {
-
-                let obj = {};
-                obj[this.serviceNamespace()] = data;
-                resolve(obj);
-            }.bind(this)).catch((err) => {
-                reject(err);
-            })
+            reject(player);
         });
     }
 
     /**
-     * @param {Timer} timer
+     * @param {Player} player
      */
-    extractTimeslot(timer) {
-        return {'id' : timer.id};
+    extractTimeslot(player) {
+        return {'id' : player.id};
     }
 
     /**
      *  @return string
      */
     get serviceLabel() {
-        return 'TimerDataInjector';
+        return 'HomePlayerDataInjector';
     }
 
     /**
      *  @return string
      */
     get serviceName() {
-        return TimerDataInjector.name;
+        return HomePlayerDataInjector.name;
     }
 
     /**
      *  @return string
      */
     get serviceDescription() {
-        return 'Timer metadata';
+        return 'Home player';
     }
 
     serviceNamespace () {
-        return 'timer';
+        return 'player';
+    }
+
+    getTextProperty() {
+        return 'surname';
     }
 }
 
-module.exports = TimerDataInjector;
+module.exports = HomePlayerDataInjector;

@@ -454,7 +454,7 @@
             _timeslotChanged(evt) {
                 serviceManager.get('StoragePluginManager')
                     .get(TimeslotConfig.NAME_SERVICE)
-                    .getAll({name: evt.detail.value})
+                    .getAll({surname: evt.detail.value})
                     .then(
                         (data) => {
                             evt.detail.target.suggestions(data);

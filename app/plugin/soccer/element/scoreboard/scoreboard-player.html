@@ -191,7 +191,7 @@
                 <form method="post" style="height: 100%; margin: 0;">
                     <div class="dialog-content flex flex-vertical">
                         <div class="flex-basis-77">
-                            <paper-input id="time" label="Time" type="number" required></paper-input>
+                            <paper-input id="timeCard" label="Time" type="number" required></paper-input>
                         </div>
                         <div class="flex-basis-23 flex flex-horizontal-center">
                             <paper-button class="button" on-tap="submitCardButton">{{labelCard}}</paper-button>
@@ -585,7 +585,7 @@
                     this._getTeamName(),
                     new Card(
                         this.$.cardDialog.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED,
-                        parseInt(this.$.time.value),
+                        parseInt(this.$.timeCard.value),
                         this.player.id
                     )
                 );
@@ -607,15 +607,11 @@
             submitGoal(evt) {
                 evt.preventDefault();
 
-                let goal = new Goal();
-                goal.time = this.$.timeGoal.value;
-                goal.type = this.$.selectGoal.selectedItem.getAttribute('value');
-
                 serviceManager.get('SoccerService').addGoal(
                     this._getTeamName(),
                     new Card(
-                        this.$.cardDialog.card === 'yellow' ? Card.TYPE_YELLOW : Card.TYPE_RED,
-                        parseInt(this.$.time.value),
+                        this.$.selectGoal.selectedItem.getAttribute('value'),
+                        parseInt(this.$.timeGoal.value),
                         this.player.id
                     )
                 );

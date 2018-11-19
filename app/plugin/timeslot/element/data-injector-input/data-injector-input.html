@@ -50,7 +50,7 @@
                 <paper-autocomplete
                         id="dataInput"
                         label="Dati"
-                        text-property="name"
+                        text-property="{{textProperty}}"
                         value-property="name"
                         style="width: 100%;"
                         remote-source
@@ -92,13 +92,20 @@
                     service: {
                         type: Object,
                         notify: true,
-                        value: null
+                        value: null,
+                        observer: '_serviceChanged'
                     },
 
                     data: {
                         type: Object,
                         notify: true,
                         value: null
+                    },
+
+                    textProperty : {
+                        type: String,
+                        notify: true,
+                        value: 'name'
                     }
                 }
             }
@@ -113,6 +120,20 @@
                 this.$.serviceInput.source = this.services;
 
                 this.$.serviceInput.queryFn = this._queryFn.bind(this.$.serviceInput);
+            }
+
+            /**
+             * @param newValue
+             * @private
+             */
+            _serviceChanged(newValue) {
+
+                if (!newValue) {
+                    return;
+                }
+
+                console.log('DIO CANE');
+                this.textProperty = newValue.getTextProperty();
             }
 
             /**

@@ -106,7 +106,7 @@ class TeamSoccer extends Team {
 
         let players = super.getPlayers();
 
-        if (options && options.bench === true || options.toBench === true) {
+        if (options && (options.bench === true || options.toBench === true)) {
             players =  players.filter((player) => { return player.status === PlayerSoccer.STATUS_BENCH; });
 
             if (options.toBench === true) {
@@ -123,8 +123,12 @@ class TeamSoccer extends Team {
             }
         }
 
+        if (options && options.surname !== '') {
+            players =  players.filter((player) => { return player.surname.search(new RegExp(options.surname, 'i')) > -1; });
+        }
+
         if (options && options.name !== '') {
-            players =  players.filter((player) => { return player.surname.search(new RegExp(options.name, 'i')) > -1; });
+            players =  players.filter((player) => { return player.name.search(new RegExp(options.name, 'i')) > -1; });
         }
 
         return players;

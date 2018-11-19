@@ -61,7 +61,7 @@ class MatchSoccer extends Match {
         let toRemove = null;
         let team = teamName === 'home' ? this.getHomeTeam() : this.getGuestTeam();
         let index = team.goals.findIndex((iGoal) => {
-            return goal.type === iGoal.type && goal.time === iGoal.time && goal.playerId === iGoal.playerId;
+            return goal.type === iGoal.type && goal.playerId === iGoal.playerId;
         });
 
         if (index > -1) {
