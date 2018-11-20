@@ -57,11 +57,13 @@ let getMonitorConfigPath = () => {
  * @return {string}
  */
 let getAppConfigPath = () => {
-    return path.join(__dirname, '/config/config.json');
+    return path.join(__dirname, '/config/application.json');
 };
 
 function loadConfig () {
     config = JSON.parse(fs.readFileSync( getAppConfigPath(), {'encoding': 'UTF8'}));
+    // TODO controll the flow of data
+    delete config.modules;
 }
 
 
@@ -230,7 +232,7 @@ ipcMain.on('update-enable-monitor-configuration', (event, message) => {
 
         fs.writeFile(
             getMonitorConfigPath(),
-            JSON.stringify({'monitorConfig' : message}),
+            JSON.stringify({'monitorConfig' : message}, null, 4),
             function(err) {
                 if(err) {
                     return console.log("UpdateMonitor save error: " + err);

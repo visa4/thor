@@ -1,15 +1,10 @@
 # Dsign
 
-## Develop
+Basic player to manage content on virtual monitor.
 
-install npm dependences:
+## Installing
 
-* npm install
+install local project:
 
-install bower dependences:
+* make install
 
-* ./node_modules/bin/bower install
-
-run app:
-
-* npm start
