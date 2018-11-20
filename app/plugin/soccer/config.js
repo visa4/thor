@@ -142,6 +142,17 @@ class SoccerConfig extends PluginConfig {
                                     serviceManager.get('SoccerService')
                                 ));
 
+                            serviceManager.get('TimeslotDataInjectorService')
+                                .set('GuestPlayerDataInjector',new GuestPlayerDataInjector(
+                                    serviceManager.get('SoccerService')
+                                ));
+
+
+                            serviceManager.get('TimeslotDataInjectorService')
+                                .set('BenchPlayersDataInjector',new BenchPlayersDataInjector(
+                                    serviceManager.get('SoccerService')
+                                ));
+
                         }.bind(this)
                     );
                 }

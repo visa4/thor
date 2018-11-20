@@ -13,6 +13,8 @@
     "src/model/PlayerSoccer.js",
     "src/model/TeamSoccer.js",
     "src/SoccerService.js",
-    "src/injector/HomePlayerDataInjector.js"
+    "src/injector/HomePlayerDataInjector.js",
+    "src/injector/GuestPlayerDataInjector.js",
+    "src/injector/BenchPlayersDataInjector.js"
   ]
 }

@@ -1,5 +1,5 @@
 
-class HomePlayerDataInjector extends AbstractInjector {
+class GuestPlayerDataInjector extends AbstractInjector {
 
     constructor(soccerService) {
         super();
@@ -23,7 +23,7 @@ class HomePlayerDataInjector extends AbstractInjector {
      */
     getServiceData(value) {
         return new Promise((resolve, reject) => {
-            let players = this.soccerService.getTeam(SoccerService.HOME_TEAM).getPlayers({surname :  value});
+            let players = this.soccerService.getTeam(SoccerService.GUEST_TEAM).getPlayers({surname :  value});
             if (Array.isArray(players)) {
                 resolve(players);
             }
@@ -37,7 +37,7 @@ class HomePlayerDataInjector extends AbstractInjector {
      */
     getTimeslotData(data) {
         return new Promise((resolve, reject) => {
-            let player = this.soccerService.getPlayer(SoccerService.HOME_TEAM, data.id);
+            let player = this.soccerService.getPlayer(SoccerService.GUEST_TEAM, data.id);
             if (player) {
                 resolve(player);
             }
@@ -56,14 +56,14 @@ class HomePlayerDataInjector extends AbstractInjector {
      *  @return string
      */
     get serviceLabel() {
-        return 'Home player';
+        return 'Guest Player';
     }
 
     /**
      *  @return string
      */
     get serviceName() {
-        return HomePlayerDataInjector.name;
+        return GuestPlayerDataInjector.name;
     }
 
     /**
@@ -82,4 +82,4 @@ class HomePlayerDataInjector extends AbstractInjector {
     }
 }
 
-module.exports = HomePlayerDataInjector;
+module.exports = GuestPlayerDataInjector;

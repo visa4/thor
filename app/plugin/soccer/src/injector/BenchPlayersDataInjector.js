@@ -1,8 +1,13 @@
 
-class HomePlayerDataInjector extends AbstractInjector {
+class BenchPlayersDataInjector extends AbstractInjector {
 
     constructor(soccerService) {
         super();
+
+        this.selectData = [
+            {name: SoccerService.HOME_TEAM},
+            {name: SoccerService.GUEST_TEAM}
+        ];
 
         /**
          * @type {SoccerService}
@@ -23,11 +28,7 @@ class HomePlayerDataInjector extends AbstractInjector {
      */
     getServiceData(value) {
         return new Promise((resolve, reject) => {
-            let players = this.soccerService.getTeam(SoccerService.HOME_TEAM).getPlayers({surname :  value});
-            if (Array.isArray(players)) {
-                resolve(players);
-            }
-            reject(players);
+            resolve(this.selectData);
         });
     }
 
@@ -37,49 +38,46 @@ class HomePlayerDataInjector extends AbstractInjector {
      */
     getTimeslotData(data) {
         return new Promise((resolve, reject) => {
-            let player = this.soccerService.getPlayer(SoccerService.HOME_TEAM, data.id);
-            if (player) {
-                resolve(player);
+            let players = this.soccerService.getTeam(data.name).getPlayers({bench : true});
+            if (Array.isArray(players)) {
+                resolve(players);
             }
             reject(player);
         });
     }
 
     /**
-     * @param {Player} player
+     * @param {} data
      */
-    extractTimeslot(player) {
-        return {'id' : player.id};
+    extractTimeslot(data) {
+        return {'name' : data.name};
     }
+
 
     /**
      *  @return string
      */
     get serviceLabel() {
-        return 'Home player';
+        return 'Bench Players';
     }
 
     /**
      *  @return string
      */
     get serviceName() {
-        return HomePlayerDataInjector.name;
+        return BenchPlayersDataInjector.name;
     }
 
     /**
      *  @return string
      */
     get serviceDescription() {
-        return 'Home player';
+        return 'Bench playes';
     }
 
     serviceNamespace () {
-        return 'player';
-    }
-
-    getTextProperty() {
-        return 'surname';
+        return 'players';
     }
 }
 
-module.exports = HomePlayerDataInjector;
+module.exports = BenchPlayersDataInjector;
